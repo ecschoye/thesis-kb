@@ -1,0 +1,54 @@
+paths:
+  corpus_dir: corpus
+  pdf_dir: ~/Documents/thesis-papers
+  fetch_dir: corpus/fetched
+  text_dir: corpus/texts
+  chunk_dir: corpus/chunks
+  nugget_dir: corpus/nuggets
+  kb_dir: kb
+
+acquire:
+  zotero_export: null
+  enrich_s2: true
+  dedup_threshold: 0.85
+
+extract:
+  ocr_fallback: true
+  min_text_length: 100
+
+chunk:
+  token_size: 400
+  overlap: 50
+  tokenizer: cl100k_base
+  respect_sections: true
+
+nuggets:
+  backend: ollama
+  ollama:
+    model: qwen3.5:27b
+    base_url: http://127.0.0.1:11434/v1
+  extraction:
+    max_chunk_chars: 2000
+    max_workers: 4
+    max_retries: 3
+    max_tokens: 3000
+    temperature: 0.1
+    retry_base_delay: 2.0
+    nugget_types: [method, result, claim, limitation, comparison, background]
+
+embed:
+  backend: ollama
+  ollama:
+    model: qwen3-embedding:8b
+    base_url: http://localhost:11434/v1
+  embedding:
+    batch_size: 64
+    instruction: "Given an academic research claim about computer vision or neural networks, retrieve related findings and evidence"
+    # dimensions: 4096
+
+store:
+  chromadb:
+    collection_name: thesis_nuggets
+    distance_fn: cosine
+  sqlite:
+    db_name: nuggets.db

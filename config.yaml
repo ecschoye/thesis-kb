@@ -1,0 +1,82 @@
+paths:
+  corpus_dir: corpus
+  pdf_dir: ~/Documents/thesis-papers     # your existing PDFs (read-only)
+  fetch_dir: corpus/fetched              # downloaded papers go here
+  text_dir: corpus/texts
+  chunk_dir: corpus/chunks
+  nugget_dir: corpus/nuggets
+  quality_dir: corpus/nuggets_quality
+  augmented_dir: corpus/nuggets_augmented
+  kb_dir: kb
+
+acquire:
+  zotero_export: null
+  enrich_s2: true
+  dedup_threshold: 0.85
+
+extract:
+  ocr_fallback: true
+  min_text_length: 100
+
+chunk:
+  token_size: 400
+  overlap: 50
+  tokenizer: cl100k_base
+  respect_sections: true
+
+nuggets:
+  vllm:
+    model: Qwen/Qwen3.5-27B
+    port: 8000
+    max_model_len: 4096
+    gpu_memory_utilization: 0.90
+    dtype: bfloat16
+  extraction:
+    max_chunk_chars: 2000
+    max_workers: 32
+    max_retries: 3
+    max_tokens: 1500
+    temperature: 0.1
+    retry_base_delay: 2.0
+    nugget_types: [method, result, claim, limitation, comparison, background]
+  quality:
+    batch_size: 5
+    max_workers: 48
+    max_tokens: 2000
+    temperature: 0.0
+    max_retries: 3
+    retry_base_delay: 2.0
+    flag_threshold: 2
+  augmentation:
+    max_workers: 32
+    max_tokens: 2000
+    temperature: 0.1
+    max_retries: 3
+    retry_base_delay: 2.0
+    improve_threshold: 2        # overall score <= this triggers improvement
+    gap_max_nuggets: 2          # chunks with <= this many nuggets get gap-filled
+    gap_min_tokens: 100         # skip very short chunks
+    gap_skip_sections: [references, acknowledgments, bibliography]
+
+embed:
+  backend: vllm  # vllm (HPC) or ollama (local)
+  vllm:
+    model: Qwen/Qwen3-Embedding-8B
+    port: 8000
+    max_model_len: 1024
+    gpu_memory_utilization: 0.90
+    dtype: bfloat16
+  ollama:
+    model: qwen3-embedding:8b
+    base_url: http://localhost:11434/v1
+  embedding:
+    batch_size: 64
+    instruction: "Given an academic research claim about event cameras, RGB-Event fusion, spiking neural networks, or object detection for autonomous platforms, retrieve related findings and evidence"
+    # dimensions: 4096  # Qwen3-Embedding-8B doesn't support matryoshka; uses native 4096 dims
+
+store:
+  chromadb:
+    collection_name: thesis_nuggets
+    distance_fn: cosine
+  sqlite:
+    db_name: nuggets.db

@@ -1,0 +1,884 @@
+3595||Attentional Event-RGB Sensor Fusion for Fast Drone Detection|2026
+89|2601.12156|Biological Intuition on Digital Hardware: An RTL Implementation of Poisson-Encoded SNNs for Static Image Classification|2026
+68|2512.19365|Efficient Spike-driven Transformer for High-performance Drone-View Geo-Localization|2026
+35|2602.12236|Energy-Aware Spike Budgeting for Continual Learning in Spiking Neural Networks for Neuromorphic Vision|2026
+58|2602.02439|Energy-Efficient Neuromorphic Computing for Edge AI: A Framework with Adaptive Spiking Neural Networks and Hardware-Aware Optimization|2026
+70|2601.21778|Error Amplification Limits ANN-to-SNN Conversion in Continuous Control|2026
+3467||EvSAM Segment Anything Model with Event-based Assistance|2026
+87|2601.13451|Event-based Heterogeneous Information Processing for Online Vision-based Obstacle Detection and Localization|2026
+88|2512.02258|Exploring the Potentials of Spiking Neural Networks for Image Deraining|2026
+66|2601.22675|Fire on Motion: Optimizing Video Pass-bands for Efficient Spiking Action Recognition|2026
+3523||Learning Efficient Meshflow and Optical Flow From Event Cameras|2026
+104|2601.02613|Sparsity-Aware Streaming SNN Accelerator with Output-Channel Dataflow for Automatic Modulation Classification|2026
+59|2602.01978|SpikingGamma: Surrogate-Gradient Free and Temporally Precise Online Training of Spiking Neural Networks with Smoothed Delays|2026
+46|2602.03284|Time Is All It Takes: Spike-Retiming Attacks on Event-Driven Spiking Neural Networks|2026
+912|2501.14484|$SpikePack$: Enhanced Information Flow in Spiking Neural Networks with High Hardware Compatibility|2025
+247|2511.00424|A Multimodal Framework for Depression Detection during Covid-19 via Harvesting Social Media: A Novel Dataset and Method|2025
+871|2404.17335|A Novel Spike Transformer Network for Depth Estimation from Event Cameras via Cross-modality Knowledge Distillation|2025
+755|2504.11026|A PyTorch-Compatible Spike Encoding Framework for Energy-Efficient Neuromorphic Applications|2025
+3571||A Survey of Autonomous Driving Trajectory Prediction Methodologies, Challenges, and Future Prospect|2025
+3429||A Survey of Autonomous Driving Trajectory Prediction: Methodologies, Challenges, and Future Prospects|2025
+3484||A comprehensive review of event camera-based depth estimation methods|2025
+579|2405.15539|A generalized neural tangent kernel for surrogate gradient learning|2025
+3432||A neuromorphic approach to obstacle avoidance in robot manipulation|2025
+224|2511.06770|ASTER: Attention-based Spiking Transformer Engine for Event-driven Reasoning|2025
+343|2510.00681|Adaptive Event Stream Slicing for Open-Vocabulary Event-Based Object Detection via Vision-Language Knowledge Distillation|2025
+3470||Advancing Underwater Vision A Survey of Deep Learning Models for Underwater Object Recognition and|2025
+726|2505.05489|Akkumula: Evidence accumulation driver models with Spiking Neural Networks|2025
+811|2503.16085|Allostatic Control of Persistent States in Spiking Neural Networks for perception and computation|2025
+799|2311.13186|Applications of Spiking Neural Networks in Visual Place Recognition|2025
+896|2311.09225|Autonomous Driving using Spiking Neural Networks on Dynamic Vision Sensor Data: A Case Study of Traffic Light Change Detection|2025
+3572||BAT Learning Event-based Optical Flow with Bidirectional Adaptive Temporal Correlation|2025
+3532||BN-SNN Spiking neural networks with bistable neurons for object detection|2025
+262|2510.24231|Benchmarking Microsaccade Recognition with Event Cameras: A Novel Dataset and Evaluation|2025
+3512||Benchmarking Spiking Neural Network Learning Methods With Varying Locality|2025
+310|2507.16043|Beyond Rate Coding: Surrogate Gradients Enable Spike Timing Learning in Spiking Neural Networks|2025
+3518||Beyond conventional vision RGB-event fusion for robust object detection in dynamic traffic scenario|2025
+3364||Beyond conventional vision: RGB-event fusion for robust object detection in dynamic traffic scenarios|2025
+3365||Beyond conventional vision: RGB-event fusion for robust object detection in dynamic traffic scenarios|2025
+956|2501.05904|Binary Event-Driven Spiking Transformer|2025
+3508||Brain-Inspired Spiking Neural Networks for Energy-Efficient Object Detection|2025
+206|2511.12150|Breaking the Modality Wall: Time-step Mixup for Efficient Spiking Knowledge Transfer from Static to Event Domain|2025
+778|2504.01755|Bridge the Gap between SNN and ANN for Image Restoration|2025
+3481||Building Real-time Awareness of Out-of-distribution in Trajectory Prediction for Autonomous Vehicles|2025
+942|2412.12525|CREST: An Efficient Conjointly-trained Spike-driven Framework for Event-based Object Detection Exploiting Spatiotemporal Dynamics|2025
+136|2512.09592|CS3D: An Efficient Facial Expression Recognition via Event Vision|2025
+367|2509.17461|CSDformer: A Conversion Method for Fully Spike-Driven Transformer|2025
+943|2501.09296|Causal Spike Timing Dependent Plasticity Prevents Assembly Fusion in Recurrent Networks|2025
+572|2501.15808|ClearSight: Human Vision-Inspired Solutions for Event-Based Motion Deblurring|2025
+829|2409.01230|CoLaNET -- A Spiking Neural Network with Columnar Layered Architecture for Classification|2025
+196|2505.21185|Constructive community race: full-density spiking neural network model drives neuromorphic computing|2025
+419|2508.19806|Context-aware Sparse Spatiotemporal Learning for Event-based Vision|2025
+702|2505.08514|Convolutional Spiking Neural Network for Image Classification|2025
+3554||DCR-EFlow Dynamic Correlation Recurrent Architecture for Optical Flow Estimation Based on Event Cam|2025
+908|2502.10421|DRiVE: Dynamic Recognition in VEhicles using snnTorch|2025
+3426||DSF-Net: Dynamic Sparse Fusion of Event-RGB via Spike-Triggered Attention for High-Speed Detection|2025
+401|2509.04117|DVS-PedX: Synthetic-and-Real Event-Based Pedestrian Dataset|2025
+772|2504.03800|Decision SpikeFormer: Spike-Driven Transformer for Decision Making|2025
+752|2404.19165|DelGrad: Exact event-based gradients for training delays and weights on spiking neuromorphic hardware|2025
+955|2501.10425|Delay Neural Networks (DeNN) for exploiting temporal information in event-based datasets|2025
+194|2511.15296|Detection of spiking motifs of arbitrary length in neural activity using bounded synaptic delays|2025
+549|2503.00301|Differential Coding for Training-Free ANN-to-SNN Conversion|2025
+476|2508.04564|Drone Detection with Event Cameras|2025
+528|2506.04526|EECD-Net: Energy-Efficient Crack Detection with Spiking Neural Networks and Gated Attention|2025
+543|2507.07734|EEvAct: Early Event-Based Action Recognition with High-Rate Two-Stream Spiking Neural Networks|2025
+815|2503.09985|ES-Parkour: Advanced Robot Parkour with Bio-inspired Event Camera and Spiking Neural Network|2025
+3441||Edge neuro-statistical learning for event-based visual motion detection and tracking in roadside saf|2025
+705|2506.01968|Efficient ANN-SNN Conversion with Error Compensation Learning|2025
+768|2504.06748|Efficient Deployment of Spiking Neural Networks on SpiNNaker2 for DVS Gesture Recognition Using Neuromorphic Intermediate Representation|2025
+584|2403.10173|Efficient Event-Based Object Detection: A Hybrid Neural Network with Spatial and Temporal Attention|2025
+3379||Efficient Event-Based Object Detection: A Hybrid Neural Network with Spatial and Temporal Attention|2025
+3509||Efficient Event-Based Semantic Segmentation via Exploiting Frame-Event Fusion A Hybrid Neural Netwo|2025
+552|2507.03765|Efficient Event-Based Semantic Segmentation via Exploiting Frame-Event Fusion: A Hybrid Neural Network Approach|2025
+573|2501.07331|Efficient Event-based Delay Learning in Spiking Neural Networks|2025
+3425||Efficient Spiking Neural Network for RGB-Event Fusion-Based Object Detection|2025
+3471||Efficient Spiking Neural Network for RGB–Event Fusion-Based Object Detection|2025
+3435||Egocentric Event-Based Vision for Ping Pong Ball Trajectory Prediction|2025
+738|2502.05938|Energy-Efficient Autonomous Aerial Navigation with Dynamic Vision Sensors: A Physics-Guided Neuromorphic Approach|2025
+949|2501.07683|Energy-Efficient Cryogenic Neuromorphic Network with Superconducting Memristor|2025
+596|2506.13268|Energy-Efficient Digital Design: A Comparative Study of Event-Driven and Clock-Driven Spiking Neurons|2025
+128|2601.00806|Energy-Efficient Eimeria Parasite Detection Using a Two-Stage Spiking Neural Network Architecture|2025
+523|2501.01038|Energy-Efficient and Intelligent ISAC in V2X Networks with Spiking Neural Networks-Driven DRL|2025
+3565||Event-Based Vision Sensing and Its Application to Pedestrian Detection for Autonomous Driving|2025
+3469||Event-Cameras and Spiking Neural Networks for Tracking and Classification in Traffic Monitoring|2025
+833|2503.13492|Event-Driven Implementation of a Physical Reservoir Computing Framework for superficial EMG-based Gesture Recognition|2025
+709|2505.06544|Event-based Neural Spike Detection Using Spiking Neural Networks for Neuromorphic iBMI Systems|2025
+817|2412.15021|Event-based backpropagation on the neuromorphic platform SpiNNaker2|2025
+3369||Event-based solutions for human-centered applications: a comprehensive review|2025
+940|2501.11554|Event-based vision for egomotion estimation using precise event timing|2025
+436|2508.11988|Exploring Spatial-Temporal Dynamics in Event-based Facial Micro-Expression Analysis|2025
+278|2510.20997|Exploring Spiking Neural Networks for Binary Classification in Multivariate Time Series at the Edge|2025
+655|2412.13610|Faster and Stronger: When ANN-SNN Conversion Meets Parallel Spiking Calculation|2025
+3577||Fault-Tolerant Attitude Tracking Control Driven by Spiking NNs for Unmanned Aerial Vehicles|2025
+3412|2508.07089|ForeSight: Multi-View Streaming Joint Object Detection and Trajectory Forecasting|2025
+883|2407.14097|Forward-Forward Learning achieves Highly Selective Latent Representations for Out-of-Distribution Detection in Fully Spiking Neural Networks|2025
+3388|2412.04149|Frequency-Adaptive Low-Latency Object Detection Using Events and Frames|2025
+398|2509.04960|Fully Integrated Memristive Spiking Neural Network with Analog Neurons for High-Speed Event-Based Data Processing|2025
+323|2505.20834|Fully Spiking Neural Networks for Unified Frame-Event Object Tracking|2025
+812|2503.16012|GazeSCRNN: Event-based Near-eye Gaze Tracking using a Spiking Neural Network|2025
+3421||Hardware, Algorithms, and Applications of the Neuromorphic Vision Sensor: A Review|2025
+168|2512.00419|Hardware-aware Lightweight Photonic Spiking Neural Network for Pattern Classification|2025
+699|2303.09681|Highly Efficient 3D Human Pose Tracking from Events with Spiking Spatiotemporal Transformer|2025
+704|2505.07715|Hybrid Spiking Vision Transformer for Object Detection with Event Cameras|2025
+223|2511.08065|I2E: Real-Time Image-to-Event Conversion for High-Performance Spiking Neural Networks|2025
+388|2509.09977|ISTASTrack: Bridging ANN and SNN via ISTA Adapter for RGB-Event Tracking|2025
+429|2509.06970|Impact of Neuron Models on Spiking Neural Networks performance. A Complexity Based Classification Approach|2025
+126|2512.16259|Improving Low-Latency Learning Performance in Spiking Neural Networks via a Change-Perceptive Dendrite-Soma-Axon Neuron|2025
+856|2501.19069|Improving vision-language alignment with graph spiking hybrid Networks|2025
+847|2409.03368|Inference-Scale Complexity in ANN-SNN Conversion for High-Performance and Low-Power Applications|2025
+3522||Integer-Valued Training and Spike-Driven Inference Spiking Neural Network for High-Performance and E|2025
+756|2407.20708|Integer-Valued Training and Spike-Driven Inference Spiking Neural Network for High-performance and Energy-efficient Object Detection|2025
+629|2506.06265|Integrating Complexity and Biological Realism: High-Performance Spiking Neural Networks for Breast Cancer Detection|2025
+192|2511.12095|Learning from Dense Events: Towards Fast Spiking Neural Networks Training via Event Dataset Distillation|2025
+634|2506.03918|Learning from Noise: Enhancing DNNs for Event-Based Vision through Controlled Noise Injection|2025
+917|2212.01232|Loss shaping enhances exact gradient learning with Eventprop in spiking neural networks|2025
+3487||Low Latency Pedestrian Detection Based on Dynamic Vision Sensor and RGB Camera Fusion|2025
+197|2404.10210|MK-SGN: A Spiking Graph Convolutional Network with Multimodal Fusion and Knowledge Distillation for Skeleton-based Action Recognition|2025
+199|2511.12199|MPD-SGR: Robust Spiking Neural Networks with Membrane Potential Distribution-Driven Surrogate Gradient Regularization|2025
+236|2511.13735|MS2Edge: Towards Energy-Efficient and Crisp Edge Detection with Multi-Scale Residual Learning in SNNs|2025
+586|2505.14719|MSVIT: Improving Spiking Vision Transformer Using Multi-scale Attention Fusion|2025
+3539||Mamba-Spike Enhancing the Mamba Architecture with a Spiking Front-End for Efficient Temporal Data P|2025
+193|2506.11286|Mapping and Scheduling Spiking Neural Networks On Segmented Ladder Bus Architectures|2025
+3464||Marine Event Vision Harnessing Event Cameras For Robust Object Detection In Marine Scenarios|2025
+296|2510.14770|MoCom: Motion-based Inter-MAV Visual Communication Using Event Vision and Spiking Neural Networks|2025
+121|2509.23516|Network-Optimised Spiking Neural Network for Event-Driven Networking|2025
+746|2504.13457|Neural Ganglion Sensors: Learning Task-specific Event Cameras Inspired by the Neural Circuit of the Human Retina|2025
+190|2511.16060|Neuromorphic Astronomy: An End-to-End SNN Pipeline for RFI Detection Hardware|2025
+336|2509.21345|Neuromorphic Deployment of Spiking Neural Networks for Cognitive Load Classification in Air Traffic Control|2025
+687|2505.11433|Neuromorphic Imaging Flow Cytometry combined with Adaptive Recurrent Spiking Neural Networks|2025
+163|2512.01882|New Spiking Architecture for Multi-Modal Decision-Making in Autonomous Vehicles|2025
+866|2502.18623|On the Privacy-Preserving Properties of Spiking Neural Networks with Unique Surrogate Gradients and Quantization Levels|2025
+263|2510.23383|One-Timestep is Enough: Achieving High-performance ANN-to-SNN Conversion via Scale-and-Fire Neurons|2025
+110|2512.24983|Optical Spiking Neural Networks via Rogue-Wave Statistics|2025
+807|2409.05726|Optical Spiking Neurons Enable High-Speed and Energy-Efficient Optical Neural Networks|2025
+914|2301.09522|Optimising Event-Driven Spiking Neural Network with Regularisation and Cutoff|2025
+364|2509.18968|Otters: An Energy-Efficient SpikingTransformer via Optical Time-to-First-Spike Encoding|2025
+3462||PEOD A Pixel-Aligned Event-RGB Benchmark for Object Detection under Challenging Conditions|2025
+769|2504.06730|PETNet -- Coincident Particle Event Detection using Spiking Neural Networks|2025
+154|2512.03895|Parameter efficient hybrid spiking-quantum convolutional neural network with surrogate gradient and quantum data-reupload|2025
+426|2504.11720|Polarisation-Inclusive Spiking Neural Networks for Real-Time RFI Detection in Modern Radio Telescopes|2025
+170|2511.22554|Privacy-preserving fall detection at the edge using Sony IMX636 event-based vision sensor and Intel Loihi 2 neuromorphic processor|2025
+921|2501.17699|PulmoFusion: Advancing Pulmonary Health with Efficient Multi-Modal Fusion|2025
+782|2504.00948|QSViT: A Methodology for Quantizing Spiking Vision Transformers|2025
+800|2501.13492|Quantized Spike-driven Transformer|2025
+920|2501.18412|Real Time Scheduling Framework for Multi Object Detection via Spiking Neural Networks|2025
+181|2511.20175|Realizing Fully-Integrated, Low-Power, Event-Based Pupil Tracking with Neuromorphic Hardware|2025
+3407||Recent Event Camera Innovations: A Survey|2025
+164|2512.01687|Revisiting Direct Encoding: Learnable Temporal Dynamics for Static Image Spiking Neural Networks|2025
+826|2404.17092|Robust and Efficient Adversarial Defense in SNNs via Image Purification and Joint Detection|2025
+498|2503.08703|SDTrack: A Baseline for Event-based Tracking via Spiking Neural Networks|2025
+319|2510.07427|SEPhIA: <1 laser/neuron Spiking Electro-Photonic Integrated Multi-Tiled Architecture for Scalable Optical Neuromorphic Computing|2025
+554|2507.10561|SFATTI: Spiking FPGA Accelerator for Temporal Task-driven Inference -- A Case Study on MNIST|2025
+461|2412.12843|SLTNet: Efficient Event-based Semantic Segmentation with Spike-driven Lightweight Transformer-based Networks|2025
+437|2508.14607|SMTrack: End-to-End Trained Spiking Neural Networks for Multi-Object Tracking in RGB Videos|2025
+3391|2501.11971|SMamba: Sparse Mamba for Event-based Object Detection|2025
+882|2502.13385|SNN-Driven Multimodal Human Action Recognition via Event Camera and Skeleton Data Fusion|2025
+452|2508.12271|SNNSIR: A Simple Spiking Neural Network for Stereo Image Restoration|2025
+509|2507.16151|SPACT18: Spiking Human Action Recognition Benchmark Dataset with Complementary RGB and Thermal Modalities|2025
+3566||SSTFormer Bridging Spiking Neural Network and Memory Support Transformer for Frame-Event Based-Reco|2025
+721|2308.04369|SSTFormer: Bridging Spiking Neural Network and Memory Support Transformer for Frame-Event based Recognition|2025
+732|2503.10195|ST-FlowNet: An Efficient Spiking Neural Network for Event-Based Optical Flow Estimation|2025
+3397||ST-FlowNet: An efficient Spiking Neural Network for event-based optical flow estimation|2025
+786|2503.24389|SU-YOLO: Spiking Neural Network for Efficient Underwater Object Detection|2025
+706|2505.07556|Self-Supervised Event Representations: Towards Accurate, Real-Time Perception on SoC FPGAs|2025
+118|2512.22214|Signal-SGN++: Topology-Enhanced Time-Frequency Spiking Graph Network for Skeleton-Based Action Recognition|2025
+255|2408.01701|Signal-SGN: A Spiking Graph Convolutional Network for Skeletal Action Recognition via Learning Temporal-Frequency Dynamics|2025
+3519||Spike-BRGNet Efficient and Accurate Event-Based Semantic Segmentation With Boundary Region-Guided S|2025
+606|2506.04817|Spike-TBR: a Noise Resilient Neuromorphic Event Representation|2025
+670|2310.06488|SpikeCLIP: A Contrastive Language-Image Pretrained Spiking Neural Network|2025
+522|2501.15151|SpikeDet: Better Firing Patterns for Accurate and Energy-Efficient Object Detection with Spiking Neuron Networks|2025
+306|2510.12102|SpikePool: Event-driven Spiking Transformer with Pooling Attention|2025
+608|2506.07737|SpikeSMOKE: Spiking Neural Networks for Monocular 3D Object Detection with Cross-Scale Gated Coding|2025
+696|2505.10352|SpikeVideoFormer: An Efficient Spike-Driven Video Transformer with Hamming Attention and $\mathcal{O}(T)$ Complexity|2025
+318|2503.04223|Spiking Meets Attention: Efficient Remote Sensing Image Super-Resolution with Attention Spiking Neural Networks|2025
+798|2410.02249|Spiking Neural Network as Adaptive Event Stream Slicer|2025
+3540||Spiking Neural Network for Ultralow-Latency and High-Accurate Object Detection|2025
+372|2509.21346|Spiking Neural Networks for Mental Workload Classification with a Multimodal Approach|2025
+880|2502.15811|Spiking Point Transformer for Point Cloud Classification|2025
+435|2508.15389|Spiking Variational Graph Representation Inference for Video Summarization|2025
+886|2502.12677|Spiking Vision Transformer with Saccadic Attention|2025
+962|2501.02916|Spiking monocular event based 6D pose estimation for space application|2025
+3584||Spiking neural networks for object detection and semantic segmentation across event-driven and frame|2025
+3409||Spiking neural networks for object detection and semantic segmentation across event-driven and frame-based modalities: a review|2025
+964|2402.04798|Spiking-PhysFormer: Camera-Based Remote Photoplethysmography with Parallel Spike-driven Transformer|2025
+916|2502.00074|SpikingRTNH: Spiking Neural Network for 4D Radar Object Detection|2025
+3419||SpikingSSMs: Learning Long Sequences with Sparse and Parallel Spiking State Space Models|2025
+900|2501.19072|SpikingSoft: A Spiking Neuron Controller for Bio-inspired Locomotion with Soft Snake Robots|2025
+3420||SpikingViT: A Multiscale Spiking Vision Transformer Model for Event-Based Object Detection|2025
+221|2511.08708|Stabilizing Direct Training of Spiking Neural Networks: Membrane Potential Initialization and Threshold-robust Surrogate Gradient|2025
+3463||Stepwise Spatial Global-local Aggregation Networks for Autonomous Driving|2025
+524|2402.11662|TDE-3: An improved prior for optical flow computation in spiking neural networks|2025
+839|2503.05112|THE-SEAN: A Heart Rate Variation-Inspired Temporally High-Order Event-Based Visual Odometry with Self-Supervised Spiking Event Accumulation Networks|2025
+3500||TOFFE -- Temporally-binned Object Flow from Events for High-speed and Energy-Efficient Object Detect|2025
+938|2501.12482|TOFFE -- Temporally-binned Object Flow from Events for High-speed and Energy-Efficient Object Detection and Tracking|2025
+432|2508.20121|Task-Aware Tuning of Time Constants in Spiking Neural Networks for Multimodal Classification|2025
+160|2512.02447|Temporal Dynamics Enhancer for Directly Trained Spiking Object Detectors|2025
+873|2502.14487|Temporal Misalignment in ANN-SNN Conversion and Its Mitigation via Probabilistic Spiking Neurons|2025
+610|2503.17132|Temporal-Guided Spiking Neural Networks for Event-Based Human Action Recognition|2025
+3576||The architecture design and training optimization of spiking neural network with low-latency and hig|2025
+3527||Three-Factor Learning in Spiking Neural Networks An Overview of Methods and Trends from a Machine L|2025
+180|2509.12959|Time-step Mixup for Efficient Spiking Knowledge Transfer from Appearance to Event Domain|2025
+843|2503.03272|Towards Effective and Sparse Adversarial Attack on Spiking Neural Networks via Breaking Invisible Surrogate Gradients|2025
+860|2502.21193|Towards High-performance Spiking Transformers from ANN to SNN Conversion|2025
+130|2508.07710|Training-Free ANN-to-SNN Conversion for High-Performance Spiking Transformer|2025
+230|2511.05241|Transporter: A 128$\times$4 SPAD Imager with On-chip Encoder for Spiking Neural Network-based Processing|2025
+113|2512.23950|U-Net-Like Spiking Neural Networks for Single Image Dehazing|2025
+3598||UAV target tracking: a survey|2025
+3537||UCF-Crime-DVS A Novel Event-Based Dataset for Video Anomaly Detection with Spiking Neural Networks|2025
+3482||UTNet event-RGB multimodal fusion model for underwater transparent organism detection|2025
+393|2508.20392|Ultra-Low-Latency Spiking Neural Networks with Temporal-Dependent Integrate-and-Fire Neuron Model for Objects Detection|2025
+169|2508.03244|Ultralight Polarity-Split Neuromorphic SNN for Event-Stream Super-Resolution|2025
+792|2503.20485|Underwater Image Enhancement by Convolutional Spiking Neural Networks|2025
+3460||Underwater Optical Object Detection in the Era of Artificial Intelligence Current, Challenge, and F|2025
+322|2510.06629|Unsupervised Backdoor Detection and Mitigation for Spiking Neural Networks|2025
+487|2508.11640|Vibe2Spike: Batteryless Wireless Tags for Vibration Sensing with Event Cameras and Spiking Networks|2025
+418|2508.19920|Walk the Robot: Exploring Soft Robotic Morphological Communication driven by Spiking Neural Networks|2025
+680|2505.13309|eStonefish-scenes: A synthetically generated dataset for underwater event-based optical flow prediction tasks|2025
+758|2504.11482|snnTrans-DHZ: A Lightweight Spiking Neural Network Architecture for Underwater Image Dehazing|2025
+1444|2405.02316|A Cloud-Edge Framework for Energy-Efficient Event-Driven Control: An Integration of Online Supervised Learning, Spiking Neural Networks and Local Plasticity Rules|2024
+968|2412.05302|A High Energy-Efficiency Multi-core Neuromorphic Architecture for Deep SNN Training|2024
+1434|2303.14176|A Hybrid ANN-SNN Architecture for Low-Power and Low-Latency Visual Perception|2024
+3557||A Hybrid Neuromorphic Object Tracking and Classification Framework for Real-Time Systems|2024
+1182|2409.02680|A Low-Cost Real-Time Spiking System for Obstacle Detection based on Ultrasonic Sensors and Rate Coding|2024
+1170|2404.03493|A Methodology to Study the Impact of Spiking Neural Network Parameters considering Event-Based Automotive Data|2024
+3524||A Review of Vehicle Detection Methods Based on Computer Vision|2024
+1152|2409.12691|A dynamic vision sensor object recognition model based on trainable event-driven convolution and spiking attention mechanism|2024
+1230|2408.12608|A frugal Spiking Neural Network for unsupervised classification of continuous multivariate temporal data|2024
+3399||A review of object tracking methods: From general field to autonomous vehicles|2024
+1209|2408.12293|AT-SNN: Adaptive Tokens for Vision Transformer on Spiking Neural Network|2024
+1543|2312.08213|Accelerated Event-Based Feature Detection and Compression for Surveillance Video Systems|2024
+1239|2304.11857|Accurate and Efficient Event-based Semantic Segmentation Using Adaptive Spiking Encoder-Decoder Network|2024
+3478||Advancements in Neuromorphic Computing for Bio-Inspired Artificial Vision A Review|2024
+1072|2411.00697|All-Optical Excitable Spiking Laser Neuron in InP Generic Integration Technology|2024
+3408||An Application-Driven Survey on Event-Based Neuromorphic Computer Vision|2024
+1554|2303.13077|An Efficient Knowledge Transfer Strategy for Spiking Neural Networks from Static to Event Domain|2024
+1080|2410.23082|An Event-Based Digital Compute-In-Memory Accelerator with Flexible Operand Resolution and Layer-Wise Weight/Output Stationarity|2024
+1584|2401.05030|An event-based implementation of saliency-based visual attention for rapid scene analysis|2024
+3400||Application of Event Cameras and Neuromorphic Computing to VSLAM: A Survey|2024
+1238|2311.11853|Asynchronous Bioplausible Neuron for SNN for Event Vision|2024
+1339|2307.12900|Automotive Object Detection via Learning Sparse Events by Spiking Neurons|2024
+1370|2405.19687|Autonomous Driving with Spiking Neural Networks|2024
+3438||Benchmarking Deep Learning Models for Object Detection on Edge Computing Devices|2024
+1488|2306.02960|Best of Both Worlds: Hybrid SNN-ANN Architecture for Event-based Optical Flow Estimation|2024
+3453||Chasing Day and Night Towards Robust and Efficient All-Day Object Detection Guided by an Event Came|2024
+1487|2309.09297|Chasing Day and Night: Towards Robust and Efficient All-Day Object Detection Guided by an Event Camera|2024
+1140|2410.09054|Circuits and Systems for Embodied AI: Exploring uJ Multi-Modal Perception for Nano-UAVs on the Kraken Shield|2024
+1171|2409.07833|Classifying Images with CoLaNET Spiking Neural Network -- the MNIST Example|2024
+3492||Complementing Event Streams and RGB Frames for Hand Mesh Reconstruction|2024
+3587||DETRs Beat YOLOs on Real-time Object Detection|2024
+1449|2307.10974|Deep Multi-Threshold Spiking-UNet for Image Processing|2024
+1303|2406.19645|Directly Training Temporal Spiking Neural Network with Sparse Surrogate Gradient|2024
+992|2412.11753|DriveGazen: Event-Based Driving Status Recognition using Conventional Camera|2024
+1405|2303.07169|Dynamic Event-based Optical Identification and Communication|2024
+3505||Dynamic Obstacle Detection for Quadrotors with Event Cameras|2024
+1203|2403.12574|EAS-SNN: End-to-End Adaptive Sampling and Representation for Event-based Detection with Recurrent Spiking Neural Networks|2024
+3568||EISNet A Multi-Modal Fusion Network for Semantic Segmentation With Events and Images|2024
+1601|2307.11349|EV-Planner: Energy-Efficient Robot Navigation via Event-Based Physics-Guided Neuromorphic Planner|2024
+1418|2306.12465|Efficient Deep Spiking Multi-Layer Perceptrons with Multiplication-Free Inference|2024
+1169|2409.08698|Efficient FPGA Implementation of an Optimized SNN-based DFE for Optical Communications|2024
+1559|2401.17064|Efficient Gesture Recognition on Spiking Convolutional Networks Through Sensor Fusion of Event-Based and Depth Data|2024
+3434||Efficient data processing pipeline for event-based vision datasets techniques and insights|2024
+1057|2404.14964|Elucidating the theoretical underpinnings of surrogate gradient learning in spiking neural networks|2024
+1309|2406.17617|Embedded event based object detection with spiking neural network|2024
+3465||Emerging Neuromorphic Computing for Edge AI Application A Systematic Literature Review|2024
+3401||Emerging Trends and Applications of Neuromorphic Dynamic Vision Sensors: A Survey|2024
+1205|2408.12978|Energy-Efficient Spiking Recurrent Neural Network for Gesture Recognition on Embedded GPUs|2024
+975|2412.17654|Enhanced Temporal Processing in Spiking Neural Networks for Static Object Detection Using 3D Convolutions|2024
+1472|2403.17040|Enhancing Graph Representation Learning with Attention-Driven Spiking Neural Networks|2024
+3403|2311.00436|Enhancing Traffic Object Detection in Variable Illumination with RGB-Event Fusion|2024
+1479|2403.15717|Ev-Edge: Efficient Execution of Event-based Vision Algorithms on Commodity Edge Platforms|2024
+1320|2406.14178|EvSegSNN: Neuromorphic Semantic Segmentation for Event Data|2024
+3489||Event Camera-Based Eye Motion Analysis A Survey|2024
+3368||Event Cameras in Automotive Sensing: A Review|2024
+3563||Event Stream-Based Visual Object Tracking A High-Resolution Benchmark Dataset and A Novel Baseline|2024
+3506||Event-Aided Time-to-Collision Estimation for Autonomous Driving|2024
+3558||Event-Based Optical Flow via Transforming Into Motion-Dependent View|2024
+1258|2407.04718|Event-Based Simulation of Stochastic Memristive Devices for Neuromorphic Computing|2024
+3488||Event-Based Spiking Neural Networks for Object Detection A Review of Datasets, Architectures, Learn|2024
+3418||Event-Based Spiking Neural Networks for Object Detection: A Review of Datasets, Architectures, Learning Rules, and Implementation|2024
+1511|2403.00270|Event-Driven Learning for Spiking Neural Networks|2024
+1224|2408.06968|Event-Stream Super Resolution using Sigma-Delta Neural Network|2024
+3258|2404.11770|Event-based Eye Tracking. AIS 2024 Challenge Survey|2024
+3569||Event-based Optical Flow on Neuromorphic Processor ANN vs. SNN Comparison based on Activation Spars|2024
+1250|2407.20421|Event-based Optical Flow on Neuromorphic Processor: ANN vs. SNN Comparison based on Activation Sparsification|2024
+1040|2411.17006|Event-based Spiking Neural Networks for Object Detection: A Review of Datasets, Architectures, Learning Rules, and Implementation|2024
+1277|2407.08356|Event-based vision on FPGAs -- a survey|2024
+1564|2402.10078|EventF2S: Asynchronous and Sparse Spiking AER Framework using Neuromorphic-Friendly Algorithm|2024
+1391|2405.13587|Exact Gradients for Stochastic Spiking Neural Networks Driven by Rough Signals|2024
+1333|2406.07927|ExoSpikeNet: A Light Curve Analysis Based Spiking Neural Network for Exoplanet Detection|2024
+1044|2411.15409|Exploring the Sparsity-Quantization Interplay on a Novel Hybrid SNN Event-Driven Architecture|2024
+1468|2403.18388|FTBC: Forward Temporal Bias Correction for Optimizing ANN-SNN Conversion|2024
+1173|2407.05262|FastSpiker: Enabling Fast Training for Spiking Neural Networks on Event-based Data through Learning Rate Enhancements for Autonomous Embedded Systems|2024
+1539|2402.06211|Fine-Tuning Surrogate Gradient Learning for Optimal Hardware Performance in Spiking Neural Networks|2024
+1069|2411.03022|Flashy Backdoor: Real-world Environment Backdoor Attack on SNNs with DVS Cameras|2024
+1367|2406.00177|Flexible and Efficient Surrogate Gradient Modeling with Forward Gradient Injection|2024
+3423||Flow-Based Visual Stream Compression for Event Cameras|2024
+1469|2403.18228|Fourier or Wavelet bases as counterpart self-attention in spikformer for efficient visual classification|2024
+3507||HDI-Former Hybrid Dynamic Interaction ANN-SNN Transformer for Object Detection Using Frames and Eve|2024
+1035|2411.18658|HDI-Former: Hybrid Dynamic Interaction ANN-SNN Transformer for Object Detection Using Frames and Events|2024
+1398|2405.08292|Hybrid Event-Frame Neural Spike Detector for Neuromorphic Implantable BMI|2024
+1026|2412.00237|Hybrid Spiking Neural Network -- Transformer Video Classification Model|2024
+1155|2409.11619|Hyperspectral Image Classification Based on Faster Residual Multi-branch Spiking Neural Network|2024
+3367||Integer-Valued Training and Spike-Driven Inference Spiking Neural Network for High-Performance and Energy-Efficient Object Detection|2024
+3475||Intelligent Underwater Object Detection and Image Restoration for Autonomous Underwater Vehicles|2024
+1359|2407.08746|Iteration over event space in time-to-first-spike spiking neural networks for Twitter bot classification|2024
+1302|2305.11322|Knowing When to Stop: Delay-Adaptive Spiking Neural Network Classifiers with Reliability Guarantees|2024
+1400|2405.06277|Learning A Spiking Neural Network for Efficient Image Deraining|2024
+1292|2312.11913|Learning flow functions of spiking systems|2024
+1557|2308.12063|Learning the Plasticity: Plasticity-Driven Learning Framework in Spiking Neural Networks|2024
+1282|2407.07020|Less is More: Efficient Brain-Inspired Learning for Autonomous Driving Trajectory Prediction|2024
+3567||Lightweight Event-based Optical Flow Estimation via Iterative Deblurring|2024
+1190|2407.14073|LoAS: Fully Temporal-Parallel Dataflow for Dual-Sparse Spiking Neural Networks|2024
+3433||Lossless Encoding of Time-Aggregated Neuromorphic Vision Sensor Data Based on Point-Cloud Compressio|2024
+3413||Low-latency automotive vision with event cameras|2024
+1091|2410.04992|MC-QDSNN: Quantized Deep evolutionary SNN with Multi-Dendritic Compartment Neurons for Stress Detection using Physiological Signals|2024
+3406|2406.05835|Mamba YOLO: A Simple Baseline for Object Detection with State Space Model|2024
+3541||Mamba in Vision A Comprehensive Survey of Techniques and Applications|2024
+3427|2312.00752|Mamba: Linear-Time Sequence Modeling with Selective State Spaces|2024
+3483||Martian Flight Enabling Motion Estimation of NASA's Next-Generation Mars Flying Drone by Implementi|2024
+3456||Motion Deblur by Learning Residual From Events|2024
+3564||Moving Forward A Review of Autonomous Driving Software and Hardware Systems|2024
+3582||Multiobjective band selection approach via an adaptive particle swarm optimizer for remote sensing h|2024
+1055|2408.13379|N-DriverMotion: Driver motion learning and prediction using an event-based camera and directly trained spiking neural networks on Loihi 2|2024
+3493||Neuromorphic Computing Cutting-Edge Advances and Future Directions|2024
+1451|2404.06469|Neuromorphic In-Context Learning for Energy-Efficient MIMO Symbol Detection|2024
+983|2501.14746|Neuromorphic Spiking Neural Network Based Classification of COVID-19 Spike Sequences|2024
+3583||Neuromorphic imaging and classification with graph learning|2024
+1002|2412.06647|Object Detection using Event Camera: A MoE Heat Conduction based Detector and A New Benchmark Dataset|2024
+1561|2403.08786|One-Spike SNN: Single-Spike Phase Coding with Base Manipulation for ANN-to-SNN Conversion Loss Minimization|2024
+1514|2402.19061|Optimal ANN-SNN Conversion with Group Neurons|2024
+1461|2404.01359|Parallel Proportional Fusion of Spiking Quantum Neural Network for Optimizing Image Classification|2024
+1364|2406.00473|Pedestrian intention prediction in Adverse Weather Conditions with Spiking Neural Networks and Dynamic Vision Sensors|2024
+1430|2404.12771|Phase-space analysis of a two-section InP laser as an all-optical spiking neuron: dependency on control and design parameters|2024
+1439|2404.10564|Photonic Neuromorphic Accelerators for Event-Based Imaging Flow Cytometry|2024
+3490||RATE Real-time Asynchronous Feature Tracking with Event Cameras|2024
+1482|2311.14303|RFI Detection with Spiking Neural Networks|2024
+1386|2303.10770|RN-Net: Reservoir Nodes-Enabled Neuromorphic Vision Sensing Network|2024
+1187|2409.01564|ReSpike: Residual Frames-based Hybrid Spiking Neural Networks for Efficient Action Recognition|2024
+1298|2407.00931|Real-Time Neuromorphic Navigation: Integrating Event-Based Vision and Physics-Driven Planning on a Parrot Bebop2 Quadrotor|2024
+1377|2405.17903|Reliable Object Tracking by Multimodal Hybrid Feature Extraction and Transformer-Based Fusion|2024
+1390|2405.19351|Resonate-and-Fire Spiking Neurons for Target Detection and Hand Gesture Recognition: A Hybrid Approach|2024
+1581|2401.06563|Resource-Efficient Gesture Recognition using Low-Resolution Thermal Camera via Spiking Neural Networks and Sparse Segmentation|2024
+1433|2312.00425|Retina : Low-Power Eye Tracking with Event Camera and Spiking Hardware|2024
+1178|2409.04082|SDformerFlow: Spatiotemporal swin spikeformer for event-based optical flow estimation|2024
+3436||SEVD Synthetic Event-based Vision Dataset for Ego and Fixed Traffic Perception|2024
+1481|2403.15192|SFOD: Spiking Fusion Object Detector|2024
+1327|2404.09331|SNN4Agents: A Framework for Developing Energy-Efficient Embodied Spiking Neural Networks for Autonomous Agents|2024
+1317|2406.15034|SVFormer: A Direct Training Spiking Transformer for Efficient Video Action Recognition|2024
+1042|2411.16061|Scaling Spike-driven Transformer with Efficient Spike Firing Approximation Training|2024
+3373|2404.01882|Scene Adaptive Sparse Transformer for Event-based Object Detection|2024
+1603|2401.01912|Shrinking Your TimeStep: Towards Low-Latency Neuromorphic Object Recognition with Spiking Neural Network|2024
+1299|2407.01645|Sign Gradient Descent-based Neuronal Dynamics: ANN-to-SNN Conversion Beyond ReLU Network|2024
+1084|2411.05806|SkipSNN: Efficiently Classifying Spike Trains with Event-attention|2024
+3538||Spatio-Temporal Fusion Spiking Neural Network for Frame-Based and Event-Based Camera Sensor Fusion|2024
+1380|2304.06793|Speck: A Smart event-based Vision Sensor with a low latency 327K Neuron Convolutional Neuronal Network Processing Pipeline|2024
+1567|2401.15212|Speed-based Filtration and DBSCAN of Event-based Camera Data with Neuromorphic Computing|2024
+1070|2411.02854|SpiDR: A Reconfigurable Digital Compute-in-Memory Spiking Neural Network Accelerator for Event-based Perception|2024
+1585|2401.04491|SpiNNaker2: A Large-Scale Neuromorphic System for Event-Based and Asynchronous Machine Learning|2024
+1100|2410.16746|SpikMamba: When SNN meets Mamba in Event-based Human Action Recognition|2024
+1530|2402.10476|Spike-EVPR: Deep Spiking Residual Network with Cross-Representation Aggregation for Event-Based Visual Place Recognition|2024
+1532|2404.03663|Spike-driven Transformer V2: Meta Spiking Neural Network Architecture Inspiring the Design of Next-generation Neuromorphic Chips|2024
+984|2412.14587|Spike2Former: Efficient Spiking Transformer for High-performance Image Segmentation|2024
+1037|2411.17439|SpikeAtConv: An Integrated Spiking-Convolutional Attention Architecture for Energy-Efficient Neuromorphic Vision Processing|2024
+1524|2308.15122|SpikeBERT: A Language Spikformer Learned from BERT with Knowledge Distillation|2024
+1389|2404.01174|SpikeMba: Multi-Modal Spiking Saliency Mamba for Temporal Video Grounding|2024
+1571|2310.07189|SpikePoint: An Efficient Point-based Spiking Neural Network for Event Cameras Action Recognition|2024
+1595|2401.02020|Spikformer V2: Join the High Accuracy Club on ImageNet with an SNN Ticket|2024
+1347|2402.01287|Spiking CenterNet: A Distillation-boosted Spiking Neural Network for Object Detection|2024
+1542|2402.05441|Spiking Neural Network Enhanced Hand Gesture Recognition Using Low-Cost Single-photon Avalanche Diode Array|2024
+1344|2209.14915|Spiking Neural Networks for event-based action recognition: A new task to understand their advantage|2024
+3416||Spiking neural networks for autonomous driving: A review|2024
+1049|2411.14147|Spiking neural networks: Towards bio-inspired multimodal perception in robotics|2024
+1134|2407.20633|Spiking-DD: Neuromorphic Event Camera based Driver Distraction Detection with Spiking Neural Network|2024
+1465|2403.14302|SpikingResformer: Bridging ResNet and Vision Transformer in Spiking Neural Networks|2024
+3591||Steering Prediction via a Multi-Sensor System for Autonomous Racing|2024
+1012|2406.06075|Supervised Radio Frequency Interference Detection with SNNs|2024
+1223|2408.07150|The Potential of Combined Learning Strategies to Enhance Energy Efficiency of Spiking Neuromorphic Systems|2024
+1388|2405.14474|Time Cell Inspired Temporal Codebook in Spiking Neural Networks for Enhanced Image Generation|2024
+1489|2205.07473|Towards Lossless ANN-SNN Conversion under Ultra-Low Latency with Dual-Phase Optimization|2024
+1153|2409.12507|Towards Low-latency Event-based Visual Recognition with Hybrid Step-wise Distillation Spiking Neural Networks|2024
+3521||TransCODNet Underwater Transparently Camouflaged Object Detection via RGB and Event Frames Collabor|2024
+1009|2412.05505|Trimming Down Large Spiking Vision Transformers via Heterogeneous Quantization Search|2024
+1471|2311.06074|Two-compartment neuronal spiking model expressing brain-state specific apical-amplification, -isolation and -drive regimes|2024
+3491||Underwater object detection and datasets a survey|2024
+1240|2408.00611|Using CSNNs to Perform Event-based Data Processing & Classification on ASL-DVS|2024
+3517||VMamba Visual State Space Model|2024
+1512|2309.10225|VPRTempo: A Fast Temporally Encoded Spiking Neural Network for Visual Place Recognition|2024
+3570||Valeo4Cast A Modular Approach to End-to-End Forecasting|2024
+3593||Vision Mamba Efficient Visual Representation Learning with Bidirectional State Space Model|2024
+1029|2411.19422|Wafer2Spike: Spiking Neural Network for Wafer Map Pattern Classification|2024
+1352|2406.03046|When Spiking neural networks meet temporal attention image decoding and adaptive spiking neuron|2024
+3494||YOLOv11 An Overview of the Key Architectural Enhancements|2024
+1000|2412.09209|eCARLA-scenes: A synthetically generated dataset for event-based optical flow prediction|2024
+1560|2401.16841|jaxsnn: Event-driven Gradient Estimation for Analog Neuromorphic Hardware|2024
+1503|2403.05772|sVAD: A Robust, Low-Power, and Light-Weight Voice Activity Detection with Spiking Neural Networks|2024
+3525||A Comprehensive Review of Spiking Neural Networks Interpretation, Optimization, Efficiency, and Bes|2023
+1756|2309.08476|A Spiking Binary Neuron -- Detector of Causal Links|2023
+3516||A Survey on Evolutionary Neural Architecture Search|2023
+1746|2307.11555|Accurate Detection of Spiking Motifs by Learning Heterogeneous Delays of a Spiking Neural Network|2023
+3480||Action Recognition and Benchmark Using Event Cameras|2023
+2005|2302.08607|Adaptive Axonal Delays in feedforward spiking neural networks for accurate spoken word recognition|2023
+1985|2209.11741|Adaptive-SpikeNet: Event-based Optical Flow Estimation using Spiking Neural Networks with Learnable Neuronal Dynamics|2023
+1907|2305.12293|An Asynchronous Wireless Network for Capturing Event-Driven Data from Large Populations of Autonomous Sensors|2023
+3440||An Event-Based Tracking Control Framework for Multirotor Aerial Vehicles Using a Dynamic Vision Sens|2023
+1794|2308.09455|Artificial-Spiking Hierarchical Networks for Vision-Language Representation Learning|2023
+1799|2308.02557|Attention-free Spikformer: Mixing Spike Sequences with Simple Linear Transforms|2023
+1885|2306.00807|Auto-Spikformer: Spikformer Architecture Search|2023
+1632|2312.08654|Automated detection of Zika and dengue in Aedes aegypti using neural spiking analysis|2023
+3579||CMX Cross-Modal Fusion for RGB-X Semantic Segmentation With Transformers|2023
+1894|2305.18371|ColibriUAV: An Ultra-Fast, Energy-Efficient Neuromorphic Edge Processing UAV-Platform with Event-Based and Frame-Based Cameras|2023
+1615|2401.10257|Curriculum Design Helps Spiking Neural Networks to Classify Time Series|2023
+1620|2303.08977|DeblurSR: Event-Based Motion Deblurring Under the Spiking Representation|2023
+1830|2307.11411|Deep Directly-Trained Spiking Neural Networks for Object Detection|2023
+1903|2305.13100|Detecting a periodic signal by a population of spiking neurons in the weakly nonlinear response regime|2023
+3377||Direct Training High-Performance Spiking Neural Networks for Object Recognition and Detection|2023
+3459||ECSNet Spatio-Temporal Feature Learning for Event Camera|2023
+2041|2301.08281|ETLP: Event-based Three-factor Local Plasticity for online learning with neuromorphic hardware|2023
+3551||EVEN An Event-Based Framework for Monocular Depth Estimation at Adverse Night|2023
+1637|2312.07466|Efficient Object Detection in Autonomous Driving using Spiking Neural Networks: Performance, Energy Consumption Analysis, and Insights into Open-set Object Discovery|2023
+3555||Egomotion from event-based SNN optical flow|2023
+1770|2310.12985|Enabling energy-Efficient object detection with surrogate gradient descent in spiking neural networks|2023
+1835|2307.05225|Energy Efficient Personalized Hand-Gesture Recognition with Neuromorphic Computing|2023
+1792|2308.11152|Energy-Efficient On-Board Radio Resource Management for Satellite Communications via Neuromorphic Computing|2023
+1842|2307.07963|Enhancing Energy Efficiency and Reliability in Autonomous Systems Estimation using Neuromorphic Approach|2023
+1925|2209.08723|Ensembles of Compact, Region-specific & Regularized Spiking Neural Networks for Scalable Place Recognition|2023
+1824|2308.00787|Evaluating Spiking Neural Network On Neuromorphic Platform For Human Activity Recognition|2023
+3547||Event Camera and LiDAR based Human Tracking for Adverse Lighting Conditions in Subterranean Environm|2023
+3580||Event-Based Optical Flow Estimation with Spatio-Temporal Backpropagation Trained Spiking Neural Netw|2023
+3366||Event-Based Optical Flow Estimation with Spatio-Temporal Backpropagation Trained Spiking Neural Network|2023
+1732|2310.02361|Event-Enhanced Multi-Modal Spiking Neural Network for Dynamic Obstacle Avoidance|2023
+1614|2312.16071|Event-based Shape from Polarization with Spiking Neural Networks|2023
+1716|2210.01244|Event-based Temporally Dense Optical Flow Estimation with Sequential Learning|2023
+1747|2309.12937|Evolving Spiking Neural Networks to Mimic PID Control for Autonomous Blimps|2023
+3530||Fast Trajectory End-Point Prediction with Event Cameras for Reactive Robot Control|2023
+1686|2311.04558|Free-Space Optical Spiking Neural Network|2023
+1683|2311.05210|From "What" to "When" -- a Spiking Neural Network Predicting Rare Events and Time to their Occurrence|2023
+3594||From Chaos Comes Order Ordering Event Representations for Object Recognition and Detection|2023
+1982|2303.08778|Fully neuromorphic vision and control for autonomous drone flight|2023
+3535||GET Group Event Transformer for Event-Based Vision|2023
+1741|2309.15883|Highly Efficient SNNs for High-speed Object Detection|2023
+2011|2302.07328|Hybrid Spiking Neural Network Fine-tuning for Hippocampus Segmentation|2023
+1989|2303.12738|Joint ANN-SNN Co-training for Object Localization and Image Segmentation|2023
+2004|2302.09238|KLIF: An optimized spiking neuron unit for tuning surrogate gradient slope and membrane potential|2023
+1832|2307.14077|Learning heterogeneous delays in a layer of spiking neurons for fast motion detection|2023
+1742|2309.15555|Low Latency of object detection for spikng neural network|2023
+3461||Low-latency monocular depth estimation using event timing on neuromorphic hardware|2023
+1621|2312.14261|Low-power event-based face detection with asynchronous neuromorphic hardware|2023
+1934|2304.13289|Membrane Potential Distribution Adjustment and Parametric Surrogate Gradient in Spiking Neural Networks|2023
+3549||MotionLM Multi-Agent Motion Forecasting as Language Modeling|2023
+3414||Multimodal Fusion for Sensorimotor Control in Steering Angle Prediction|2023
+3431|2307.05288|Navigating Uncertainty: The Role of Short-Term Trajectory Prediction in Autonomous Vehicle Safety|2023
+2015|2112.06102|NeuroHSMD: Neuromorphic Hybrid Spiking Motion Detector|2023
+1849|2304.07139|Neuromorphic Optical Flow and Real-time Implementation with Event Cameras|2023
+3390|1905.05055|Object Detection in 20 Years: A Survey|2023
+1916|2302.06492|Optical flow estimation from event-based cameras and spiking neural networks|2023
+3396||Optical flow estimation from event-based cameras and spiking neural networks|2023
+1937|2304.11713|Optically-triggered deterministic spiking regimes in nanostructure resonant tunnelling diode-photodetectors|2023
+8|2303.04347|Optimal ANN-SNN Conversion for High-accuracy and Ultra-low-latency Spiking Neural Networks|2023
+3581||Perception and sensing for autonomous vehicles under adverse weather conditions A survey|2023
+3387|2209.08323|RGB-Event Fusion for Moving Object Detection in Autonomous Driving|2023
+2021|2302.02091|Reducing ANN-SNN Conversion Error through Residual Membrane Potential|2023
+2025|2201.10879|S$^3$NN: Time Step Reduction of Spiking Surrogate Gradients for Training Energy Efficient Single-Step Spiking Neural Networks|2023
+1748|2309.12761|S3TC: Spiking Separated Spatial and Temporal Convolutions with Unsupervised STDP-based Learning for Action Recognition|2023
+3386|2308.04047|SODFormer: Streaming Object Detection With Transformer Using Events and Frames|2023
+1779|2309.03221|SPAIC: A sub-$μ$W/Channel, 16-Channel General-Purpose Event-Based Analog Front-End with Dual-Mode Encoders|2023
+1611|2312.17216|SparseProp: Efficient Event-Based Simulation and Training of Sparse Recurrent Spiking Neural Networks|2023
+1673|2311.08806|SparseSpikformer: A Co-Design Framework for Token and Weight Pruning in Spiking Transformer|2023
+3573||Sparser spiking activity can be better Feature Refine-and-Mask spiking neural network for event-bas|2023
+3424||Spike-Event Object Detection for Neuromorphic Vision|2023
+1854|2307.01694|Spike-driven Transformer|2023
+3574||Spike-driven Transformer V2 Meta Spiking Neural Network Architecture Inspiring the Design of Next-g|2023
+1737|2309.16987|SpikeMOT: Event-based Multi-Object Tracking with Sparse Motion Features|2023
+5|2209.15425|Spikformer: When Spiking Neural Network Meets Transformer|2023
+1999|2302.14726|Spiking Neural Network Nonlinear Demapping on Neuromorphic Hardware for IM/DD Optical Communication|2023
+1859|2306.12010|Spiking Neural Network for Ultra-low-latency and High-accurate Object Detection|2023
+1961|2304.03896|Spiking Neural Networks for Detecting Satellite-Based Internet-of-Things Signals|2023
+1654|2311.16456|Spiking Neural Networks with Dynamic Time Steps for Vision Transformers|2023
+1865|2306.13783|Spiking Two-Stream Methods with Unsupervised STDP-based Learning for Action Recognition|2023
+1776|2309.00241|Spiking based Cellular Learning Automata (SCLA) algorithm for mobile robot motion formulation|2023
+1940|2304.10211|Spiking-Fer: Spiking Neural Network for Facial Expression Recognition With Event Cameras|2023
+3474||SpikingJelly An open-source machine learning infrastructure platform for spike-based intelligence|2023
+2042|2112.07019|Synapse Compression for Event-Based Convolutional-Neural-Network Accelerators|2023
+3596|2303.05214|Taming Contrast Maximization for Learning Sequential, Low-latency, Event-based Optical Flow|2023
+9|2306.13975|The Dynamic Vision Sensor (DVS): Fundamentals and Applications|2023
+1828|2303.01826|TopSpark: A Timestep Optimization Methodology for Energy-Efficient Spiking Neural Networks on Autonomous Mobile Agents|2023
+3550||Training Robust Spiking Neural Networks on Neuromorphic Data with Spatiotemporal Fragments|2023
+1980|2303.10632|Training a spiking neural network on an event-based label-free flow cytometry dataset|2023
+1935|2304.13098|Uncovering the Representation of Spiking Neural Networks Trained with Surrogate Gradient|2023
+2268|2205.13474|2D versus 3D Convolutional Spiking Neural Networks Trained with Unsupervised STDP for Human Action Recognition|2022
+2406|2201.12265|3D-FlowNet: Event-based optical flow estimation with 3D representation|2022
+2158|2210.00894|A Novel Explainable Out-of-Distribution Detection Approach for Spiking Neural Networks|2022
+3402||A Review on Autonomous Vehicles: Progress, Methods and Challenges|2022
+3520||A particle swarm optimization based multiobjective memetic algorithm for high-dimensional feature se|2022
+3372|2203.17149|AEGNN: Asynchronous Event-based Graph Neural Networks|2022
+3499||Adaptive-SpikeNet Event-based Optical Flow Estimation using Spiking Neural Networks with Learnable|2022
+2072|2110.02929|Adversarial Attacks on Spiking Convolutional Neural Networks for Event-based Vision|2022
+2090|2211.13102|An Adaptive Event-based Data Converter for Always-on Biomedical Applications at the Edge|2022
+2269|2205.13292|An Event-Driven Compressive Neuromorphic System for Cardiac Arrhythmia Detection|2022
+3477||Analytical Review of Event-Based Camera Depth Estimation Methods and Systems|2022
+15|2205.15765|Asynchronous Event-Based Object Detection Using Spiking Neural Networks|2022
+3371||Asynchronous Spatio-Temporal Memory Network for Continuous Event-Based Object Detection|2022
+3445||Autonomous Vehicles and Intelligent Automation Applications, Challenges, and Opportunities|2022
+2352|2203.14679|Brain-inspired Multilayer Perceptron with Spiking Neurons|2022
+2332|2204.04430|CMOS Circuit Implementation of Spiking Neural Network for Pattern Recognition Using On-chip Unsupervised STDP Learning|2022
+3533||DOTIE - Detecting Objects through Temporal Isolation of Events using a Spiking Architecture|2022
+3439||Drone Navigation Using Region and Edge Exploitation-Based Deep CNN|2022
+2152|2210.01419|Dynamic image recognition in a spiking neuron network supplied by astrocytes|2022
+3553||ESS Learning Event-Based Semantic Segmentation from Still Images|2022
+2264|2205.14315|Efficient Federated Learning with Spike Neural Networks for Traffic Sign Recognition|2022
+2372|2104.00165|Encoding Event-Based Data With a Hybrid SNN Guided Variational Auto-encoder in Neuromorphic Hardware|2022
+2094|2210.05006|Energy-Efficient Deployment of Machine Learning Workloads on Neuromorphic Hardware|2022
+12|2209.13766|Event-based Stereo Depth Estimation Using Belief Propagation|2022
+2351|2201.10943|Event-based Video Reconstruction via Potential-assisted Spiking Neural Network|2022
+1|1904.08405|Event-based Vision: A Survey|2022
+2164|2209.12087|Experimental observation of chimera states in spiking neural networks based on degenerate optical parametric oscillators|2022
+2235|2206.10226|Fluctuation-driven initialization for spiking neural network training|2022
+2146|2210.04236|Fusing Event-based Camera and Radar for SLAM Using Spiking Neural Networks with Continual STDP Learning|2022
+3385||Fusing Event-based and RGB camera for Robust Object Detection in Adverse Conditions|2022
+2168|2211.04297|Heterogeneous Recurrent Spiking Neural Network for Spatio-Temporal Classification|2022
+3404||High-temporal-resolution event-based vehicle detection and tracking|2022
+2101|2211.07761|Impact of spiking neurons leakages and network recurrences on event-based spatio-temporal pattern recognition|2022
+2059|2212.10881|In-Sensor & Neuromorphic Computing are all you need for Energy Efficient Computer Vision|2022
+2197|2208.02253|LaneSNNs: Spiking Neural Networks for Lane Detection on the Loihi Neuromorphic Processor|2022
+2267|2205.13585|Learning in Feedback-driven Recurrent Spiking Neural Networks using full-FORCE Training|2022
+3534||Liquid State Machine on SpiNNaker for Spatio-Temporal Classification Tasks|2022
+2093|2211.12156|MSS-DepthNet: Depth Prediction with Multi-Step Spiking Neural Network|2022
+2056|2212.12620|Mantis: Enabling Energy-Efficient Autonomous Mobile Agents with Spiking Neural Networks|2022
+3561||Masked Spiking Transformer|2022
+2410|2201.10777|Meta-learning Spiking Neural Networks with Surrogate Gradient Descent|2022
+3513||Motion Robust High-Speed Light-Weighted Object Detection With Event Camera|2022
+3585||Moving Object Detection and Tracking by Event Frame from Neuromorphic Vision Sensors|2022
+3452||NeuroGrasp Multimodal Neural Network With Euler Region Regression for Neuromorphic Vision-Based Gra|2022
+2356|2203.11193|Neuron-like spiking dynamics in the asymmetrically-driven dissipative photonic Bose-Hubbard dimer|2022
+3389|2201.07706|Object Detection in Autonomous Vehicles: Status and Open Challenges|2022
+2298|2205.04339|Object Detection with Spiking Neural Networks on Automotive Event Data|2022
+3378|2205.13552|Object Detection with Spiking Neural Networks on Automotive Event Data|2022
+3586||Reconstructing Clear Image for High-Speed Motion Scene With a Retina-Inspired Spike Camera|2022
+2322|2204.06216|Sapinet: A sparse event-based spatiotemporal oscillator for learning in the wild|2022
+2308|2205.00778|Sparse Compressed Spiking Neural Network Accelerator for Object Detection|2022
+3376||Sparse Compressed Spiking Neural Network Accelerator for Object Detection|2022
+2338|2109.04871|Spatio-Temporal Recurrent Networks for Event-Based Optical Flow Estimation|2022
+2222|2207.02702|Spike Calibration: Fast and Accurate Conversion of Spiking Neural Network for Object Detection and Segmentation|2022
+2096|2211.10686|Spikeformer: A Novel Architecture for Training High-Performance Low-Latency Spiking Neural Network|2022
+2253|2206.02876|SpikiLi: A Spiking Simulation of LiDAR based Real-time Object Detection for Autonomous Driving|2022
+2257|2205.04263|Spiking Neural Network Equalization for IM/DD Optical Communication|2022
+2256|2206.00401|Spiking Neural Network Equalization on Neuromorphic Hardware for IM/DD Optical Communication|2022
+2243|2206.06506|Spiking Neural Networks for Frame-based and Event-based Single Object Localization|2022
+2400|2109.06452|Spiking Neural Networks for Visual Place Recognition via Weighted Neuronal Assignments|2022
+2165|2209.12010|Spiking SiamFC++: Deep Spiking Neural Network for Object Tracking|2022
+2109|2211.04166|Spiking sampling network for image sparse representation and dynamic vision sensor data compression|2022
+2114|2109.13751|StereoSpike: Depth Learning with a Spiking Neural Network|2022
+2251|2206.01910|The Spike Gating Flow: A Hierarchical Structure Based Spiking Neural Network for Online Gesture Recognition|2022
+3562||YOLOv7 Trainable Bag-of-Freebies Sets New State-of-the-Art for Real-Time Object|2022
+2273|2205.12295|lpSpikeCon: Enabling Low-Precision Spiking Neural Network Processing for Efficient Unsupervised Continual Learning on Autonomous Agents|2022
+2445|2111.15250|2D-Motion Detection using SNNs with Graphene-Insulator-Graphene Memristive Synapses|2021
+2555|2108.02669|A 2-$μ$J, 12-class, 91% Accuracy Spiking Neural Network Approach For Radar Gesture Recognition|2021
+2551|2108.12444|A Design Flow for Mapping Spiking Neural Networks to Many-Core Neuromorphic Hardware|2021
+2588|2104.10719|A Fully Spiking Hybrid Neural Network for Energy-Efficient Object Detection|2021
+2751|2102.01966|A Neurorobotic Embodiment for Exploring the Dynamical Interactions of a Spiking Cerebellar Model and a Robot Arm During Vision-based Manipulation Tasks|2021
+2616|2106.08921|A Spiking Neural Network for Image Segmentation|2021
+2741|2102.09360|All-optical spiking neurosynaptic networks with self-learning capabilities|2021
+2494|2110.10217|An Adaptive Sampling and Edge Detection Approach for Encoding Static Images for Spiking Neural Networks|2021
+3383||An Attention Fusion Network For Event-Based Vehicle Object Detection|2021
+2755|2006.09985|An Efficient Spiking Neural Network for Recognizing Gestures with a DVS Camera on the Loihi Neuromorphic Processor|2021
+2500|2110.07742|Beyond Classification: Directly Training Spiking Neural Networks for Semantic Segmentation|2021
+3237|2112.01933|Bio-inspired Polarization Event Camera|2021
+2638|2105.14753|Bio-inspired visual attention for silicon retinas based on spiking neural networks applied to pattern classification|2021
+2600|2107.00401|CarSNN: An Efficient Spiking Neural Network for Event-Based Autonomous Cars on the Loihi Neuromorphic Research Processor|2021
+2734|2102.10592|Combining Spiking Neural Network and Artificial Neural Network for Enhanced Image Classification|2021
+2575|2108.02023|DFSynthesizer: Dataflow-based Synthesis of Spiking Neural Networks to Neuromorphic Hardware|2021
+18|2103.06011|DSEC: A Stereo Event Camera Dataset for Driving Scenarios|2021
+2599|2107.00415|DVS-Attacks: Adversarial Attacks on Dynamic Vision Sensors for Spiking Neural Networks|2021
+3472||Deep Residual Learning in Spiking Neural Networks|2021
+2661|2105.05609|Deep Spiking Convolutional Neural Network for Single Object Localization Based On Deep Continuous Local Learning|2021
+2451|2111.11838|Design of Many-Core Big Little μBrain for Energy-Efficient Embedded Neuromorphic Computing|2021
+2488|2110.12211|ES-ImageNet: A Million Event-Stream Classification Dataset for Spiking Neural Networks|2021
+13|2007.15548|ESVO: Event-based Stereo Visual Odometry|2021
+2557|2107.04092|Even Faster SNN Simulation with Lazy+Event-driven Plasticity and Shared Atomics|2021
+2641|2009.08378|Event-Based Backpropagation can compute Exact Gradients for Spiking Neural Networks|2021
+3411||Event-Based Trajectory Prediction Using Spiking Neural Networks|2021
+2705|2103.02376|Event-based Synthetic Aperture Imaging with a Hybrid Network|2021
+2718|2009.08667|Event-based update of synapses in voltage-based learning rules|2021
+2559|2108.03694|Event-driven Vision and Control for UAVs on a Neuromorphic Chip|2021
+3597|2108.10312|Exploring Simple 3D Multi-Object Tracking for Autonomous Driving|2021
+2656|1912.11443|Fast and energy-efficient neuromorphic deep learning with first-spike times|2021
+2643|2105.14331|Foveal-pit inspired filtering of DVS spike response|2021
+3384||Fusion-Based Feature Attention Gate Component for Vehicle Detection Based on Event Camera|2021
+2712|2103.10592|Fusion-FlowNet: Energy-Efficient Optical Flow Estimation using Sensor Fusion and Deep Fused Spiking-Analog Network Architectures|2021
+3589||Going Deeper With Directly-Trained Larger Spiking Neural Networks|2021
+2538|2109.04119|HSMD: An object motion detection algorithm using a Hybrid Spiking Neural Network Architecture|2021
+2583|2107.11979|HYPER-SNN: Towards Energy-efficient Quantized Deep Spiking Neural Networks for Hyperspectral Image Classification|2021
+2440|2112.03423|Hybrid SNN-ANN: Energy-Efficient Classification and Object Detection for Event-Based Vision|2021
+3375||Hybrid SNN-ANN: Energy-Efficient Classification and Object Detection for Event-Based Vision|2021
+2435|2201.02538|Improving Surrogate Gradient Learning in Spiking Neural Networks via Regularization and Normalization|2021
+3473||Incorporating Learnable Membrane Time Constant to Enhance Learning of Spiking Neural Networks|2021
+2685|2104.12579|Learning from Event Cameras with Sparse Spiking Convolutional Neural Networks|2021
+3428||Multi-Object Detection and Tracking, Based on DNN, for Autonomous Vehicles: A Review|2021
+2658|2105.06824|Multi-Objective Optimisation of Cortical Spiking Neural Networks With Genetic Algorithms|2021
+2504|2108.04521|Multi-domain Collaborative Feature Representation for Robust Visual Object Tracking|2021
+3496||N-ImageNet Towards Robust Fine-Grained Object Recognition with Event Cameras|2021
+2746|2102.07243|Naturalizing Neuromorphic Vision Event Streams Using GANs|2021
+2756|2101.09709|Neuromorphic adaptive spiking CPG towards bio-inspired locomotion of legged robots|2021
+3578||Object Tracking by Jointly Exploiting Frame and Event Domain|2021
+2635|2106.00687|Online Detection of Vibration Anomalies Using Balanced Spiking Neural Networks|2021
+3466||Optimal ANN-SNN Conversion for Fast and Accurate Inference in Deep Spiking|2021
+2647|2105.11654|Optimal ANN-SNN Conversion for Fast and Accurate Inference in Deep Spiking Neural Networks|2021
+2754|2002.00860|Optimized spiking neurons classify images with high accuracy through temporal coding with two spikes|2021
+2698|2104.03140|Order symmetry breaking and broad distribution of events in spiking neural networks with continuous membrane potential|2021
+3560||Pyramid Vision Transformer A Versatile Backbone for Dense Prediction without|2021
+2546|2109.00533|R-SNN: An Analysis and Design Methodology for Robustifying Spiking Neural Networks against Adversarial Attacks through Noise Filters for Dynamic Vision Sensors|2021
+2515|2106.05624|RetinaNet Object Detector based on Analog-to-Spiking Neural Network Conversion|2021
+2617|2106.08005|SAR Image Classification Based on Spiking Neural Network through Spike-Time Dependent Plasticity and Gradient Descent|2021
+2486|2106.01862|Self-Supervised Learning of Event-Based Optical Flow with Spiking Neural Networks|2021
+3410||Self-Supervised Optical Flow with Spiking Neural Networks and Event Based Cameras|2021
+2614|2003.07584|SiamSNN: Siamese Spiking Neural Networks for Energy-Efficient Object Tracking|2021
+2659|2105.06562|SpikeMS: Deep Spiking Neural Network for Motion Segmentation|2021
+2686|2010.14217|Spiking Neural Networks -- Part II: Detecting Spatio-Temporal Patterns|2021
+3447||Study and design of an energy efficient perception module combining event-based image sensors and sp|2021
+2651|2006.07239|Surrogate gradients for analog neuromorphic computing|2021
+3515||Swin Transformer Hierarchical Vision Transformer using Shifted Windows|2021
+2465|2008.04509|TCL: an ANN-to-SNN Conversion with Trainable Clipping Layers|2021
+2587|2107.11711|Temporal-wise Attention Spiking Neural Networks for Event Streams Classification|2021
+2574|2003.11859|Thalamo-cortical spiking model of incremental learning combining perception, context and NREM-sleep-mediated noise-resilience|2021
+3442||Time-Ordered Recent Event TORE Volumes for Event Cameras|2021
+2696|2102.01803|Tracking fast and slow changes in synaptic weights from simultaneously observed pre- and postsynaptic spiking|2021
+2470|2111.05283|Unsupervised Spiking Instance Segmentation on Event Data using STDP|2021
+3458||VCANet Vanishing-Point-Guided Context-Aware Network for Small Road Object Detection|2021
+2825|2002.11843|A Deep Unsupervised Feature Learning Spiking Neural Network with Binarized Classification Layers for EMNIST Classification using SpykeFlow|2020
+3030|2003.06310|A Power-Efficient Binary-Weight Spiking Neural Network Architecture for Real-Time Object Classification|2020
+2806|2011.08783|A Spiking Neural Network (SNN) for detecting High Frequency Oscillations (HFOs) in the intraoperative ECoG|2020
+2853|2009.13207|A thermodynamically consistent chemical spiking neuron capable of autonomous Hebbian learning|2020
+2894|2008.00317|Adaptive Chemotaxis for improved Contour Tracking using Spiking Neural Networks|2020
+2815|2011.04438|All-optical neuromorphic binary convolution with a spiking VCSEL neuron for image gradient magnitudes|2020
+2931|2006.12314|Always-On, Sub-300-nW, Event-Driven Spiking Neural Network based on Spike-Driven Clock-Generation and Clock- and Power-Gating for an Ultra-Low-Power Intelligent Device|2020
+3001|2004.05450|Bio-inspired Gait Imitation of Hexapod Robot Using Event-Based Vision Sensor and Spiking Neural Network|2020
+2981|2005.02183|Comparing SNNs and RNNs on Neuromorphic Vision Datasets: Similarities and Differences|2020
+2922|2007.10309|Convolutional Image Edge Detection Using Ultrafast Photonic Spiking VCSEL Neurons|2020
+3486||DDD20 End-to-End Event Camera Driving Dataset Fusing Frames and Events with Deep Learning for Impro|2020
+2989|1912.07906|Deep SCNN-based Real-time Object Detection for Self-driving Vehicles Using LiDAR Temporal Data|2020
+3437||Distance Surface for Event-Based Optical Flow|2020
+3047|2002.06199|Effective AER Object Classification Using Segmented Probability-Maximization Learning in Spiking Neural Networks|2020
+3457||End-to-end Learning of Object Motion Estimation from Retinal Events for|2020
+3038|2003.02790|Event-Based Angular Velocity Regression with Spiking Networks|2020
+3370|2009.13436|Learning to Detect Objects with a 1 Megapixel Event Camera|2020
+3037|2003.11639|Memory Organization for Energy-Efficient Learning and Inference in Digital Neuromorphic Accelerators|2020
+3036|2003.02902|Minimal spiking neuron for solving multi-label classification tasks|2020
+3052|2002.01406|Multi-Objective Optimization for Size and Resilience of Spiking Neural Networks|2020
+2824|2011.00534|Neuromorphic control for optic-flow-based landings of MAVs using the Loihi processor|2020
+3395|2003.12039|RAFT: Recurrent All-Pairs Field Transforms for Optical Flow|2020
+2897|2003.01157|Reinforcement co-Learning of Deep and Spiking Neural Networks for Energy-Efficient Mapless Navigation with Neuromorphic Hardware|2020
+3503||Spike-FlowNet Event-Based Optical Flow Estimation with Energy-Efficient Hybrid Neural Networks|2020
+11|2003.06696|Spike-FlowNet: Event-Driven Optical Flow Estimation with Energy-Efficient Hybrid Neural Networks|2020
+3497||SpikeSEG Spiking Segmentation via STDP Saliency Mapping|2020
+2787|2010.14208|Spiking Neural Networks -- Part I: Detecting Spatial Patterns|2020
+2986|1910.09993|Spiking neural networks trained with backpropagation for low power neuromorphic implementation of voice activity detection|2020
+3374|1903.06530|Spiking-YOLO: Spiking Neural Network for Energy-Efficient Object Detection|2020
+2771|2009.14456|Strategy and Benchmark for Converting Deep Q-Networks to Event-Driven Spiking Neural Networks|2020
+3058|2001.09220|Temporal Pulses Driven Spiking Neural Network for Fast Object Recognition in Autonomous Driving|2020
+3546||Trajectron++ Dynamically-Feasible Trajectory Forecasting with Heterogeneous Data|2020
+2863|2009.08309|Unsupervised Image Classification Through Time-Multiplexed Photonic Multi-Layer Spiking Convolutional Neural Network|2020
+3575||Unsupervised Learning of Dense Optical Flow, Depth and Egomotion with Event-Based Sensors|2020
+2820|2011.01641|Vision-Based Control for Robots by a Fully Spiking Neural System Relying on Cerebellar Predictive Learning|2020
+2817|2006.09982|You Only Spike Once: Improving Energy-Efficient Neuromorphic Inference to ANN-Level Accuracy|2020
+3043|2002.11163|sBSNN: Stochastic-Bits Enabled Binary Spiking Neural Network with On-Chip Learning for Energy Efficient Neuromorphic Computing at the Edge|2020
+3116|1910.12459|A Bin Encoding Training of a Spiking Neural Network-based Voice Activity Detection|2019
+3085|1911.13097|A spiking neural algorithm for the Network Flow problem|2019
+3083|1912.01320|ATIS + SpiNNaker: a Fully Event-based Visual Tracking Demonstration|2019
+3108|1911.02238|All-Optical Spiking Neuron Based On Passive Micro-Resonator|2019
+3468||An Efficient Coding Method for Spike Camera Using Inter-Spike Intervals|2019
+3142|1909.01302|An efficient and perceptually motivated auditory neural encoding and decoding algorithm for spiking neural networks|2019
+3454||Argoverse 3D Tracking and Forecasting With Rich Maps|2019
+3451||Asynchronous Convolutional Networks for Object Detection in Neuromorphic Cameras|2019
+3559||CSPNet A New Backbone that can Enhance Learning Capability of CNN|2019
+3135|1909.12942|DashNet: A Hybrid Artificial and Spiking Neural Network for High-speed Object Tracking|2019
+3476||Deep Multi-Modal Object Detection and Semantic Segmentation for Autonomous|2019
+3588||Distance-IoU Loss Faster and Better Learning for Bounding Box Regression|2019
+16|1906.07165|E2VID: Events-to-Video: Bringing Modern Computer Vision to Event Cameras|2019
+19|1812.09820|EKLT: Asynchronous Photometric Feature Tracking Using Events and Frames|2019
+3529||EV-IMO Motion Segmentation Dataset and Learning Pipeline for Event Cameras|2019
+3422|1904.01293|Event-Based Motion Segmentation by Motion Compensation|2019
+3381||Event-Based Vision Enhanced: A Joint Detection Framework in Autonomous Driving|2019
+3417||Exploring Deep Spiking Neural Networks for Automated Driving Applications|2019
+3545||Generalized Intersection Over Union A Metric and a Loss for Bounding Box|2019
+3148|1908.06648|Graph-Based Object Classification for Neuromorphic Vision Sensing|2019
+3104|1910.03579|Graph-based Spatial-temporal Feature Learning for Neuromorphic Vision Sensing|2019
+3590||IoU Loss for 2D3D Object Detection|2019
+3556||Learning an Event Sequence Embedding for Dense Event-Based Deep Stereo|2019
+3380||Mixed Frame-/Event-Driven Fast Pedestrian Detection|2019
+3382||Multi-Cue Event Information Fusion for Pedestrian Detection With Neuromorphic Vision Sensors|2019
+3132|1909.08288|NatCSNN: A Convolutional Spiking Neural Network for recognition of objects extracted from natural images|2019
+3552||Neuromorphic Stereo Vision A Survey of Bio-Inspired Sensors and Algorithms|2019
+3501||Neuromorphic vision From sensors to event-based algorithms|2019
+3109|1910.04972|On-chip Few-shot Learning with Surrogate Gradient Descent on a Neuromorphic Processor|2019
+3446||Seeing Through Fog Without Seeing Fog Deep Multimodal Sensor Fusion in Unseen|2019
+6|1901.09948|Surrogate Gradient Learning in Spiking Neural Networks|2019
+3099|1911.08261|Unsupervised AER Object Recognition Based on Multiscale Spatio-Temporal Features and Spiking Neurons|2019
+3449||nuScenes A Multimodal Dataset for Autonomous Driving|2019
+3479||A Unifying Contrast Maximization Framework for Event Cameras, with Applications to Motion, Depth, an|2018
+20|1804.01306|Contrast Maximization Framework for Event Cameras|2018
+10|1802.06898|EV-FlowNet: Self-Supervised Optical Flow Estimation for Event-based Cameras|2018
+3528||Event-Based Moving Object Detection and Tracking|2018
+3526||Event-Based Vision Meets Deep Learning on Steering Prediction for Self-Driving Cars|2018
+3450||Event-based Convolutional Networks for Object Detection in Neuromorphic Cameras|2018
+3536||Optimal Sensor Data Fusion Architecture for Object Detection in Adverse Weather|2018
+3394|1709.02371|PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume|2018
+3514||Path Aggregation Network for Instance Segmentation|2018
+3455||Pseudo-Labels for Supervised Learning on Dynamic Vision Sensor Data, Applied to Object Detection Und|2018
+3405|1709.09323|Pseudo-labels for Supervised Learning on Dynamic Vision Sensor Data, Applied to Object Detection under Ego-motion|2018
+3444||Real-Time Clustering and Multi-Target Tracking Using Event-Based Sensors|2018
+3599||Real-Time Object Tracking on a Drone With Multi-Inertial Sensing Data|2018
+3495||Robust Deep Multi-modal Learning Based on Gated Information Fusion Network|2018
+3592||Unsupervised Event-Based Learning of Optical Flow Depth and Egomotion|2018
+3504||Adaptive Temporal Pooling for Object Detection using Dynamic Vision Sensor|2017
+14|1610.07481|EVO: A Geometric Approach to Event-Based 6-DOF Parallel Tracking and Mapping in Real Time|2017
+3393|1612.01925|FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks|2017
+3511||Focal Loss for Dense Object Detection|2017
+3485||DVS Benchmark Datasets for Object Tracking Action Recognition and Object|2016
+3510||Feature Pyramid Networks for Object Detection|2016
+3443||Simultaneous Optical Flow and Intensity Estimation from an Event Camera|2016
+3430|1508.05226|Social LSTM: Human Trajectory Prediction in Crowded Spaces|2016
+3502||Training Deep Spiking Neural Networks Using Backpropagation|2016
+3542||YOLO9000 Better Faster Stronger|2016
+3531||Continuous-Time Trajectory Estimation for Event-based Vision Sensors|2015
+3544||Faster R-CNN Towards Real-Time Object Detection with Region Proposal Networks|2015
+3392|1504.06852|FlowNet: Learning Optical Flow with Convolutional Networks|2015
+3448||On event-based optical flow detection|2015
+3543||You Only Look Once Unified Real-Time Object Detection|2015
+3246|2012.06516|Detection of Binary Square Fiducial Markers Using an Event Camera|2012
+3274|2012.05214|E3D: Event-Based 3D Shape Reconstruction|2012
+3302|2012.08730|EMSGC: Event-based Motion Segmentation with Spatio-Temporal Graph Cuts|2012
+3358|2012.09378|Event Camera Calibration of Per-pixel Biased Contrast Threshold|2012
+3345|2012.06475|EventHands: Real-Time Neural 3D Hand Reconstruction from an Event Stream|2012
+3287|2011.03290|Event-VPR: End-to-End Weakly Supervised Network Architecture for Event-based Visual Place Recognition|2011
+3254|2010.15510|Asynchronous Corner Tracking Algorithm based on Lifetime of Events for DAVIS Cameras|2010
+3273|2010.08350|Learning Monocular Dense Depth from Events|2010
+3256|2010.08278|Real-Time Face & Eye Tracking and Blink Detection using Event Cameras|2010
+3311|2010.08946|Temporal Binary Representation for Event-Based Action Recognition|2010
+3498||Bio-inspired Stereo Vision System with Silicon Retina Imagers|2009
+3310|2009.13049|Event-based Action Recognition Using Timestamp Image Encoding Network|2009
+3242|2009.00855|e-TLD: Event-based Framework for Dynamic Object Tracking|2009
+3548||A Toolbox for Easily Calibrating Omnidirectional Cameras|2006
+3301|2006.06158|MOMS with Events: Multi-Object Motion Segmentation With Monocular Event Cameras|2006
+3359|2006.05011|RGB-DE: Event Camera Calibration for Fast 6-DOF Object Tracking|2006
+3353|2005.08605|DDD20 End-to-End Event Camera Driving Dataset: Fusing Frames and Events with Deep Learning for Improved Steering Prediction|2005
+3330|2004.04079|A Noise Filter for Dynamic Vision Sensors based on Global Space and Time Information|2004
+3232|2004.03577|Event Based, Near Eye Gaze Tracking Beyond 10,000Hz|2004
+3305|2004.03156|Real-time Classification from Short Event-Camera Streams using Input-filtering Neural ODEs|2004
+3268|2003.00847|Learning to Deblur and Generate High Frame Rate Video with an Event Camera|2003
+3289|2002.10686|Globally Optimal Contrast Maximisation for Event-based Motion Estimation|2002
+3231|2001.08499|A Large Scale Event-based Detection Dataset for Automotive|2001
+3244|2001.01248|Exploiting Event Cameras for Spatio-Temporal Prediction of Fast-Changing Trajectories|2001
+3415||Networks of Spiking Neurons: The Third Generation of Neural Network Models|1997
+3257|2308.11771|3ET: Efficient Event-based Eye Tracking using a Change-Based ConvLSTM Network|0
+3233|1805.03988|ABMOF: A Novel Optical Flow Algorithm for Dynamic Vision Sensors|0
+3183|2410.22280|Active Event Alignment for Monocular Distance Estimation|0
+3362|2401.17151|An Open Software Suite for Event-Based Video|0
+3188|2411.16440|AnonyNoise: Anonymizing Event Data with Smart Noise to Outsmart Re-Identification and Preserve Privacy|0
+3229|2203.14672|Are High-Resolution Event Cameras Really Needed?|0
+3342|2211.09939|Astrometric Calibration and Source Characterisation of the Latest Generation Neuromorphic Event-based Cameras for Space Imaging|0
+3189|1807.09480|Attention Mechanisms for Object Recognition With Event-Based Cameras|0
+3195|2407.02174|BeNeRF: Neural Radiance Fields from a Single Blurry Image and Event Stream|0
+3259|1706.05415|Block-Matching Optical Flow for Dynamic Vision Sensors: Algorithm and FPGA Implementation|0
+3173|2503.06992|Bridge Frame and Event: Common Spatiotemporal Fusion for High-Dynamic Scene Optical Flow|0
+3192|2408.14930|CMTA: Cross-Modal Temporal Alignment for Event-guided Video Deblurring|0
+3296|2403.08119|CMax-SLAM: Event-based Rotational-Motion Bundle Adjustment and SLAM System using Contrast Maximization|0
+3304|1906.08859|Closing the Accuracy Gap in an Event-Based Visual Recognition Task|0
+3251|2307.04129|Cross-modal Orthogonal High-rank Augmentation for RGB-Event Transformer-trackers|0
+3288|2307.01047|Cross-modal Place Recognition in Image Databases using Event-based Sensors|0
+3235|1711.01458|DDD17: End-to-end DAVIS driving dataset|0
+3291|2202.02556|DEVO: Depth-Event Camera Visual Odometry in Challenging Conditions|0
+3193|2407.05106|DailyDVS-200: A Comprehensive Benchmark Dataset for Event-based Action Recognition|0
+3250|2211.12826|Data-driven Feature Tracking for Event Cameras|0
+3191|2409.17988|Deblur e-NerF: NeRF from Motion-Blurred Events under High-speed or Low-light conditions|0
+3295|2312.09800|Deep Event Visual Odometry|0
+3165|2302.08890|Deep Learning for Event-based Vision: A Comprehensive Survey and Benchmarks|0
+3185|2412.08120|Dense Depth from Event Focal Stack|0
+3181|2503.24210|DiET-GS: Diffusion Prior and Event Stream-Assisted Motion Deblurring 3D Gaussian Splatting|0
+3360|2107.06749|Dynamic Event Camera Calibration|0
+3317|1905.07419|Dynamic Vision Sensor integration on FPGA-based CNN accelerators for high-speed visual classification|0
+3260|2108.10552|E-RAFT: Dense Optical Flow from Event Cameras|0
+3226|2208.11300|E-nerf: Neural radiance fields from a moving event camera|0
+3265|2401.08117|E2HQV: High-Quality Video Generation from Event Camera via Theory-Inspired Model-Aided Deep Learning|0
+3169|2503.20101|EBS-EKF: Accurate and High Frequency Event-based Star Tracking|0
+3187|2410.21743|EI-Nexus: Towards Unmediated and Flexible Inter-Modality Local Feature Extraction and Matching for Event-Image Data|0
+3298|2212.13184|ESVIO: Event-based Stereo Visual Inertial Odometry|0
+3336|1906.02919|EVDodgeNet: Deep Dynamic Obstacle Dodging with Event Cameras|0
+3230|2205.03467|EVIMO2: An Event Camera Dataset for Motion Segmentation, Optical Flow, Structure from Motion, and Visual Inertial Odometry in Indoor Scenes with Monocular or Stereo Algorithms|0
+3170|2407.21616|EZSR: Event-based Zero-Shot Recognition|0
+3343|2206.04511|Efficient Human Pose Estimation via 3D Event Point Cloud|0
+3328|1904.04805|Embodied Neuromorphic Vision with Event-Driven Random Backpropagation|0
+3203|2407.12582|Embracing Events and Frames with Hierarchical Feature Refinement Network for Object Detection|0
+3264|2403.11961|Enhanced Event-Based Video Reconstruction with Motion Compensation|0
+3168|2502.19630|Ev-3DOD: Pushing the Temporal Boundaries of 3D Object Detection with Event Cameras|0
+3222|2404.19489|EvGNN: An Event-driven Graph Neural Network Accelerator for Edge Vision|0
+3272|2406.13457|EvTexture: Event-driven Texture Enhancement for Video Super-Resolution|0
+3306|2102.11916|Event Camera Based Real-Time Detection and Tracking of Indoor Ground Robots|0
+3201|2311.11533|Event Camera Data Dense Pre-training|0
+3220|2404.11511|Event Cameras Meet SPADs for High-Speed, Low-Bandwidth Imaging|0
+3179|2411.17313|Event Ellipsometer: Event-based Mueller-Matrix Video Imaging|0
+3313|2211.12222|Event Transformer+. A multi-purpose solution for efficient event data processing|0
+3172|2412.06191|Event fields: Capturing light fields at high speed, resolution, and dynamic range|0
+3255|2107.04536|Event-Based Feature Tracking in Continuous Time with Sliding Window Optimization|0
+3243|1811.07839|Event-Based Features Selection and Tracking from Intertwined Estimation of Velocity and Generative Contours|0
+3269|2301.05191|Event-Based Frame Interpolation with Ad-hoc Deblurring|0
+3204|2112.00167|Event-Based Fusion for Motion Deblurring with Cross-modal Attention|0
+3275|1811.10771|Event-Based Structured Light for Depth Reconstruction using Frequency Tagged Light Patterns|0
+3294|2401.09331|Event-Based Visual Odometry on Non-Holonomic Ground Vehicles|0
+3186|2411.00639|Event-Guided Low-Light Video Semantic Segmentation|0
+3337|2303.17479|Event-based Agile Object Catching with a Quadrupedal Robot|0
+3236|1510.01972|Event-based Camera Pose Tracking using a Generative Event Mode|0
+3270|2312.00113|Event-based Continuous Color Video Decompression from Single Frames|0
+3318|1907.07853|Event-based Feature Extraction using Adaptive Selection Thresholds|0
+3202|2409.07365|Event-based Mosaicing Bundle Adjustment|0
+3199|2402.11957|Event-based Motion Magnification|0
+3340|1911.08730|Event-based Object Detection and Tracking for Space Situational Awareness|0
+3280|2210.08927|Event-based Stereo Depth Estimation from Ego-motion using Ray Density Fusion|0
+3239|2409.17680|Event-based Stereo Depth Estimation: A Survey|0
+3176|2412.00133|Event-based Tracking of Any Point with Motion-Robust Correlation Features|0
+3219|2307.14332|Event-based Vision for Early Prediction of Manipulation Actions|0
+3218|2406.02972|Event3DGS: Event-based 3D Gaussian Splatting for Fast Egomotion|0
+3227|2306.06354|EventCLIP: Adapting CLIP for Event-based Object Recognition|0
+3245|1908.11505|EventCap: Monocular 3D Capture of High-Speed Human Motions using an Event Camera|0
+3216|2409.12778|EventDance++: Language-guided Unsupervised Source-free Cross-modal Adaptation for Event-based Object Recognition|0
+3174|2503.19916|EventFly: Event Camera Perception from Ground to the Sky|0
+3320|1912.01584|EventGAN: Leveraging Large Scale Image Datasets for Event Cameras|0
+3215|2409.17029|EventHDR: from Event to High-Speed HDR Videos and Beyond|0
+3207|2404.01801|EventSleep: Sleep Activity Recognition with Event Cameras|0
+3178|2412.07293|EventSplat: 3D Gaussian Splatting from Moving Event Cameras for Real-time Rendering|0
+3194|2407.11216|Finding Meaning in Points: Weakly Supervised Semantic Segmentation for Event Cameras|0
+3212|2410.06698|Fourier-based Action Recognition for Wildlife Behavior Quantification with Event Cameras|0
+3180|2503.03307|Full-DoF Egomotion Estimation for Event Cameras Using Geometric Solvers|0
+3267|1903.06531|High Frame Rate Video Reconstruction based on an Event Camera|0
+3177|2410.08107|IncEventGS: Pose-Free Gaussian Splatting from a Single Event Camera|0
+3197|2408.04633|LiDAR-Event Stereo Fusion with Hallucinations|0
+3213|2409.18038|MMDVS-LF: A Multi-Modal Dynamic-Vision-Sensor Line Following Dataset|0
+3223|2408.07996|Monte Carlo Path Tracing and Statistical Event Detection for Event Camera Simulation|0
+3363|1911.12801|Motion Equivariance of Event-based Camera Data with the Temporal Normalization Transform|0
+3319|1902.06820|Motion Equivariant Networks for Event Cameras with the Temporal Normalization Transform|0
+3351|2409.03358|MouseSIS: A Frames-and-Events Dataset for Space-Time Instance Segmentation of Mice|0
+3279|2207.10494|Multi-Event-Camera Depth Estimation and Outlier Rejection by Refocused Events Fusion (MCEMVS)|0
+3210|2409.16099|Neuromorphic Drone Detection: an Event-RGB Multimodal Approach|0
+3209|2409.10213|Neuromorphic Facial Analysis with Cross-Modal Supervision|0
+3335|2201.01626|Neuromorphic Vision Based Control for the Precise Positioning of Robotic Drilling Systems|0
+3341|2102.00112|Neutron-Induced, Single-Event Effects on Neuromorphic Event-based Vision Sensor: A First Step Towards Space Applications|0
+3175|2503.01214|One-Step Event-Driven High-Speed Autofocus|0
+3206|2408.12976|Optimal OnTheFly Feedback Control of Event Sensors|0
+3214|2409.19772|PPLNs: Parametric Piecewise Linear Networks for Event-Based Temporal Modeling and Beyond|0
+3182|2503.18341|PS-EIP: Robust Photometric Stereo Based on Event Interval Profile|0
+3228|2205.07657|PUCK: Parallel Surface and Convolution-kernel Tracking for Event-Based Cameras|0
+3329|2211.12324|Pushing the Limits of Asynchronous Graph-based Object Detection with Event Cameras|0
+3211|2409.08953|Pushing the boundaries of event subsampling in event-based video classification using CNNs|0
+3276|1803.09025|Realtime Time Synchronized Event-based Stereo|0
+3307|2212.05598|Recurrent Vision Transformers for Object Detection with Event Cameras|0
+3171|2412.07761|Repurposing Pre-trained Video Diffusion Models for Event-based Video Interpolation|0
+3297|2112.00427|Research on Event Accumulator Settings for Event-Based SLAM|0
+3166|2407.04277|Research, Applications and Prospects of Event-Based Pedestrian Detection: A Survey|0
+3184|2409.14611|Secrets of Edge-Informed Contrast Maximization for Event-Based Vision|0
+3205|2207.10022|Secrets of Event-Based Optical Flow|0
+3225|2307.15829|Seeing Behind Dynamic Occlusions with Event Cameras|0
+3300|2312.16222|Segment Any Event Stream via Weighted Adaptation of Pivotal Tokens|0
+3281|2211.00509|Self-Supervised Intensity-Event Stereo Matching|0
+3347|2208.01710|Smart Visual Beacons with Asynchronous Optical Communications using Event Cameras|0
+3316|1903.06923|Spatiotemporal Feature Learning for Event-Based Vision|0
+3309|1903.07067|Spatiotemporal Filtering for Event-Based Action Recognition|0
+3308|2402.15584|State Space Models for Event Cameras|0
+3350|2207.07332|Stereo Co-capture System for Recording and Tracking Fish with Frame- and Event Cameras|0
+3277|1907.07518|Stereo Event Lifetime and Disparity Estimation for Dynamic Vision Sensors|0
+3190|2407.10636|Temporal Residual Guided Diffusion Framework for Event-Driven Video reconstruction|0
+3198|2403.06443|Temporal-Mapping Photography for Event Cameras|0
+3217|2409.06240|Test-Time Certifiable Self-Supervision to Bridge the Sim2Real Gap in Event-Based Satellite Pose Estimation|0
+3200|2308.03135|TimeLens-XL: Real-time Event-based Video Frame Interpolation with Large Motion|0
+3221|2403.13800|TimeRewind: Rewinding Time with Image-and-Events Video Diffusion|0
+3338|2504.10400|Towards Low-Latency Event-based Obstacle Avoidance on a FPGA-Drone|0
+3334|1911.04553|Towards Low-Latency High-Bandwidth Control of Quadrotors using Event Cameras|0
+3196|2408.14916|Towards Real-world Event-guided Low-light Video Enhancement and Deblurring|0
+3346|2302.14430|Tracking Fast by Learning Slow: An Event-based Speed Adaptive Hand Tracker Leveraging Knowledge in RGB Domain|0
+3208|2403.18330|Tracking-Assisted Object Detection with Event Cameras|0
+3303|2312.00114|Un-EvMoSeg: Unsupervised Event-based Independent Motion Segmentation|0
+3234|1809.08625|Unsupervised Learning of Dense Optical Flow, Depth and Egomotion from Sparse Event Data|0
+3238|2202.13076|Utility and Feasibility of a Center Surround Event Camera|0
+3224|2309.08891|V2CE: Video to Continuous Events Simulator|0
+3248|2108.05015|VisEvent: Reliable Object Tracking via Collaboration of Frame and Event Flows|0
+3164|2408.13627|[Our Paper] Recent Event Camera Innovations: A Survey|0
+3247|2101.11251|e-ACJ: Accurate Junction Extraction For Event Cameras|0
+3357|2403.19976|eTraM: Event-based Traffic Monitoring Dataset|0

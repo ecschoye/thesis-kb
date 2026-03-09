@@ -1,0 +1,8 @@
+pyyaml
+requests
+pymupdf
+tiktoken
+openai
+chromadb
+numpy
+tqdm

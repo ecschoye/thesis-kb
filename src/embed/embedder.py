@@ -1,0 +1,181 @@
+"""Embed nuggets using Qwen3-Embedding-8B via vLLM."""
+import os, argparse, json
+import numpy as np
+import tiktoken
+from openai import OpenAI
+from src.utils import load_config, load_json, save_json
+
+
+def load_all_nuggets(nugget_dir, augmented_dir=None):
+    """Load all nuggets, merging augmented versions when available.
+
+    If augmented_dir is provided, improved nuggets replace their originals
+    (matched by original_nugget_id) and gap-filled nuggets are appended.
+    """
+    all_nuggets = []
+    for fname in sorted(os.listdir(nugget_dir)):
+        if not fname.endswith(".json"):
+            continue
+        data = load_json(os.path.join(nugget_dir, fname))
+        nuggets = data.get("nuggets", [])
+
+        # Merge augmented data if available
+        if augmented_dir:
+            aug_path = os.path.join(augmented_dir, fname)
+            if os.path.exists(aug_path):
+                aug_data = load_json(aug_path)
+
+                # Build replacement map: original_nugget_id -> improved nugget
+                replacements = {}
+                for imp in aug_data.get("improved", []):
+                    orig_id = imp.get("original_nugget_id")
+                    if orig_id:
+                        replacements[orig_id] = imp
+
+                # Replace improved nuggets in-place
+                for i, n in enumerate(nuggets):
+                    nid = n.get("nugget_id", "")
+                    if nid in replacements:
+                        rep = replacements[nid]
+                        # Carry over metadata from original
+                        rep["paper_id"] = n.get("paper_id", "")
+                        rep["nugget_id"] = nid
+                        if "paper_title" in n:
+                            rep["paper_title"] = n["paper_title"]
+                        if "paper_authors" in n:
+                            rep["paper_authors"] = n["paper_authors"]
+                        if "paper_year" in n:
+                            rep["paper_year"] = n["paper_year"]
+                        nuggets[i] = rep
+
+                # Append gap-filled nuggets
+                paper_id = data.get("paper_id", fname.replace(".json", ""))
+                for gf in aug_data.get("gap_filled", []):
+                    gf["paper_id"] = paper_id
+                    # Copy paper metadata from first nugget if available
+                    if nuggets:
+                        for key in ("paper_title", "paper_authors", "paper_year"):
+                            if key in nuggets[0] and key not in gf:
+                                gf[key] = nuggets[0][key]
+                    nuggets.append(gf)
+
+        all_nuggets.extend(nuggets)
+    return all_nuggets
+
+
+_tokenizer = tiktoken.get_encoding("cl100k_base")
+
+
+def format_nugget_text(nugget, instruction, max_tokens=None):
+    """Format a nugget for instruction-aware embedding.
+
+    If max_tokens is set, truncate the text to fit within the token limit.
+    """
+    q = nugget.get("question", "")
+    a = nugget.get("answer", "")
+    text = f"Q: {q} A: {a}"
+    if instruction:
+        text = f"Instruct: {instruction}\nQuery: {text}"
+    if max_tokens:
+        tokens = _tokenizer.encode(text)
+        if len(tokens) > max_tokens:
+            text = _tokenizer.decode(tokens[:max_tokens])
+    return text
+
+
+def embed_batch(client, texts, model, dimensions=None):
+    """Embed a batch of texts via vLLM."""
+    kwargs = {"model": model, "input": texts}
+    if dimensions:
+        kwargs["dimensions"] = dimensions
+    resp = client.embeddings.create(**kwargs)
+    return [item.embedding for item in resp.data]
+
+
+def make_embed_client(cfg):
+    """Create OpenAI client and resolve model name from embed config."""
+    ecfg = cfg.get("embed", {})
+    backend = ecfg.get("backend", "vllm")
+    if backend == "ollama":
+        ollama_cfg = ecfg.get("ollama", {})
+        base_url = ollama_cfg.get("base_url", "http://localhost:11434/v1")
+        model = ollama_cfg.get("model", "qwen3-embedding:8b")
+    else:
+        vllm_cfg = ecfg.get("vllm", {})
+        port = vllm_cfg.get("port", 8000)
+        base_url = f"http://localhost:{port}/v1"
+        model = vllm_cfg.get("model", "Qwen/Qwen3-Embedding-8B")
+    client = OpenAI(base_url=base_url, api_key="none")
+    return client, model
+
+
+def run_embedding(config_path="config.yaml"):
+    """Embed all nuggets and save to KB directory."""
+    cfg = load_config(config_path)
+    nugget_dir = cfg["paths"]["nugget_dir"]
+    augmented_dir = cfg["paths"].get("augmented_dir")
+    kb_dir = cfg["paths"]["kb_dir"]
+    ecfg = cfg.get("embed", {})
+    emb_cfg = ecfg.get("embedding", {})
+    os.makedirs(kb_dir, exist_ok=True)
+
+    client, model = make_embed_client(cfg)
+    batch_size = emb_cfg.get("batch_size", 64)
+    dimensions = emb_cfg.get("dimensions", None)
+    instruction = emb_cfg.get("instruction", "")
+
+    # Get backend-specific max_model_len for truncation
+    backend = ecfg.get("backend", "vllm")
+    if backend == "ollama":
+        max_tokens = ecfg.get("ollama", {}).get("max_model_len", None)
+    else:
+        max_tokens = ecfg.get("vllm", {}).get("max_model_len", None)
+
+    # Load nuggets (merging augmented versions if available)
+    print("[embed] Loading nuggets...")
+    if augmented_dir and os.path.isdir(augmented_dir):
+        print(f"  Merging augmented nuggets from {augmented_dir}")
+        nuggets = load_all_nuggets(nugget_dir, augmented_dir)
+    else:
+        nuggets = load_all_nuggets(nugget_dir)
+    print(f"  Loaded {len(nuggets)} nuggets")
+    if not nuggets:
+        print("No nuggets found."); return
+
+    # Format texts (truncate to max_model_len if configured)
+    texts = [format_nugget_text(n, instruction, max_tokens=max_tokens) for n in nuggets]
+
+    # Embed in batches
+    print(f"[embed] Embedding {len(texts)} nuggets (batch_size={batch_size})...")
+    all_embeddings = []
+    for start in range(0, len(texts), batch_size):
+        batch = texts[start:start + batch_size]
+        embs = embed_batch(client, batch, model, dimensions)
+        all_embeddings.extend(embs)
+        batch_num = start // batch_size + 1
+        if batch_num % 10 == 0:
+            print(f"  {start + len(batch)}/{len(texts)} embedded")
+
+    # Save embeddings as numpy matrix
+    emb_matrix = np.array(all_embeddings, dtype=np.float32)
+    npy_path = os.path.join(kb_dir, "embeddings.npy")
+    np.save(npy_path, emb_matrix)
+    print(f"  Saved {npy_path}: shape={emb_matrix.shape}")
+
+    # Save nuggets with embedding index
+    for i, nugget in enumerate(nuggets):
+        nugget["embedding_idx"] = i
+    nug_path = os.path.join(kb_dir, "nuggets_with_embeddings.json")
+    save_json(nuggets, nug_path)
+    print(f"  Saved {nug_path}: {len(nuggets)} nuggets")
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Embed nuggets")
+    ap.add_argument("-c", "--config", default="config.yaml")
+    args = ap.parse_args()
+    run_embedding(args.config)
+
+
+if __name__ == "__main__":
+    main()

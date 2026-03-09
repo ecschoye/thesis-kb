@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//cluster/apps/eb/software/Python/3.11.5-GCCcore-13.2.0/bin/**)",
+      "Bash(module spider ollama)",
+      "Bash(module spider ollama/0.11.10-GCCcore-14.3.0-CUDA-12.9.1)",
+      "Bash(module spider Python)",
+      "Bash(source /cluster/home/ecschoye/thesis-kb/.venv/bin/activate)",
+      "Bash(pip index versions vllm)",
+      "Bash(module spider CUDA)",
+      "Bash(module spider CUDA/12.6.0)",
+      "Bash(squeue -j 24115191)",
+      "Bash(sacct -j 24115191 --format=JobID,State,ExitCode,Elapsed -n)",
+      "WebFetch(domain:wheels.vllm.ai)",
+      "Bash(.venv/bin/pip install --upgrade huggingface_hub)",
+      "Bash(squeue -u ecschoye)",
+      "Read(//cluster/work/ecschoye/**)",
+      "Bash(curl -s http://localhost:8000/metrics)"
+    ],
+    "additionalDirectories": [
+      "/cluster/work/ecschoye"
+    ]
+  }
+}
