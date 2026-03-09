@@ -157,7 +157,8 @@ def run_fetch(config_path="config.yaml", zotero_path=None, dry_run=False):
         print("\n[DRY RUN] Would fetch:")
         for e in missing[:20]:
             src = "arxiv" if e.get("arxiv_id") else "s2_lookup"
-            print(f"  [{src:10s}] {e["title"][:70]}")
+            title = e["title"][:70]
+            print(f"  [{src:10s}] {title}")
         if len(missing) > 20:
             print(f"  ... and {len(missing) - 20} more")
         return
@@ -184,7 +185,8 @@ def run_fetch(config_path="config.yaml", zotero_path=None, dry_run=False):
             }
             new_entries.append(new_entry)
             fetched += 1
-            print(f"  [{i+1}/{len(missing)}] OK ({source}) {entry["title"][:50]}")
+            title = entry["title"][:50]
+            print(f"  [{i+1}/{len(missing)}] OK ({source}) {title}")
         else:
             failed += 1
             if (i + 1) % 20 == 0:

@@ -127,7 +127,7 @@ class ThesisKB:
         """Run multiple queries and return deduplicated results."""
         seen = set()
         all_results = []
-        per_query = max(n_results, n_results // len(queries) + 5)
+        per_query = max(5, -(-n_results // len(queries)) + 3)  # ceil division + overlap buffer
         for q in queries:
             results = self.query(q, n_results=per_query, **kwargs)
             for r in results:

@@ -2,8 +2,7 @@
 import os, json, re, time, argparse, threading
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from openai import OpenAI
-from src.utils import load_config, load_json, save_json
+from src.utils import load_config, load_json, save_json, make_llm_client
 from src.nuggets.extract import repair_json
 
 
@@ -310,18 +309,7 @@ def run_augmentation(config_path="config.yaml"):
     max_workers = acfg.get("max_workers", 32)
     os.makedirs(augmented_dir, exist_ok=True)
 
-    # Set up LLM client
-    backend = ncfg.get("backend", "vllm")
-    if backend == "ollama":
-        ollama_cfg = ncfg.get("ollama", {})
-        base_url = ollama_cfg.get("base_url", "http://127.0.0.1:11434/v1")
-        model = ollama_cfg.get("model", "qwen3.5:27b")
-        client = OpenAI(base_url=base_url, api_key="ollama")
-    else:
-        vllm_cfg = ncfg.get("vllm", {})
-        port = vllm_cfg.get("port", 8000)
-        model = vllm_cfg.get("model", "Qwen/Qwen3.5-27B")
-        client = OpenAI(base_url=f"http://localhost:{port}/v1", api_key="none")
+    client, model = make_llm_client(cfg)
 
     # Find papers to process (need nuggets + quality + chunks)
     def _done(paper_id):

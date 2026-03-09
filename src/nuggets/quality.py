@@ -2,8 +2,7 @@
 import os, json, time, argparse, threading
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from openai import OpenAI
-from src.utils import load_config, load_json, save_json
+from src.utils import load_config, load_json, save_json, make_llm_client
 
 
 QUALITY_SYSTEM_PROMPT = """You are a research nugget quality auditor. You will receive a batch of question-answer nuggets extracted from an academic paper. Rate each nugget on 6 dimensions (1=poor, 5=excellent):
@@ -171,18 +170,7 @@ def run_quality_check(config_path="config.yaml"):
     flag_threshold = qcfg.get("flag_threshold", 2)
     os.makedirs(quality_dir, exist_ok=True)
 
-    # Set up LLM client (same backend logic as extract.py)
-    backend = ncfg.get("backend", "vllm")
-    if backend == "ollama":
-        ollama_cfg = ncfg.get("ollama", {})
-        base_url = ollama_cfg.get("base_url", "http://127.0.0.1:11434/v1")
-        model = ollama_cfg.get("model", "qwen3.5:27b")
-        client = OpenAI(base_url=base_url, api_key="ollama")
-    else:
-        vllm_cfg = ncfg.get("vllm", {})
-        port = vllm_cfg.get("port", 8000)
-        model = vllm_cfg.get("model", "Qwen/Qwen3.5-27B")
-        client = OpenAI(base_url=f"http://localhost:{port}/v1", api_key="none")
+    client, model = make_llm_client(cfg)
 
     # Find papers to process
     def _quality_done(paper_id):

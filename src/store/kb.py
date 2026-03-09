@@ -30,7 +30,7 @@ def build_chromadb(nuggets, embeddings, kb_dir, collection_name, distance_fn="co
         batch_embs = embeddings[start:end].tolist()
 
         ids = [n["nugget_id"] for n in batch_nuggets]
-        documents = [f"Q: {n["question"]} A: {n["answer"]}" for n in batch_nuggets]
+        documents = [f"Q: {n['question']} A: {n['answer']}" for n in batch_nuggets]
         metadatas = [
             {
                 "paper_id": n.get("paper_id", ""),
@@ -160,6 +160,10 @@ def run_build(config_path="config.yaml"):
     embeddings = np.load(emb_path)
     manifest = load_json(manifest_path) if os.path.exists(manifest_path) else []
     print(f"  {len(nuggets)} nuggets, {embeddings.shape} embeddings, {len(manifest)} papers")
+
+    if len(nuggets) != embeddings.shape[0]:
+        print(f"ERROR: nugget count ({len(nuggets)}) != embedding rows ({embeddings.shape[0]}). Re-run embed.")
+        return
 
     # Build ChromaDB
     print("[store] Building ChromaDB...")

@@ -83,3 +83,48 @@ kb/
   chroma/         # ChromaDB vector index
   nuggets.db      # SQLite metadata
 ```
+
+## Web UI
+
+Chat interface for querying the knowledge base with multi-query expansion and RAG.
+
+```
+Browser (static/index.html)
+    │
+    ▼
+FastAPI (src/api.py)
+    ├── ChromaDB (vector search)
+    ├── Ollama / vLLM (query embedding)
+    └── OpenRouter (query expansion + answer generation)
+```
+
+### Query Pipeline
+
+1. **Expand** — OpenRouter generates N search query variants from the user question
+2. **Embed** — Each variant is embedded via Ollama (local) or vLLM (HPC)
+3. **Retrieve** — Each embedding vector queries ChromaDB independently
+4. **RRF** — Reciprocal Rank Fusion merges all result lists into a single ranking
+5. **Answer** — Top nuggets are injected as context; OpenRouter generates the final answer
+
+### Usage
+
+**On IDUN (HPC):**
+```bash
+bash scripts/start_api.sh --config config.yaml --port 8001
+# From Mac, open SSH tunnel:
+ssh -N -L 8001:localhost:8001 ecschoye@idun-login1.hpc.ntnu.no
+# Open static/index.html?api=http://localhost:8001
+```
+
+**Locally on Mac (requires Ollama + KB files):**
+```bash
+ollama serve  # in another terminal
+ollama pull qwen3-embedding:8b
+bash scripts/start_local.sh
+# Open static/index.html
+```
+
+### Environment Variables
+
+- `OPENROUTER_API_KEY` — Required. Set in env or put in `~/.openrouter_key`.
+- `THESIS_KB_CONFIG` — Optional. Override config path (default: `config.yaml`).

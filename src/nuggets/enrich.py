@@ -15,12 +15,10 @@ def load_manifest(manifest_path):
     return papers
 
 
-def enrich_nuggets(config_path="config.yaml"):
-    cfg = load_config(config_path)
-    nugget_dir = cfg["paths"]["nugget_dir"]
-    manifest_path = os.path.join(cfg["paths"]["corpus_dir"], "manifest.json")
-    papers = load_manifest(manifest_path)
-
+def _enrich_dir(nugget_dir, papers):
+    """Enrich all nugget JSON files in a directory with paper metadata."""
+    if not os.path.isdir(nugget_dir):
+        return 0, 0
     files = sorted(f for f in os.listdir(nugget_dir) if f.endswith(".json"))
     updated = 0
 
@@ -35,18 +33,35 @@ def enrich_nuggets(config_path="config.yaml"):
         data = load_json(path)
 
         changed = False
-        for n in data.get("nuggets", []):
-            if n.get("paper_title") != title or n.get("paper_authors") != authors or n.get("paper_year") != year:
-                n["paper_title"] = title
-                n["paper_authors"] = authors
-                n["paper_year"] = year
-                changed = True
+        # Handle both base nugget files (key: "nuggets") and augmented files (keys: "improved", "gap_filled")
+        for key in ("nuggets", "improved", "gap_filled"):
+            for n in data.get(key, []):
+                if n.get("paper_title") != title or n.get("paper_authors") != authors or n.get("paper_year") != year:
+                    n["paper_title"] = title
+                    n["paper_authors"] = authors
+                    n["paper_year"] = year
+                    changed = True
 
         if changed:
             save_json(data, path)
             updated += 1
 
-    print(f"[enrich] Enriched {updated}/{len(files)} nugget files with paper metadata")
+    return updated, len(files)
+
+
+def enrich_nuggets(config_path="config.yaml"):
+    cfg = load_config(config_path)
+    nugget_dir = cfg["paths"]["nugget_dir"]
+    augmented_dir = cfg["paths"].get("augmented_dir", "")
+    manifest_path = os.path.join(cfg["paths"]["corpus_dir"], "manifest.json")
+    papers = load_manifest(manifest_path)
+
+    updated, total = _enrich_dir(nugget_dir, papers)
+    print(f"[enrich] Base nuggets: enriched {updated}/{total} files")
+
+    if augmented_dir:
+        aug_updated, aug_total = _enrich_dir(augmented_dir, papers)
+        print(f"[enrich] Augmented nuggets: enriched {aug_updated}/{aug_total} files")
 
 
 def main():

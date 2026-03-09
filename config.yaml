@@ -32,7 +32,6 @@ nuggets:
     gpu_memory_utilization: 0.90
     dtype: bfloat16
   extraction:
-    max_chunk_chars: 2000
     max_workers: 32
     max_retries: 3
     max_tokens: 1500
