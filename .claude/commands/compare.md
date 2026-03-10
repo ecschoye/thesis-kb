@@ -57,3 +57,4 @@ Brief description of each method/approach found, with citation.
 - Use "—" for missing values in the table
 - If the same method is evaluated on multiple datasets, include separate rows
 - Note when results come from different experimental setups
+- End your response with 2-3 suggested follow-up questions under a `### Suggested Follow-ups` heading

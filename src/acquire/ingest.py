@@ -1,7 +1,7 @@
 """Main ingestion: local PDFs + Zotero + S2 enrichment."""
 import os, argparse, hashlib
 from pathlib import Path
-from src.utils import load_config, save_json
+from src.utils import load_config, load_json, save_json
 from src.acquire.parse_filenames import scan_pdf_directory
 from src.acquire.zotero import parse_zotero_export, match_pdf_to_zotero
 from src.acquire.enrich import batch_enrich
@@ -81,14 +81,47 @@ def run_ingest(config_path="config.yaml", zotero_path=None, enrich=True):
     print(f"  Total: {len(manifest)}, ArXiv: {n_ax}, DOI: {n_doi}, Abstract: {n_abs}")
 
 
+def run_re_enrich(config_path="config.yaml"):
+    """Re-enrich only papers with missing metadata in an existing manifest."""
+    cfg = load_config(config_path)
+    corpus_dir = cfg["paths"]["corpus_dir"]
+    manifest_path = os.path.join(corpus_dir, "manifest.json")
+    if not os.path.exists(manifest_path):
+        print("No manifest.json found. Run ingest first.")
+        return
+
+    manifest = load_json(manifest_path)
+    missing = [
+        p for p in manifest
+        if not p.get("year") or not p.get("authors") or not p.get("abstract")
+    ]
+    print(f"[re-enrich] {len(missing)}/{len(manifest)} papers have missing metadata")
+    if not missing:
+        print("  All papers already have year, authors, and abstract.")
+        return
+
+    manifest = batch_enrich(manifest, delay=1.0)
+
+    save_json(manifest, manifest_path)
+    n_year = sum(1 for p in manifest if p.get("year"))
+    n_auth = sum(1 for p in manifest if p.get("authors"))
+    n_abs = sum(1 for p in manifest if p.get("abstract"))
+    print(f"  After re-enrich: year={n_year}, authors={n_auth}, abstract={n_abs} / {len(manifest)}")
+
+
 def main():
     ap = argparse.ArgumentParser(description="Ingest local PDFs")
     ap.add_argument("-c", "--config", default="config.yaml")
     ap.add_argument("-z", "--zotero", help="Zotero pipe-delimited export")
     ap.add_argument("--no-enrich", action="store_true",
                     help="Skip Semantic Scholar enrichment")
+    ap.add_argument("--re-enrich", action="store_true",
+                    help="Re-enrich only papers with missing metadata in existing manifest")
     args = ap.parse_args()
-    run_ingest(args.config, args.zotero, enrich=not args.no_enrich)
+    if args.re_enrich:
+        run_re_enrich(args.config)
+    else:
+        run_ingest(args.config, args.zotero, enrich=not args.no_enrich)
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ if ! curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
   exit 1
 fi
 
-source .venv/bin/activate
+source venv/bin/activate
 
 export OPENROUTER_API_KEY=$(cat ~/.openrouter_key 2>/dev/null || echo "${OPENROUTER_API_KEY:-}")
 

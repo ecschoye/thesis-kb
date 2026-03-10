@@ -56,3 +56,4 @@ Based on the analysis above, these are gaps where your thesis could contribute:
 - A gap is strongest when multiple independent papers identify the same limitation
 - Do NOT over-interpret — report what the KB evidence says, let the user decide significance
 - Focus on gaps relevant to the thesis topic (RGB-Event fusion, SNNs, event cameras, object detection on embedded platforms)
+- End your response with 2-3 suggested follow-up questions under a `### Suggested Follow-ups` heading

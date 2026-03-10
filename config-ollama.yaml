@@ -25,7 +25,7 @@ chunk:
 nuggets:
   backend: ollama
   ollama:
-    model: qwen3.5:27b
+    model: qwen3.5:9b
     base_url: http://127.0.0.1:11434/v1
   extraction:
     max_chunk_chars: 2000

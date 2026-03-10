@@ -46,3 +46,4 @@ The text to verify: $ARGUMENTS
 - Be precise about numbers — "90% accuracy" vs "89.7% accuracy" matters
 - If a claim cites a specific paper, try to find that paper in the KB by searching for its title or key terms
 - Do NOT mark something as contradicted unless the KB evidence clearly conflicts — uncertainty is "unverified"
+- End your response with 2-3 suggested follow-up questions under a `### Suggested Follow-ups` heading

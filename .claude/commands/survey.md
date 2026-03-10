@@ -49,9 +49,19 @@ Topic to survey: $ARGUMENTS
 ### Coverage Gaps
 [Topics or aspects that have few or no nuggets in the KB — areas where additional reading may be needed]
 
+## Source Types
+Sources are tagged with their nugget type (method, result, comparison, limitation, background, claim).
+Use these types to organize your review:
+- "method" and "background" sources → Methods and Approaches + Overview sections
+- "result" and "comparison" sources → Key Results section
+- "limitation" sources → Limitations and Open Challenges section
+- "claim" sources → wherever contextually relevant
+Ensure each section draws primarily from its corresponding source types.
+
 ## Important
 - Convert paper_id underscores to arXiv dots
 - Cite every factual claim with its source paper
 - If multiple papers report similar findings, cite all of them
 - Do NOT fabricate connections between papers — only report what the KB evidence shows
 - Include the total number of unique papers and nuggets found for this topic
+- End your response with 2-3 suggested follow-up questions under a `### Suggested Follow-ups` heading

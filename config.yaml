@@ -19,8 +19,8 @@ extract:
   min_text_length: 100
 
 chunk:
-  token_size: 400
-  overlap: 50
+  token_size: 800
+  overlap: 100
   tokenizer: cl100k_base
   respect_sections: true
 

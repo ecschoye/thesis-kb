@@ -47,3 +47,4 @@ A one-line summary listing all relevant papers for easy copy-paste:
 - Rank by relevance (lowest distance = most relevant)
 - Skip nuggets with distance > 1.5 as they are likely irrelevant
 - Do NOT fabricate citations — only report what the KB returns
+- End your response with 2-3 suggested follow-up questions under a `### Suggested Follow-ups` heading

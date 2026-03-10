@@ -44,8 +44,18 @@ What to write about: $ARGUMENTS
 ### Notes
 - [Any caveats, synthesis notes, or thin-coverage warnings]
 
+## Source Types
+Sources are tagged with their nugget type (method, result, comparison, limitation, background, claim).
+Use these types to guide your paragraph:
+- "method" and "background" sources → technical descriptions and context
+- "result" and "comparison" sources → quantitative claims and trade-offs
+- "limitation" sources → caveats and hedging language
+- "claim" sources → wherever contextually relevant
+Ensure claims are grounded in the appropriate source types.
+
 ## Important
 - Convert paper_id format (underscores) to arXiv format (dots): 1510_01972 → arXiv:1510.01972
 - Do NOT invent facts — only use evidence from KB results
 - If KB coverage is too thin for a full paragraph, say so and output what you can
 - Prefer recent papers (2020+) unless older work is foundational
+- End your response with 2-3 suggested follow-up questions under a `### Suggested Follow-ups` heading

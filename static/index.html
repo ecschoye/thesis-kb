@@ -9,8 +9,16 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+};
+</script>
 <style>
   body { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+  .chat-area { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .markdown-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
   .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 { font-weight: 700; margin-top: 1em; margin-bottom: 0.5em; }
   .markdown-body h1 { font-size: 1.25rem; }
   .markdown-body h2 { font-size: 1.125rem; }
@@ -18,7 +26,7 @@
   .markdown-body p { margin-bottom: 0.5em; }
   .markdown-body ul, .markdown-body ol { margin-left: 1.5em; margin-bottom: 0.5em; }
   .markdown-body li { margin-bottom: 0.25em; }
-  .markdown-body code { background: rgba(0,0,0,0.06); padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; }
+  .markdown-body code { background: rgba(0,0,0,0.06); padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
   .markdown-body pre { background: #1e293b; color: #e2e8f0; padding: 0.75em; border-radius: 6px; overflow-x: auto; margin-bottom: 0.5em; }
   .markdown-body pre code { background: none; padding: 0; color: inherit; }
   .markdown-body blockquote { border-left: 3px solid #94a3b8; padding-left: 0.75em; color: #64748b; margin-bottom: 0.5em; }
@@ -26,18 +34,41 @@
   .markdown-body th, .markdown-body td { border: 1px solid #cbd5e1; padding: 0.25em 0.5em; }
   .markdown-body th { background: #f1f5f9; font-weight: 600; }
   .markdown-body strong { font-weight: 700; }
+  /* Dark mode markdown overrides */
+  .dark .markdown-body code { background: rgba(255,255,255,0.1); }
+  .dark .markdown-body pre { background: #0f172a; color: #e2e8f0; }
+  .dark .markdown-body blockquote { border-left-color: #475569; color: #94a3b8; }
+  .dark .markdown-body th, .dark .markdown-body td { border-color: #475569; }
+  .dark .markdown-body th { background: #1e293b; }
   .typing-dot { animation: blink 1.4s infinite both; }
   .typing-dot:nth-child(2) { animation-delay: 0.2s; }
   .typing-dot:nth-child(3) { animation-delay: 0.4s; }
   @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
-  textarea:focus { outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); }
+  textarea:focus { outline: none; }
   .source-card:hover { background-color: #f8fafc; }
+  .dark .source-card:hover { background-color: #1e293b; }
+  .copy-fade { animation: copyFade 1.5s ease-out; }
+  @keyframes copyFade { 0% { opacity: 1; } 100% { opacity: 0; } }
+  .input-wrapper { transition: box-shadow 0.15s, border-color 0.15s; }
+  .input-wrapper:focus-within { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12); }
+  .input-wrapper textarea { outline: none; border: none; resize: none; }
+  .input-wrapper textarea::placeholder { color: #9ca3af; }
+  /* Toast animation */
+  .toast-enter { animation: toastIn 0.3s ease-out; }
+  .toast-exit { animation: toastOut 0.3s ease-in forwards; }
+  @keyframes toastIn { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes toastOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(1rem); opacity: 0; } }
+  /* Progress bar */
+  .progress-pulse { animation: progressPulse 1.5s ease-in-out infinite; }
+  @keyframes progressPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 </style>
 </head>
-<body class="bg-gray-50 h-screen overflow-hidden">
+<body class="bg-gray-50 dark:bg-gray-900 h-screen overflow-hidden">
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useRef, useEffect, useCallback } = React;
+const { useState, useRef, useEffect, useCallback, useMemo, memo } = React;
+let _msgIdCounter = 0;
+function nextMsgId() { return "msg_" + (++_msgIdCounter) + "_" + Date.now(); }
 
 const API_BASE = (() => {
   const params = new URLSearchParams(window.location.search);
@@ -45,91 +76,476 @@ const API_BASE = (() => {
 })();
 
 const MODES = [
-  { id: "survey", label: "Survey", desc: "Literature review on a topic" },
-  { id: "gaps", label: "Gaps", desc: "Find research gaps" },
-  { id: "compare", label: "Compare", desc: "Compare methods/approaches" },
-  { id: "check", label: "Check", desc: "Fact-check a paragraph" },
-  { id: "cite", label: "Cite", desc: "Find supporting sources" },
+  { id: "survey", label: "Survey", desc: "Literature review on a topic", color: "blue" },
+  { id: "gaps", label: "Gaps", desc: "Find research gaps", color: "amber" },
+  { id: "compare", label: "Compare", desc: "Compare methods/approaches", color: "purple" },
+  { id: "check", label: "Check", desc: "Fact-check a paragraph", color: "green" },
+  { id: "cite", label: "Cite", desc: "Find supporting sources", color: "cyan" },
+  { id: "review", label: "Review", desc: "QA review a section", color: "rose" },
+  { id: "draft", label: "Draft", desc: "Write a thesis paragraph", color: "emerald" },
+  { id: "outline", label: "Outline", desc: "Generate section outline", color: "indigo" },
 ];
 
-function OverlapDots({ count, total }) {
+const MODE_COLORS = {
+  survey: { bg: "bg-blue-50 dark:bg-blue-900/30", text: "text-blue-600 dark:text-blue-400", border: "border-blue-200 dark:border-blue-800", dot: "bg-blue-400" },
+  gaps: { bg: "bg-amber-50 dark:bg-amber-900/30", text: "text-amber-600 dark:text-amber-400", border: "border-amber-200 dark:border-amber-800", dot: "bg-amber-400" },
+  compare: { bg: "bg-purple-50 dark:bg-purple-900/30", text: "text-purple-600 dark:text-purple-400", border: "border-purple-200 dark:border-purple-800", dot: "bg-purple-400" },
+  check: { bg: "bg-green-50 dark:bg-green-900/30", text: "text-green-600 dark:text-green-400", border: "border-green-200 dark:border-green-800", dot: "bg-green-400" },
+  cite: { bg: "bg-cyan-50 dark:bg-cyan-900/30", text: "text-cyan-600 dark:text-cyan-400", border: "border-cyan-200 dark:border-cyan-800", dot: "bg-cyan-400" },
+  review: { bg: "bg-rose-50 dark:bg-rose-900/30", text: "text-rose-600 dark:text-rose-400", border: "border-rose-200 dark:border-rose-800", dot: "bg-rose-400" },
+  draft: { bg: "bg-emerald-50 dark:bg-emerald-900/30", text: "text-emerald-600 dark:text-emerald-400", border: "border-emerald-200 dark:border-emerald-800", dot: "bg-emerald-400" },
+  outline: { bg: "bg-indigo-50 dark:bg-indigo-900/30", text: "text-indigo-600 dark:text-indigo-400", border: "border-indigo-200 dark:border-indigo-800", dot: "bg-indigo-400" },
+};
+
+const CONFIDENCE_COLORS = { high: "bg-green-400", medium: "bg-yellow-400", low: "bg-red-400" };
+
+const TYPE_COLORS = {
+  method: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300",
+  result: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  comparison: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
+  limitation: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+  background: "bg-gray-100 text-gray-700 dark:bg-gray-700/40 dark:text-gray-300",
+  claim: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
+};
+
+const EXAMPLE_PROMPTS = {
+  survey: [
+    "Event camera-based object detection methods",
+    "Spiking neural networks for visual recognition",
+    "RGB-Event sensor fusion approaches",
+  ],
+  gaps: [
+    "SNN inference on edge hardware",
+    "Event camera datasets and benchmarks",
+    "Real-time neuromorphic processing",
+  ],
+  compare: [
+    "Compare SNN vs ANN for object detection",
+    "Event-only vs RGB-Event fusion accuracy",
+    "Spike coding schemes: rate vs temporal",
+  ],
+  check: [
+    "Paste a paragraph from your thesis...",
+  ],
+  cite: [
+    "Event cameras have microsecond temporal resolution",
+    "SNNs are more energy-efficient than ANNs on neuromorphic hardware",
+    "Motion blur is a major challenge for frame-based cameras",
+  ],
+  review: [
+    "Paste a section from your thesis for QA review...",
+  ],
+  draft: [
+    "Write about event camera motion compensation",
+    "Write about spike-based attention mechanisms",
+    "Write about neuromorphic hardware for SNNs",
+  ],
+  outline: [
+    "Related Work: Spiking Neural Networks",
+    "Background: Event Camera Principles",
+    "Methods: RGB-Event Fusion Architecture",
+  ],
+};
+
+// --- Persistence ---
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem("tkb_history") || "[]"); } catch { return []; }
+}
+function saveHistory(h) {
+  // Keep only the last 50 conversations to prevent localStorage bloat
+  const trimmed = h.length > 50 ? h.slice(-50) : h;
+  localStorage.setItem("tkb_history", JSON.stringify(trimmed));
+}
+
+function loadBookmarks() {
+  try { return JSON.parse(localStorage.getItem("tkb_bookmarks") || "[]"); } catch { return []; }
+}
+function saveBookmarks(b) { localStorage.setItem("tkb_bookmarks", JSON.stringify(b)); }
+
+function loadSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("tkb_settings"));
+    if (saved) return saved;
+  } catch {}
+  return {
+    model: "google/gemini-3-flash-preview",
+    n_variants: 6,
+    n_retrieve: 30,
+    n_context: 16,
+    year_min: "",
+    year_max: "",
+    type_filter: [],
+  };
+}
+function saveSettings(s) { localStorage.setItem("tkb_settings", JSON.stringify(s)); }
+
+function loadDarkMode() {
+  try {
+    const saved = localStorage.getItem("tkb_dark");
+    if (saved !== null) return saved === "true";
+    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+  } catch { return false; }
+}
+function saveDarkMode(v) { localStorage.setItem("tkb_dark", v ? "true" : "false"); }
+
+function chatTitle(chat) {
+  if (chat.title) return chat.title;
+  const first = chat.messages.find((m) => m.role === "user");
+  if (first) return first.content.slice(0, 50) + (first.content.length > 50 ? "..." : "");
+  return "New chat";
+}
+
+function generateBibTeX(sources) {
+  return sources
+    .filter((s) => s.arxiv_id)
+    .map((s) => {
+      const key = s.bibtex_key || s.arxiv_id.replace(/[.\/:]/g, "_");
+      const authors = s.paper_authors || "Unknown";
+      const title = s.paper_title || "Untitled";
+      const year = s.paper_year || "????";
+      return `@article{${key},\n  title={${title}},\n  author={${authors}},\n  year={${year}},\n  eprint={${s.arxiv_id}},\n  archivePrefix={arXiv}\n}`;
+    })
+    .join("\n\n");
+}
+
+function exportChatMarkdown(messages, mode, variants) {
+  let md = `# Thesis KB Chat — ${mode.toUpperCase()} mode\n\n`;
+  md += `*Exported ${new Date().toLocaleString()}*\n\n---\n\n`;
+  for (const msg of messages) {
+    if (msg.role === "user") {
+      md += `## User\n\n${msg.content}\n\n`;
+    } else {
+      md += `## Assistant (${mode})\n\n${msg.content}\n\n`;
+      if (msg.sources && msg.sources.length > 0) {
+        md += `### Sources (${msg.sources.length})\n\n`;
+        for (const s of msg.sources) {
+          md += `- **${s.paper_title || s.paper_id}** (${s.paper_year || "?"}) — ${s.type} — score ${s.rrf_score?.toFixed(3) || "?"}\n`;
+          if (s.bibtex_key) md += `  - BibTeX key: \`${s.bibtex_key}\`\n`;
+        }
+        md += `\n#### BibTeX\n\n\`\`\`bibtex\n${generateBibTeX(msg.sources)}\n\`\`\`\n\n`;
+      }
+    }
+    md += "---\n\n";
+  }
+  return md;
+}
+
+function extractFollowUps(content) {
+  if (!content) return { cleanContent: content, followUps: [] };
+  const marker = "### Suggested Follow-ups";
+  const idx = content.indexOf(marker);
+  if (idx === -1) return { cleanContent: content, followUps: [] };
+  const before = content.slice(0, idx).trimEnd();
+  const after = content.slice(idx + marker.length);
+  const bullets = [];
+  for (const line of after.split("\n")) {
+    const m = line.match(/^[-*]\s+(.+)/);
+    if (m) bullets.push(m[1].trim());
+  }
+  return { cleanContent: before, followUps: bullets };
+}
+
+// --- Components ---
+
+const OverlapDots = memo(function OverlapDots({ count, total }) {
   const colors = ["#9ca3af", "#3b82f6", "#f97316", "#22c55e"];
   return (
     <div className="flex gap-0.5 items-center">
       {Array.from({ length: total }, (_, i) => (
-        <div
-          key={i}
-          className="w-2 h-2 rounded-full"
-          style={{
-            backgroundColor: i < count ? colors[Math.min(count - 1, 3)] : "#e5e7eb",
-          }}
-        />
+        <div key={i} className="w-2 h-2 rounded-full" style={{ backgroundColor: i < count ? colors[Math.min(count - 1, 3)] : "#e5e7eb" }} />
       ))}
     </div>
   );
-}
+});
 
-function SourceCard({ nugget }) {
-  const [expanded, setExpanded] = useState(false);
+function BookmarkButton({ nugget, bookmarks, setBookmarks }) {
+  const isBookmarked = bookmarks.some((b) => b.nugget_id === nugget.nugget_id);
+  const toggle = (e) => {
+    e.stopPropagation();
+    setBookmarks((prev) => {
+      const next = isBookmarked ? prev.filter((b) => b.nugget_id !== nugget.nugget_id) : [...prev, nugget];
+      saveBookmarks(next);
+      return next;
+    });
+  };
   return (
-    <div className="source-card border border-gray-200 rounded-lg p-3 text-xs">
-      <div className="flex items-start justify-between gap-2 mb-1">
-        <span className="font-bold text-gray-800 leading-snug flex-1">
-          {nugget.paper_title || nugget.paper_id}
-        </span>
-        <span className="text-gray-500 whitespace-nowrap">{nugget.paper_year || "—"}</span>
-      </div>
-      <div className="flex items-center gap-2 mb-1.5">
-        <OverlapDots count={nugget.overlap_count} total={nugget.n_variants} />
-        <span className="text-gray-400">
-          {nugget.overlap_count}/{nugget.n_variants} queries
-        </span>
-        <span className="text-gray-300">|</span>
-        <span className="text-gray-400">score {nugget.rrf_score.toFixed(3)}</span>
-        <span className="text-gray-300">|</span>
-        <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{nugget.type}</span>
-      </div>
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="text-blue-500 hover:text-blue-700 text-xs"
-      >
-        {expanded ? "hide nugget" : "show nugget"}
-      </button>
-      {expanded && (
-        <div className="mt-2 p-2 bg-gray-50 rounded text-gray-700 whitespace-pre-wrap leading-relaxed">
-          {nugget.document}
-        </div>
-      )}
-    </div>
+    <button onClick={toggle} className={`flex-shrink-0 ${isBookmarked ? "text-yellow-500" : "text-gray-300 dark:text-gray-600 hover:text-yellow-400"}`} title={isBookmarked ? "Remove bookmark" : "Bookmark"}>
+      <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill={isBookmarked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5">
+        <path d="M4 2h8a1 1 0 011 1v11l-4.5-3L4 14V3a1 1 0 011-1z" />
+      </svg>
+    </button>
   );
 }
 
-function SourcesPanel({ sources }) {
-  const [open, setOpen] = useState(false);
-  if (!sources || sources.length === 0) return null;
+const ConfidenceDot = memo(function ConfidenceDot({ confidence }) {
+  const c = CONFIDENCE_COLORS[confidence] || "bg-gray-300 dark:bg-gray-600";
+  return <div className={`w-2 h-2 rounded-full ${c} flex-shrink-0`} title={`Confidence: ${confidence || "unknown"}`} />;
+});
+
+const TypePill = memo(function TypePill({ type }) {
+  const c = TYPE_COLORS[type] || "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300";
+  return <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${c}`}>{type}</span>;
+});
+
+function RejectButton({ nuggetId, rejected, onReject }) {
+  const isRejected = rejected.has(nuggetId);
   return (
-    <div className="mt-2">
-      <button
-        onClick={() => setOpen(!open)}
-        className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
-      >
-        <svg className={`w-3 h-3 transition-transform ${open ? "rotate-90" : ""}`} viewBox="0 0 12 12">
+    <button
+      onClick={(e) => { e.stopPropagation(); onReject(nuggetId); }}
+      className={`flex-shrink-0 ${isRejected ? "text-red-500" : "text-gray-300 dark:text-gray-600 hover:text-red-400"}`}
+      title={isRejected ? "Undo reject" : "Reject this nugget"}
+    >
+      <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <circle cx="8" cy="8" r="6" />
+        <line x1="5.5" y1="5.5" x2="10.5" y2="10.5" />
+      </svg>
+    </button>
+  );
+}
+
+const SourceCard = memo(function SourceCard({ nugget, variants, forceExpand, bookmarks, setBookmarks, rejected, onReject }) {
+  const [expanded, setExpanded] = useState(false);
+  const [showQueries, setShowQueries] = useState(false);
+  const isExpanded = forceExpand !== null ? forceExpand : expanded;
+  const matchedTexts = (nugget.matched_queries || []).map((qi) => variants[qi]).filter(Boolean);
+  const isRejected = rejected && rejected.has(nugget.nugget_id);
+
+  return (
+    <div className={`source-card border rounded-lg p-3 text-xs ${isRejected ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/30 opacity-60" : "border-gray-200 dark:border-gray-700 dark:bg-gray-800"}`}>
+      <div className="flex items-start justify-between gap-2 mb-1">
+        <span className="font-bold text-gray-800 dark:text-gray-200 leading-snug flex-1">{nugget.paper_title || nugget.paper_id}</span>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <ConfidenceDot confidence={nugget.confidence} />
+          {onReject && <RejectButton nuggetId={nugget.nugget_id} rejected={rejected} onReject={onReject} />}
+          <BookmarkButton nugget={nugget} bookmarks={bookmarks} setBookmarks={setBookmarks} />
+          <span className="text-gray-500 dark:text-gray-400 whitespace-nowrap">{nugget.paper_year || "\u2014"}</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+        <OverlapDots count={nugget.overlap_count} total={nugget.n_variants} />
+        <button onClick={() => setShowQueries(!showQueries)} className="text-gray-400 hover:text-blue-500 cursor-pointer" title="Show matched queries">
+          {nugget.overlap_count}/{nugget.n_variants} queries
+        </button>
+        <span className="text-gray-300 dark:text-gray-600">|</span>
+        <span className="text-gray-400">score {nugget.rrf_score.toFixed(3)}</span>
+        <span className="text-gray-300 dark:text-gray-600">|</span>
+        <TypePill type={nugget.type} />
+        {nugget.bibtex_key && (
+          <>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <button onClick={() => { navigator.clipboard.writeText(`\\cite{${nugget.bibtex_key}}`); }} title="Copy \cite{}" className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 font-mono cursor-pointer">{nugget.bibtex_key}</button>
+          </>
+        )}
+        {nugget.arxiv_id && (
+          <>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <button onClick={() => { navigator.clipboard.writeText(`arXiv:${nugget.arxiv_id}`); }} title="Copy arXiv ID" className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer">arXiv</button>
+          </>
+        )}
+      </div>
+      {showQueries && matchedTexts.length > 0 && (
+        <div className="mb-1.5 pl-1">
+          {matchedTexts.map((q, i) => <div key={i} className="text-gray-500 dark:text-gray-400 italic leading-snug">&bull; {q}</div>)}
+        </div>
+      )}
+      <button onClick={() => setExpanded(!expanded)} className="text-blue-500 hover:text-blue-700 dark:text-blue-400 text-xs">
+        {isExpanded ? "hide nugget" : "show nugget"}
+      </button>
+      {isExpanded && (
+        <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-900 rounded text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{nugget.document}</div>
+      )}
+    </div>
+  );
+});
+
+const SourceRow = memo(function SourceRow({ nugget, variants, isExpanded, onToggle, bookmarks, setBookmarks, rejected, onReject }) {
+  const [showQueries, setShowQueries] = useState(false);
+  const matchedTexts = (nugget.matched_queries || []).map((qi) => variants[qi]).filter(Boolean);
+  const isRejected = rejected && rejected.has(nugget.nugget_id);
+
+  return (
+    <div className={`border-b border-gray-100 dark:border-gray-700 last:border-0 ${isRejected ? "bg-red-50 dark:bg-red-900/20 opacity-60" : ""}`}>
+      <div className="flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer" onClick={onToggle}>
+        <svg className={`w-3 h-3 transition-transform flex-shrink-0 text-gray-400 ${isExpanded ? "rotate-90" : ""}`} viewBox="0 0 12 12">
           <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
         </svg>
-        {sources.length} sources
-      </button>
-      {open && (
-        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-          {sources.map((s, i) => (
-            <SourceCard key={s.nugget_id || i} nugget={s} />
-          ))}
+        <ConfidenceDot confidence={nugget.confidence} />
+        <span className="font-medium text-gray-700 dark:text-gray-300 flex-1 truncate">{nugget.paper_title || nugget.paper_id}</span>
+        <span className="text-gray-400 flex-shrink-0">{nugget.paper_year || "\u2014"}</span>
+        <TypePill type={nugget.type} />
+        <span className="text-gray-400 flex-shrink-0 w-12 text-right">{nugget.rrf_score.toFixed(3)}</span>
+        <button onClick={(e) => { e.stopPropagation(); setShowQueries(!showQueries); }} className="text-gray-300 dark:text-gray-600 hover:text-blue-500 flex-shrink-0" title="Show matched queries">
+          {nugget.overlap_count}/{nugget.n_variants}
+        </button>
+        {onReject && <RejectButton nuggetId={nugget.nugget_id} rejected={rejected} onReject={onReject} />}
+        <BookmarkButton nugget={nugget} bookmarks={bookmarks} setBookmarks={setBookmarks} />
+      </div>
+      {showQueries && matchedTexts.length > 0 && (
+        <div className="px-7 pb-1.5">
+          {matchedTexts.map((q, i) => <div key={i} className="text-xs text-gray-400 italic leading-snug">&bull; {q}</div>)}
         </div>
+      )}
+      {isExpanded && (
+        <div className="mx-7 mb-2 p-2 bg-gray-50 dark:bg-gray-900 rounded text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{nugget.document}</div>
       )}
     </div>
   );
-}
+});
 
-function TypingIndicator() {
+const GroupedSourcesView = memo(function GroupedSourcesView({ sources, variants, bookmarks, setBookmarks, rejected, onReject }) {
+  const [expandedPapers, setExpandedPapers] = useState(new Set());
+  const [expandedNuggets, setExpandedNuggets] = useState(new Set());
+
+  // Group sources by paper (memoized to avoid re-sorting on every render)
+  const papers = useMemo(() => {
+    const grouped = {};
+    for (const s of sources) {
+      const key = s.paper_id || s.paper_title || "unknown";
+      if (!grouped[key]) grouped[key] = { paper: s, nuggets: [] };
+      grouped[key].nuggets.push(s);
+    }
+    return Object.values(grouped).sort((a, b) => Math.max(...b.nuggets.map(n => n.rrf_score)) - Math.max(...a.nuggets.map(n => n.rrf_score)));
+  }, [sources]);
+
+  const togglePaper = (key) => {
+    setExpandedPapers((prev) => { const n = new Set(prev); if (n.has(key)) n.delete(key); else n.add(key); return n; });
+  };
+  const toggleNugget = (id) => {
+    setExpandedNuggets((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  };
+
+  return (
+    <div className="mt-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+      {papers.map(({ paper, nuggets }, pi) => {
+        const paperKey = paper.paper_id || pi;
+        const isOpen = expandedPapers.has(paperKey);
+        const isRejectedAll = rejected && nuggets.every(n => rejected.has(n.nugget_id));
+        return (
+          <div key={paperKey} className={`border-b border-gray-100 dark:border-gray-700 last:border-0 ${isRejectedAll ? "opacity-50" : ""}`}>
+            <div className="flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer" onClick={() => togglePaper(paperKey)}>
+              <svg className={`w-3 h-3 transition-transform flex-shrink-0 text-gray-400 ${isOpen ? "rotate-90" : ""}`} viewBox="0 0 12 12">
+                <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              </svg>
+              <span className="font-medium text-gray-700 dark:text-gray-300 flex-1 truncate">{paper.paper_title || paper.paper_id}</span>
+              <span className="text-gray-400">{paper.paper_year || "\u2014"}</span>
+              <span className="text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">{nuggets.length} nugget{nuggets.length > 1 ? "s" : ""}</span>
+              <BookmarkButton nugget={paper} bookmarks={bookmarks} setBookmarks={setBookmarks} />
+            </div>
+            {isOpen && (
+              <div className="pl-5 pr-2 pb-1">
+                {nuggets.map((n, ni) => {
+                  const nIsRejected = rejected && rejected.has(n.nugget_id);
+                  const nIsExpanded = expandedNuggets.has(n.nugget_id);
+                  return (
+                    <div key={n.nugget_id || ni} className={`border-l-2 border-gray-200 dark:border-gray-600 pl-2 py-1 ${nIsRejected ? "opacity-50" : ""}`}>
+                      <div className="flex items-center gap-2 text-xs">
+                        <button onClick={() => toggleNugget(n.nugget_id)} className="text-gray-400 hover:text-blue-500">
+                          <svg className={`w-2.5 h-2.5 transition-transform ${nIsExpanded ? "rotate-90" : ""}`} viewBox="0 0 12 12">
+                            <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                          </svg>
+                        </button>
+                        <ConfidenceDot confidence={n.confidence} />
+                        <TypePill type={n.type} />
+                        <span className="text-gray-400 flex-1">{n.rrf_score.toFixed(3)}</span>
+                        <span className="text-gray-400">{n.overlap_count}/{n.n_variants}</span>
+                        {onReject && <RejectButton nuggetId={n.nugget_id} rejected={rejected} onReject={onReject} />}
+                      </div>
+                      {nIsExpanded && (
+                        <div className="mt-1 ml-4 p-2 bg-gray-50 dark:bg-gray-900 rounded text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{n.document}</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
+const SourcesPanel = memo(function SourcesPanel({ sources, variants, bookmarks, setBookmarks, rejected, onReject, onRegenerate, regenerating }) {
+  const [open, setOpen] = useState(false);
+  const [forceExpand, setForceExpand] = useState(null);
+  const [viewMode, setViewMode] = useState("compact");
+  const [expandedRows, setExpandedRows] = useState(new Set());
+  const [bibCopied, setBibCopied] = useState(false);
+
+  if (!sources || sources.length === 0) return null;
+  const rejectedCount = rejected ? rejected.size : 0;
+
+  const toggleRow = (idx) => {
+    setExpandedRows((prev) => { const next = new Set(prev); if (next.has(idx)) next.delete(idx); else next.add(idx); return next; });
+  };
+
+  const copyBibTeX = () => {
+    const bib = generateBibTeX(sources);
+    navigator.clipboard.writeText(bib).then(() => { setBibCopied(true); setTimeout(() => setBibCopied(false), 1500); });
+  };
+
+  const viewModes = ["compact", "cards", "grouped"];
+  const nextView = () => {
+    const idx = viewModes.indexOf(viewMode);
+    setViewMode(viewModes[(idx + 1) % viewModes.length]);
+  };
+
+  return (
+    <div className="mt-2">
+      <div className="flex items-center gap-3">
+        <button onClick={() => setOpen(!open)} aria-expanded={open} aria-label={`${sources.length} sources`} className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1">
+          <svg className={`w-3 h-3 transition-transform ${open ? "rotate-90" : ""}`} viewBox="0 0 12 12" aria-hidden="true">
+            <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
+          {sources.length} sources
+        </button>
+        {open && (
+          <>
+            <button onClick={nextView} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              {viewMode === "compact" ? "cards" : viewMode === "cards" ? "grouped" : "compact"}
+            </button>
+            {viewMode === "cards" && (
+              <button onClick={() => setForceExpand(forceExpand === true ? false : true)} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                {forceExpand === true ? "collapse all" : "expand all"}
+              </button>
+            )}
+            <button onClick={copyBibTeX} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center gap-1">
+              {bibCopied ? "copied!" : "BibTeX"}
+            </button>
+            {rejectedCount > 0 && onRegenerate && (
+              <button
+                onClick={onRegenerate}
+                disabled={regenerating}
+                className="text-xs px-2 py-0.5 rounded bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800 font-medium transition-colors disabled:opacity-50"
+              >
+                {regenerating ? "Regenerating..." : `Regenerate (−${rejectedCount})`}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+      {open && viewMode === "cards" && (
+        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+          {sources.map((s, i) => <SourceCard key={s.nugget_id || i} nugget={s} variants={variants || []} forceExpand={forceExpand} bookmarks={bookmarks} setBookmarks={setBookmarks} rejected={rejected} onReject={onReject} />)}
+        </div>
+      )}
+      {open && viewMode === "compact" && (
+        <div className="mt-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+          {sources.map((s, i) => <SourceRow key={s.nugget_id || i} nugget={s} variants={variants || []} isExpanded={expandedRows.has(i)} onToggle={() => toggleRow(i)} bookmarks={bookmarks} setBookmarks={setBookmarks} rejected={rejected} onReject={onReject} />)}
+        </div>
+      )}
+      {open && viewMode === "grouped" && (
+        <GroupedSourcesView sources={sources} variants={variants || []} bookmarks={bookmarks} setBookmarks={setBookmarks} rejected={rejected} onReject={onReject} />
+      )}
+    </div>
+  );
+});
+
+const TypingIndicator = memo(function TypingIndicator() {
   return (
     <div className="flex gap-1 p-3">
       <div className="typing-dot w-2 h-2 rounded-full bg-gray-400"></div>
@@ -137,71 +553,278 @@ function TypingIndicator() {
       <div className="typing-dot w-2 h-2 rounded-full bg-gray-400"></div>
     </div>
   );
+});
+
+function PipelineProgress({ stage }) {
+  const stages = [
+    { key: "expanding", label: "Expanding queries" },
+    { key: "retrieving", label: "Retrieving nuggets" },
+    { key: "generating", label: "Generating response" },
+  ];
+  const currentIdx = stages.findIndex(s => s.key === stage);
+
+  return (
+    <div className="flex items-center gap-2 px-4 py-2 text-xs">
+      {stages.map((s, i) => (
+        <React.Fragment key={s.key}>
+          <div className={`flex items-center gap-1.5 ${i <= currentIdx ? "text-blue-600 dark:text-blue-400" : "text-gray-300 dark:text-gray-600"}`}>
+            {i < currentIdx ? (
+              <svg className="w-3.5 h-3.5 text-green-500" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg>
+            ) : i === currentIdx ? (
+              <div className="w-3 h-3 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+            ) : (
+              <div className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600" />
+            )}
+            <span className={i === currentIdx ? "progress-pulse font-medium" : ""}>{s.label}</span>
+          </div>
+          {i < stages.length - 1 && <div className={`w-6 h-px ${i < currentIdx ? "bg-green-400" : "bg-gray-200 dark:bg-gray-700"}`} />}
+        </React.Fragment>
+      ))}
+    </div>
+  );
 }
 
-function MessageBubble({ msg }) {
+const QueryVariantsBar = memo(function QueryVariantsBar({ variants }) {
+  const [open, setOpen] = useState(false);
+  if (!variants || variants.length === 0) return null;
+  return (
+    <div className="mb-1">
+      <button onClick={() => setOpen(!open)} className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 flex items-center gap-1">
+        <svg className={`w-2.5 h-2.5 transition-transform ${open ? "rotate-90" : ""}`} viewBox="0 0 12 12">
+          <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+        {variants.length} query variants
+      </button>
+      {open && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {variants.map((v, i) => (
+            <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">{v}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
+
+const CopyButton = memo(function CopyButton({ text }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); });
+  };
+  return (
+    <button onClick={handleCopy} className="text-xs text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 transition-colors" title="Copy as markdown">
+      {copied ? (
+        <svg className="w-3.5 h-3.5 text-green-500" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg>
+      ) : (
+        <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="5" y="5" width="8" height="8" rx="1" /><path d="M3 11V3h8" /></svg>
+      )}
+    </button>
+  );
+});
+
+const FollowUpChips = memo(function FollowUpChips({ followUps, onSelect }) {
+  if (!followUps || followUps.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-2 mt-2">
+      {followUps.map((q, i) => (
+        <button key={i} onClick={() => onSelect(q)} className="text-xs px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500 transition-colors text-left">
+          {q}
+        </button>
+      ))}
+    </div>
+  );
+});
+
+function Toast({ message, type, onDismiss }) {
+  const [exiting, setExiting] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => { setExiting(true); setTimeout(onDismiss, 300); }, 5000);
+    return () => clearTimeout(t);
+  }, [onDismiss]);
+
+  const bg = type === "error" ? "bg-red-600" : type === "success" ? "bg-green-600" : "bg-gray-800";
+
+  return (
+    <div className={`${exiting ? "toast-exit" : "toast-enter"} ${bg} text-white text-sm px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 max-w-sm`}>
+      <span className="flex-1">{message}</span>
+      <button onClick={() => { setExiting(true); setTimeout(onDismiss, 300); }} className="text-white/70 hover:text-white">
+        <svg className="w-3.5 h-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="3" y1="3" x2="9" y2="9" /><line x1="9" y1="3" x2="3" y2="9" /></svg>
+      </button>
+    </div>
+  );
+}
+
+function ToastContainer({ toasts, removeToast }) {
+  if (toasts.length === 0) return null;
+  return (
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+      {toasts.map((t) => <Toast key={t.id} message={t.message} type={t.type} onDismiss={() => removeToast(t.id)} />)}
+    </div>
+  );
+}
+
+const MessageBubble = memo(function MessageBubble({ msg, mode, bookmarks, setBookmarks, onFollowUp, onRegenerate, regenerating }) {
   const isUser = msg.role === "user";
   const htmlRef = useRef(null);
+  const [showRaw, setShowRaw] = useState(false);
+  const [rejected, setRejected] = useState(new Set());
+  const mc = MODE_COLORS[mode] || MODE_COLORS.survey;
+  const { cleanContent, followUps } = useMemo(() => extractFollowUps(msg.content), [msg.content]);
+
+  const handleReject = (nuggetId) => {
+    setRejected((prev) => {
+      const next = new Set(prev);
+      if (next.has(nuggetId)) next.delete(nuggetId);
+      else next.add(nuggetId);
+      return next;
+    });
+  };
+
+  const handleRegenerate = () => {
+    if (onRegenerate && rejected.size > 0) {
+      onRegenerate(Array.from(rejected));
+    }
+  };
 
   useEffect(() => {
     if (!isUser && htmlRef.current) {
-      htmlRef.current.innerHTML = marked.parse(msg.content || "");
+      htmlRef.current.innerHTML = DOMPurify.sanitize(marked.parse(cleanContent || ""));
     }
-  }, [msg.content, isUser]);
+  }, [cleanContent, isUser]);
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-3`}>
       <div className={`max-w-3xl ${isUser ? "ml-16" : "mr-16"}`}>
-        <div
-          className={`rounded-lg px-4 py-2.5 text-sm leading-relaxed ${
-            isUser
-              ? "bg-blue-600 text-white"
-              : "bg-white border border-gray-200 text-gray-800"
-          }`}
-        >
+        <div className={`rounded-lg px-4 py-2.5 text-sm leading-relaxed ${isUser ? "bg-blue-600 text-white" : `bg-white dark:bg-gray-800 border ${mc.border} text-gray-800 dark:text-gray-200`}`}>
+          {!isUser && msg.content && (
+            <div className="flex items-center justify-between mb-1.5">
+              <span className={`text-xs font-medium ${mc.text}`}>{(MODES.find((m) => m.id === mode)?.label || mode).toUpperCase()}</span>
+              <button onClick={() => setShowRaw(!showRaw)} className="text-xs text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 transition-colors" title={showRaw ? "Hide markdown" : "Show markdown"}>
+                {showRaw ? "rendered" : "markdown"}
+              </button>
+            </div>
+          )}
           {isUser ? (
             <div className="whitespace-pre-wrap">{msg.content}</div>
           ) : (
-            <div ref={htmlRef} className="markdown-body" />
+            <div ref={htmlRef} className="markdown-body" style={{ display: showRaw ? "none" : "block" }} />
           )}
         </div>
-        {!isUser && msg.sources && <SourcesPanel sources={msg.sources} />}
+        {!isUser && showRaw && msg.content && (
+          <div className="mt-1 relative group">
+            <div className="absolute top-2 right-2"><CopyButton text={msg.content} /></div>
+            <pre className="text-xs bg-gray-900 text-gray-200 rounded-lg p-3 pr-10 overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-96 overflow-y-auto">{msg.content}</pre>
+          </div>
+        )}
+        {!isUser && msg.variants && <QueryVariantsBar variants={msg.variants} />}
+        {!isUser && followUps.length > 0 && <FollowUpChips followUps={followUps} onSelect={onFollowUp} />}
+        {!isUser && msg.sources && <SourcesPanel sources={msg.sources} variants={msg.variants} bookmarks={bookmarks} setBookmarks={setBookmarks} rejected={rejected} onReject={handleReject} onRegenerate={handleRegenerate} regenerating={regenerating} />}
       </div>
+    </div>
+  );
+});
+
+function StatsPanel({ apiBase }) {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${apiBase}/stats`)
+      .then((r) => r.json())
+      .then((data) => { setStats(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [apiBase]);
+
+  if (loading) return <div className="p-4 text-xs text-gray-400">Loading stats...</div>;
+  if (!stats) return <div className="p-4 text-xs text-gray-400">Could not load stats.</div>;
+
+  const byType = stats.nuggets_by_type || {};
+  const byYear = stats.papers_by_year || {};
+  const maxTypeCount = Math.max(...Object.values(byType), 1);
+
+  return (
+    <div className="p-4 space-y-4 text-xs">
+      <div>
+        <div className="text-gray-400 uppercase tracking-wider mb-2">Totals</div>
+        <div className="flex gap-4">
+          <div><span className="text-lg font-bold text-gray-800 dark:text-gray-200">{(stats.total_nuggets || 0).toLocaleString()}</span> <span className="text-gray-400">nuggets</span></div>
+          <div><span className="text-lg font-bold text-gray-800 dark:text-gray-200">{(stats.total_papers || 0).toLocaleString()}</span> <span className="text-gray-400">papers</span></div>
+        </div>
+      </div>
+      <div>
+        <div className="text-gray-400 uppercase tracking-wider mb-2">By Type</div>
+        <div className="space-y-1">
+          {Object.entries(byType).sort((a, b) => b[1] - a[1]).map(([type, count]) => (
+            <div key={type} className="flex items-center gap-2">
+              <span className="w-20 text-gray-600 dark:text-gray-400 truncate">{type}</span>
+              <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                <div className="bg-blue-400 h-2 rounded-full" style={{ width: `${(count / maxTypeCount) * 100}%` }} />
+              </div>
+              <span className="text-gray-400 w-12 text-right">{count.toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {Object.keys(byYear).length > 0 && (
+        <div>
+          <div className="text-gray-400 uppercase tracking-wider mb-2">Papers by Year</div>
+          <div className="space-y-0.5">
+            {Object.entries(byYear).sort((a, b) => b[0] - a[0]).map(([year, count]) => (
+              <div key={year} className="flex justify-between text-gray-600 dark:text-gray-400">
+                <span>{year}</span>
+                <span className="text-gray-400">{count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 function App() {
+  const [sidebarTab, setSidebarTab] = useState("chat");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [mode, setMode] = useState("survey");
-  const [settings, setSettings] = useState({
-    model: "google/gemini-flash-1.5",
-    n_variants: 4,
-    n_context: 8,
-  });
-  const [showSettings, setShowSettings] = useState(false);
+  const [latexMode, setLatexMode] = useState(false);
+  const [settings, setSettings] = useState(loadSettings);
   const [health, setHealth] = useState(null);
-  const [error, setError] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [chatHistory, setChatHistory] = useState(loadHistory);
+  const [activeChatId, setActiveChatId] = useState(null);
+  const [bookmarks, setBookmarks] = useState(loadBookmarks);
+  const [dark, setDark] = useState(loadDarkMode);
+  const [pipelineStage, setPipelineStage] = useState(null);
   const chatEndRef = useRef(null);
   const textareaRef = useRef(null);
   const abortRef = useRef(null);
 
-  // Scroll to bottom on new messages
+  // Dark mode class on html element
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, streaming]);
+    document.documentElement.classList.toggle("dark", dark);
+    saveDarkMode(dark);
+  }, [dark]);
 
-  // Fetch health on mount
-  useEffect(() => {
-    fetch(`${API_BASE}/health`)
-      .then((r) => r.json())
-      .then(setHealth)
-      .catch(() => setHealth({ status: "offline" }));
+  // Save settings when they change
+  useEffect(() => { saveSettings(settings); }, [settings]);
+
+  const addToast = useCallback((message, type = "error") => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, type }]);
+  }, []);
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Auto-resize textarea
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, streaming]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/health`).then((r) => r.json()).then(setHealth).catch(() => setHealth({ status: "offline" }));
+  }, []);
+
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -209,44 +832,103 @@ function App() {
     }
   }, [input]);
 
+  useEffect(() => {
+    if (!activeChatId || messages.length === 0) return;
+    setChatHistory((prev) => {
+      const updated = prev.map((c) => c.id === activeChatId ? { ...c, messages, mode, updatedAt: Date.now() } : c);
+      saveHistory(updated);
+      return updated;
+    });
+  }, [messages, activeChatId]);
+
+  // Keyboard shortcuts: Ctrl+1-8 for modes, Ctrl+N for new chat
+  useEffect(() => {
+    const handler = (e) => {
+      // Don't intercept if typing in input
+      if (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT") return;
+      if ((e.ctrlKey || e.metaKey) && e.key >= "1" && e.key <= "8") {
+        e.preventDefault();
+        const idx = parseInt(e.key) - 1;
+        if (MODES[idx]) handleModeChange(MODES[idx].id);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "n") {
+        e.preventDefault();
+        startNewChat();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [mode, messages]);
+
+  const startNewChat = () => { setActiveChatId(null); setMessages([]); };
+  const loadChat = (chat) => { setActiveChatId(chat.id); setMessages(chat.messages.map(m => m.id ? m : { ...m, id: nextMsgId() })); setMode(chat.mode); };
+  const deleteChat = (chatId, e) => {
+    e.stopPropagation();
+    setChatHistory((prev) => { const updated = prev.filter((c) => c.id !== chatId); saveHistory(updated); return updated; });
+    if (activeChatId === chatId) { setActiveChatId(null); setMessages([]); }
+  };
   const handleModeChange = (newMode) => {
     if (newMode === mode) return;
-    if (messages.length > 0 && !confirm("Start new conversation?")) return;
     setMode(newMode);
-    setMessages([]);
-    setError(null);
+    if (messages.length > 0) startNewChat();
+  };
+  const stopStreaming = () => { if (abortRef.current) { abortRef.current.abort(); abortRef.current = null; } };
+  const handleFollowUp = (text) => { setInput(text); if (textareaRef.current) textareaRef.current.focus(); };
+  const [regeneratingIdx, setRegeneratingIdx] = useState(null);
+
+  const handleExport = () => {
+    const md = exportChatMarkdown(messages, mode);
+    const blob = new Blob([md], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `thesis-kb-${mode}-${new Date().toISOString().slice(0, 10)}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    addToast("Chat exported as markdown", "success");
   };
 
-  const sendMessage = useCallback(async () => {
-    const text = input.trim();
-    if (!text || streaming) return;
+  const regenerateMessage = useCallback(async (msgIdx, excludedNuggets) => {
+    if (streaming || regeneratingIdx !== null) return;
 
-    const userMsg = { role: "user", content: text };
-    const newMessages = [...messages, userMsg];
-    setMessages(newMessages);
-    setInput("");
-    setStreaming(true);
-    setError(null);
+    const conversationUpToHere = messages.slice(0, msgIdx);
+    const userMessages = conversationUpToHere.filter((m) => m.role === "user");
+    if (userMessages.length === 0) return;
 
-    // Add placeholder assistant message
-    const assistantIdx = newMessages.length;
-    setMessages((prev) => [...prev, { role: "assistant", content: "", sources: null }]);
+    const allExcluded = [...excludedNuggets];
+
+    setRegeneratingIdx(msgIdx);
+    setPipelineStage("expanding");
+
+    setMessages((prev) => {
+      const updated = [...prev];
+      updated[msgIdx] = { ...updated[msgIdx], content: "", sources: null };
+      return updated;
+    });
 
     try {
       const controller = new AbortController();
       abortRef.current = controller;
 
+      const body = {
+        messages: conversationUpToHere.map((m) => ({ role: m.role, content: m.content })),
+        mode,
+        n_variants: settings.n_variants,
+        n_retrieve: settings.n_retrieve,
+        n_context: settings.n_context,
+        model: settings.model,
+        latex_mode: latexMode,
+        excluded_nuggets: allExcluded,
+      };
+      if (settings.type_filter && settings.type_filter.length > 0) body.type_filter = settings.type_filter;
+      if (settings.year_min) body.year_min = parseInt(settings.year_min);
+      if (settings.year_max) body.year_max = parseInt(settings.year_max);
+
+      setPipelineStage("retrieving");
       const resp = await fetch(`${API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
-          mode,
-          n_variants: settings.n_variants,
-          n_retrieve: Math.max(settings.n_context, 12),
-          n_context: settings.n_context,
-          model: settings.model,
-        }),
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
 
@@ -255,6 +937,7 @@ function App() {
         throw new Error(errData.detail || resp.statusText);
       }
 
+      setPipelineStage("generating");
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
@@ -263,210 +946,410 @@ function App() {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-
         const lines = buffer.split("\n");
         buffer = lines.pop() || "";
 
         for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
-          const jsonStr = line.slice(6);
           let parsed;
-          try {
-            parsed = JSON.parse(jsonStr);
-          } catch {
-            continue;
-          }
+          try { parsed = JSON.parse(line.slice(6)); } catch { continue; }
 
           if (parsed.type === "delta") {
             setMessages((prev) => {
               const updated = [...prev];
-              updated[assistantIdx] = {
-                ...updated[assistantIdx],
-                content: updated[assistantIdx].content + parsed.content,
-              };
+              updated[msgIdx] = { ...updated[msgIdx], content: updated[msgIdx].content + parsed.content };
               return updated;
             });
           } else if (parsed.type === "sources") {
             setMessages((prev) => {
               const updated = [...prev];
-              updated[assistantIdx] = {
-                ...updated[assistantIdx],
-                sources: parsed.nuggets,
-              };
+              updated[msgIdx] = { ...updated[msgIdx], sources: parsed.nuggets, variants: parsed.variants || [] };
               return updated;
             });
           } else if (parsed.type === "error") {
-            setError(parsed.content);
+            addToast(parsed.content, "error");
           }
         }
       }
     } catch (e) {
-      if (e.name !== "AbortError") {
-        setError(e.message);
-      }
+      if (e.name !== "AbortError") addToast(e.message, "error");
     } finally {
-      setStreaming(false);
+      setRegeneratingIdx(null);
+      setPipelineStage(null);
       abortRef.current = null;
     }
-  }, [input, messages, streaming, mode, settings]);
+  }, [messages, streaming, regeneratingIdx, mode, settings, latexMode]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+  const sendMessage = useCallback(async () => {
+    const text = input.trim();
+    if (!text || streaming) return;
+
+    let currentChatId = activeChatId;
+    if (!currentChatId) {
+      const id = generateId();
+      const newChat = { id, mode, messages: [], createdAt: Date.now(), updatedAt: Date.now() };
+      setChatHistory((prev) => { const updated = [newChat, ...prev]; saveHistory(updated); return updated; });
+      setActiveChatId(id);
+      currentChatId = id;
     }
-  };
 
-  const statusColor =
-    health?.status === "ok"
-      ? "bg-green-500"
-      : health?.status === "degraded"
-      ? "bg-yellow-500"
-      : "bg-red-500";
+    const userMsg = { id: nextMsgId(), role: "user", content: text };
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
+    setInput("");
+    setStreaming(true);
+    setPipelineStage("expanding");
+
+    const assistantIdx = newMessages.length;
+    setMessages((prev) => [...prev, { id: nextMsgId(), role: "assistant", content: "", sources: null }]);
+
+    try {
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      const body = {
+        messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
+        mode,
+        n_variants: settings.n_variants,
+        n_retrieve: settings.n_retrieve,
+        n_context: settings.n_context,
+        model: settings.model,
+        latex_mode: latexMode,
+      };
+      if (settings.type_filter && settings.type_filter.length > 0) body.type_filter = settings.type_filter;
+      if (settings.year_min) body.year_min = parseInt(settings.year_min);
+      if (settings.year_max) body.year_max = parseInt(settings.year_max);
+
+      setPipelineStage("retrieving");
+      const resp = await fetch(`${API_BASE}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({ detail: resp.statusText }));
+        throw new Error(errData.detail || resp.statusText);
+      }
+
+      setPipelineStage("generating");
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          let parsed;
+          try { parsed = JSON.parse(line.slice(6)); } catch { continue; }
+
+          if (parsed.type === "delta") {
+            setMessages((prev) => {
+              const updated = [...prev];
+              updated[assistantIdx] = { ...updated[assistantIdx], content: updated[assistantIdx].content + parsed.content };
+              return updated;
+            });
+          } else if (parsed.type === "sources") {
+            setMessages((prev) => {
+              const updated = [...prev];
+              updated[assistantIdx] = { ...updated[assistantIdx], sources: parsed.nuggets, variants: parsed.variants || [] };
+              return updated;
+            });
+          } else if (parsed.type === "error") {
+            addToast(parsed.content, "error");
+          }
+        }
+      }
+    } catch (e) {
+      if (e.name !== "AbortError") addToast(e.message, "error");
+    } finally {
+      setStreaming(false);
+      setPipelineStage(null);
+      abortRef.current = null;
+    }
+  }, [input, messages, streaming, mode, settings, activeChatId, latexMode]);
+
+  const handleKeyDown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+
+  const statusColor = health?.status === "ok" ? "bg-green-500" : health?.status === "degraded" ? "bg-yellow-500" : "bg-red-500";
+  const mc = MODE_COLORS[mode] || MODE_COLORS.survey;
+
+  const ALL_TYPES = ["method", "result", "comparison", "limitation", "background", "claim"];
 
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <div className="w-56 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-100">
-          <h2 className="font-bold text-sm text-gray-700 mb-3">Mode</h2>
-          <div className="space-y-1">
-            {MODES.map((m) => (
-              <button
-                key={m.id}
-                onClick={() => handleModeChange(m.id)}
-                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                  mode === m.id
-                    ? "bg-blue-50 text-blue-700 font-semibold"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                <div>{m.label}</div>
-                <div className="text-xs text-gray-400 font-normal">{m.desc}</div>
-              </button>
-            ))}
+      <div className="w-56 flex-shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col" role="navigation" aria-label="Sidebar">
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h1 className="font-bold text-sm text-gray-800 dark:text-gray-200">Thesis KB</h1>
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+            <button onClick={() => setDark(!dark)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title={dark ? "Light mode" : "Dark mode"}>
+              {dark ? (
+                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="4" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.5 3.5l1.4 1.4M11.1 11.1l1.4 1.4M3.5 12.5l1.4-1.4M11.1 4.9l1.4-1.4" stroke="currentColor" strokeWidth="1" /></svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 105.3 11.6A5.5 5.5 0 014.4 2.7 7 7 0 008 1z" /></svg>
+              )}
+            </button>
+            {health && health.status !== "offline" && <span>{health.nuggets?.toLocaleString()}n</span>}
+            <div className={`w-2 h-2 rounded-full ${statusColor}`} title={health?.status || "unknown"} />
           </div>
         </div>
-        <div className="p-4">
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
-          >
-            <svg className={`w-3 h-3 transition-transform ${showSettings ? "rotate-90" : ""}`} viewBox="0 0 12 12">
-              <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
-            Settings
-          </button>
-          {showSettings && (
-            <div className="mt-3 space-y-3">
+
+        <div className="flex border-b border-gray-200 dark:border-gray-700" role="tablist" aria-label="Sidebar tabs">
+          {["chat", "settings", "stats"].map((tab) => (
+            <button key={tab} onClick={() => setSidebarTab(tab)} role="tab" aria-selected={sidebarTab === tab} aria-controls={`tabpanel-${tab}`} className={`flex-1 py-2 text-xs font-medium transition-colors ${sidebarTab === tab ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}`}>
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          {sidebarTab === "chat" ? (
+            <div className="flex flex-col h-full">
+              <div className="p-3 border-b border-gray-100 dark:border-gray-700">
+                <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">Mode <span className="normal-case text-gray-300 dark:text-gray-600">(Ctrl+1-8)</span></div>
+                <div className="space-y-0.5" role="radiogroup" aria-label="Chat mode">
+                  {MODES.map((m, i) => {
+                    const c = MODE_COLORS[m.id];
+                    return (
+                      <button key={m.id} onClick={() => handleModeChange(m.id)} role="radio" aria-checked={mode === m.id} className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs transition-colors ${mode === m.id ? `${c.bg} ${c.text} font-semibold` : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"}`}>
+                        <span className="text-gray-300 dark:text-gray-600 mr-1">{i + 1}</span>
+                        <span>{m.label}</span>
+                        <span className="text-gray-400 font-normal ml-1">&mdash; {m.desc}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="px-3 pt-3 pb-1 flex gap-1">
+                <button onClick={startNewChat} className="flex-1 flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="8" y1="3" x2="8" y2="13" /><line x1="3" y1="8" x2="13" y2="8" /></svg>
+                  New chat
+                </button>
+                {messages.length > 0 && (
+                  <button onClick={handleExport} className="flex items-center gap-1 px-2 py-1.5 rounded-md text-xs text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Export as markdown">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3" /></svg>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-3 pb-3">
+                {chatHistory.length === 0 ? (
+                  <div className="text-xs text-gray-300 dark:text-gray-600 text-center mt-4">No chat history</div>
+                ) : (
+                  <div className="space-y-0.5">
+                    {chatHistory.map((chat) => {
+                      const hc = MODE_COLORS[chat.mode] || MODE_COLORS.survey;
+                      return (
+                        <div key={chat.id} onClick={() => loadChat(chat)} className={`group flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs cursor-pointer transition-colors ${activeChatId === chat.id ? `${hc.bg} ${hc.text}` : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${hc.dot}`} title={chat.mode} />
+                          <span className="flex-1 truncate">{chatTitle(chat)}</span>
+                          <button onClick={(e) => deleteChat(chat.id, e)} className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-400 transition-opacity flex-shrink-0" title="Delete chat">
+                            <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="3" y1="3" x2="9" y2="9" /><line x1="9" y1="3" x2="3" y2="9" /></svg>
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {bookmarks.length > 0 && (
+                <div className="border-t border-gray-100 dark:border-gray-700 px-3 py-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-400 uppercase tracking-wider">Bookmarks ({bookmarks.length})</span>
+                    <button onClick={() => { navigator.clipboard.writeText(generateBibTeX(bookmarks)); addToast("BibTeX copied!", "success"); }} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">BibTeX</button>
+                  </div>
+                  <div className="space-y-0.5 max-h-32 overflow-y-auto">
+                    {bookmarks.map((b) => (
+                      <div key={b.nugget_id} className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                        <button onClick={() => setBookmarks((prev) => { const next = prev.filter((x) => x.nugget_id !== b.nugget_id); saveBookmarks(next); return next; })} className="text-yellow-500 hover:text-yellow-600 flex-shrink-0">
+                          <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" strokeWidth="1.5"><path d="M4 2h8a1 1 0 011 1v11l-4.5-3L4 14V3a1 1 0 011-1z" /></svg>
+                        </button>
+                        <span className="truncate">{b.paper_title || b.nugget_id}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : sidebarTab === "settings" ? (
+            <div className="p-4 space-y-4">
               <div>
-                <label className="text-xs text-gray-500 block mb-1">Model</label>
-                <input
-                  type="text"
-                  value={settings.model}
-                  onChange={(e) => setSettings({ ...settings, model: e.target.value })}
-                  className="w-full text-xs border border-gray-200 rounded px-2 py-1.5"
-                />
+                <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Model</label>
+                <select value={settings.model} onChange={(e) => setSettings({ ...settings, model: e.target.value })} className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                  <option value="google/gemini-3-flash-preview">Gemini 3 Flash</option>
+                  <option value="google/gemini-2.5-flash-preview">Gemini 2.5 Flash</option>
+                  <option value="google/gemini-2.5-pro-preview">Gemini 2.5 Pro</option>
+                  <option value="anthropic/claude-sonnet-4">Claude Sonnet 4</option>
+                  <option value="anthropic/claude-haiku-4">Claude Haiku 4</option>
+                  <option value="deepseek/deepseek-r1">DeepSeek R1</option>
+                </select>
               </div>
               <div>
-                <label className="text-xs text-gray-500 block mb-1">
-                  Query variants: {settings.n_variants}
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="6"
-                  value={settings.n_variants}
-                  onChange={(e) => setSettings({ ...settings, n_variants: parseInt(e.target.value) })}
-                  className="w-full"
-                />
+                <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Query variants: {settings.n_variants}</label>
+                <input type="range" min="1" max="8" value={settings.n_variants} onChange={(e) => setSettings({ ...settings, n_variants: parseInt(e.target.value) })} className="w-full" />
               </div>
               <div>
-                <label className="text-xs text-gray-500 block mb-1">
-                  Context nuggets: {settings.n_context}
-                </label>
-                <input
-                  type="range"
-                  min="4"
-                  max="16"
-                  value={settings.n_context}
-                  onChange={(e) => setSettings({ ...settings, n_context: parseInt(e.target.value) })}
-                  className="w-full"
-                />
+                <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Retrieval pool: {settings.n_retrieve}</label>
+                <input type="range" min="10" max="50" value={settings.n_retrieve} onChange={(e) => setSettings({ ...settings, n_retrieve: parseInt(e.target.value) })} className="w-full" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Context nuggets: {settings.n_context}</label>
+                <input type="range" min="4" max="30" value={settings.n_context} onChange={(e) => setSettings({ ...settings, n_context: parseInt(e.target.value) })} className="w-full" />
+              </div>
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
+                <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">Year Filter</div>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">From</label>
+                    <input type="number" value={settings.year_min} onChange={(e) => setSettings({ ...settings, year_min: e.target.value })} placeholder="2015" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">To</label>
+                    <input type="number" value={settings.year_max} onChange={(e) => setSettings({ ...settings, year_max: e.target.value })} placeholder="2025" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" />
+                  </div>
+                </div>
+              </div>
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
+                <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">Type Filter</div>
+                <div className="flex flex-wrap gap-1">
+                  {ALL_TYPES.map((t) => {
+                    const active = !settings.type_filter || settings.type_filter.length === 0 || settings.type_filter.includes(t);
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => {
+                          setSettings((prev) => {
+                            const current = prev.type_filter || [];
+                            if (current.length === 0) {
+                              // Currently showing all - click means show only this type
+                              return { ...prev, type_filter: [t] };
+                            } else if (current.includes(t) && current.length === 1) {
+                              // Only this type selected - clear filter (show all)
+                              return { ...prev, type_filter: [] };
+                            } else if (current.includes(t)) {
+                              return { ...prev, type_filter: current.filter((x) => x !== t) };
+                            } else {
+                              return { ...prev, type_filter: [...current, t] };
+                            }
+                          });
+                        }}
+                        className={`text-[10px] px-1.5 py-0.5 rounded transition-colors ${active ? TYPE_COLORS[t] : "bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600"}`}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
+                  {settings.type_filter && settings.type_filter.length > 0 && (
+                    <button
+                      onClick={() => setSettings((prev) => ({ ...prev, type_filter: [] }))}
+                      className="text-[10px] px-1.5 py-0.5 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      clear
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
+          ) : (
+            <StatsPanel apiBase={API_BASE} />
           )}
         </div>
       </div>
 
       {/* Main area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
-          <h1 className="font-bold text-gray-800">Thesis KB</h1>
-          <div className="flex items-center gap-3 text-xs text-gray-500">
-            {health && health.status !== "offline" && (
-              <span>
-                {health.papers?.toLocaleString()} papers &middot;{" "}
-                {health.nuggets?.toLocaleString()} nuggets
-              </span>
-            )}
-            <div className={`w-2 h-2 rounded-full ${statusColor}`} title={health?.status || "unknown"} />
-          </div>
-        </div>
-
-        {/* Error banner */}
-        {error && (
-          <div className="bg-red-50 border-b border-red-200 px-6 py-2 text-sm text-red-700 flex items-center justify-between">
-            <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600">&times;</button>
-          </div>
-        )}
-
-        {/* Chat messages */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+      <div className="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-gray-900" role="main">
+        <div className="flex-1 overflow-y-auto px-6 py-4 chat-area" role="log" aria-label="Chat messages" aria-live="polite">
           {messages.length === 0 && (
-            <div className="text-center text-gray-400 mt-20">
+            <div className="text-center text-gray-400 dark:text-gray-500 mt-20">
               <p className="text-lg mb-2">Ask a question about your thesis KB</p>
-              <p className="text-sm">Mode: <strong>{mode}</strong> &mdash; {MODES.find((m) => m.id === mode)?.desc}</p>
+              <p className="text-sm mb-6">Mode: <strong className={mc.text}>{mode}</strong> &mdash; {MODES.find((m) => m.id === mode)?.desc}</p>
+              {EXAMPLE_PROMPTS[mode] && (
+                <div className="flex flex-wrap justify-center gap-2 max-w-xl mx-auto">
+                  {EXAMPLE_PROMPTS[mode].map((prompt, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setInput(prompt); if (textareaRef.current) textareaRef.current.focus(); }}
+                      className="text-xs px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-300 transition-colors text-left"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-          {messages.map((msg, i) => (
-            <MessageBubble key={i} msg={msg} />
-          ))}
-          {streaming && messages[messages.length - 1]?.content === "" && <TypingIndicator />}
+          {messages.map((msg, i) => <MessageBubble key={msg.id || i} msg={msg} mode={mode} bookmarks={bookmarks} setBookmarks={setBookmarks} onFollowUp={handleFollowUp} onRegenerate={msg.role === "assistant" ? (excluded) => regenerateMessage(i, excluded) : undefined} regenerating={regeneratingIdx === i} />)}
+          {(streaming || regeneratingIdx !== null) && pipelineStage && <PipelineProgress stage={pipelineStage} />}
+          {streaming && messages[messages.length - 1]?.content === "" && !pipelineStage && <TypingIndicator />}
           <div ref={chatEndRef} />
         </div>
 
-        {/* Input bar */}
-        <div className="border-t border-gray-200 bg-white p-4 flex-shrink-0">
-          <div className="flex gap-3 max-w-4xl mx-auto">
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask a question... (Shift+Enter for newline)"
-              rows="1"
-              disabled={streaming}
-              className="flex-1 resize-none border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 disabled:opacity-50 disabled:bg-gray-50"
-            />
-            <button
-              onClick={sendMessage}
-              disabled={streaming || !input.trim()}
-              className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {streaming ? (
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4 31.4" />
-                </svg>
-              ) : (
-                "Send"
-              )}
-            </button>
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 flex-shrink-0">
+          <div className="max-w-4xl mx-auto">
+            <div className={`input-wrapper border rounded-xl bg-white dark:bg-gray-800 ${streaming ? "opacity-60" : ""} ${input.trim() ? "border-gray-300 dark:border-gray-600" : "border-gray-200 dark:border-gray-700"}`}>
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                aria-label="Chat message input"
+                placeholder={
+                  mode === "review" || mode === "check" ? "Paste thesis text to review..."
+                  : mode === "compare" ? "e.g. Compare SNN vs ANN for object detection..."
+                  : mode === "draft" ? "e.g. Write about event camera motion compensation..."
+                  : mode === "outline" ? "e.g. Related Work: Spiking Neural Networks..."
+                  : "Ask a question about your thesis KB..."
+                }
+                rows="1"
+                disabled={streaming}
+                className="w-full px-4 pt-3 pb-1 text-sm bg-transparent dark:text-gray-200 disabled:opacity-50 chat-area"
+                style={{ maxHeight: "200px", minHeight: "40px" }}
+              />
+              <div className="flex items-center justify-between px-3 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${mc.bg} ${mc.text} font-medium`}>
+                    {MODES.find((m) => m.id === mode)?.label}
+                  </span>
+                  <button
+                    onClick={() => setLatexMode(!latexMode)}
+                    className={`text-xs px-1.5 py-0.5 rounded font-medium transition-colors ${latexMode ? "bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400" : "bg-gray-100 dark:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}`}
+                    title={latexMode ? "LaTeX citations enabled" : "Enable LaTeX citations"}
+                  >
+                    LaTeX
+                  </button>
+                  {input.length > 0 && (
+                    <span className={`text-xs ${input.length > 3000 ? "text-amber-500" : "text-gray-300 dark:text-gray-600"}`}>{input.length.toLocaleString()}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {!streaming && <span className="text-xs text-gray-300 dark:text-gray-600 hidden sm:inline">Enter to send</span>}
+                  {streaming ? (
+                    <button onClick={stopStreaming} className="p-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors" title="Stop generating">
+                      <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor"><rect x="4" y="4" width="8" height="8" rx="1" /></svg>
+                    </button>
+                  ) : (
+                    <button onClick={sendMessage} disabled={!input.trim()} className={`p-1.5 rounded-lg transition-colors ${input.trim() ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed"}`} title="Send message">
+                      <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
 }

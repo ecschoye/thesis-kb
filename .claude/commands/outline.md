@@ -54,8 +54,18 @@ Section to outline: $ARGUMENTS
 1. arXiv:XXXX.XXXXX — "Title" (YEAR) — contributes to [which subsections]
 2. ...
 
+## Source Types
+Sources are tagged with their nugget type (method, result, comparison, limitation, background, claim).
+Use these types to assess section viability:
+- "method" and "background" sources → indicate strong coverage for technical sections
+- "result" and "comparison" sources → indicate data for evaluation sections
+- "limitation" sources → indicate material for discussion/future work sections
+- "claim" sources → wherever contextually relevant
+Evidence density ratings should reflect source type distribution, not just raw counts.
+
 ## Important
 - Convert paper_id underscores to arXiv dots
 - Evidence density ratings should reflect actual nugget counts, not guesses
 - Suggest only structures that the KB evidence can support
 - If a section the user expects to write has thin KB coverage, say so explicitly
+- End your response with 2-3 suggested follow-up questions under a `### Suggested Follow-ups` heading

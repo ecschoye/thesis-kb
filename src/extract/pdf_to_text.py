@@ -21,12 +21,100 @@ SECTION_PATTERNS = [
 ]
 
 
-def detect_section(text_block):
-    """Check if a text block is a section heading."""
-    first_line = text_block.strip().split("\n")[0].lower()[:80]
-    for pattern, name in SECTION_PATTERNS:
-        if re.match(pattern, first_line, re.IGNORECASE):
-            return name
+def _detect_section_from_lines(lines):
+    """Check if any of the given lines match a section heading pattern."""
+    for line in lines:
+        line = line.strip().lower()[:80]
+        if not line:
+            continue
+        for pattern, name in SECTION_PATTERNS:
+            if re.match(pattern, line, re.IGNORECASE):
+                return name
+    return None
+
+
+def _detect_section_from_fonts(page):
+    """Detect section headings by finding large-font text blocks."""
+    try:
+        blocks = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)["blocks"]
+    except Exception:
+        return None
+
+    # Collect font sizes from text spans
+    font_sizes = []
+    text_spans = []
+    for block in blocks:
+        for line in block.get("lines", []):
+            for span in line.get("spans", []):
+                text = span.get("text", "").strip()
+                size = span.get("size", 0)
+                if text and size > 0:
+                    font_sizes.append(size)
+                    text_spans.append((size, text))
+
+    if len(font_sizes) < 3:
+        return None
+
+    # Find the median font size (body text) and look for larger text (headings)
+    sorted_sizes = sorted(font_sizes)
+    median_size = sorted_sizes[len(sorted_sizes) // 2]
+    heading_threshold = median_size * 1.15  # headings are typically ≥15% larger
+
+    for size, text in text_spans:
+        if size >= heading_threshold:
+            line_lower = text.lower()[:80]
+            for pattern, name in SECTION_PATTERNS:
+                if re.match(pattern, line_lower, re.IGNORECASE):
+                    return name
+    return None
+
+
+# Roman numeral section heading patterns (e.g. "I. Introduction", "IV. Results")
+ROMAN_SECTION_PATTERNS = [
+    (r"^\s*I{1,3}V?\s*[.:]\s*introduction", "introduction"),
+    (r"^\s*I{1,3}V?\s*[.:]\s*related\s+work", "related_work"),
+    (r"^\s*I{1,3}V?\s*[.:]\s*background", "background"),
+    (r"^\s*I{1,3}V?\s*[.:]\s*(?:method|approach|proposed)", "method"),
+    (r"^\s*I{1,3}V?\s*[.:]\s*(?:experiment|evaluation)", "experiments"),
+    (r"^\s*I{1,3}V?\s*[.:]\s*(?:result|finding)", "results"),
+    (r"^\s*I{1,3}V?\s*[.:]\s*discussion", "discussion"),
+    (r"^\s*I{1,3}V?\s*[.:]\s*(?:conclusion|summary)", "conclusion"),
+    (r"^\s*V?I{0,3}\s*[.:]\s*(?:acknowledg)", "acknowledgments"),
+    (r"^\s*(?:references|bibliography)\b", "references"),
+    (r"^\s*(?:appendix|supplementary)", "appendix"),
+]
+
+
+def detect_section(text_block, page=None):
+    """Check if a text block contains a section heading.
+
+    Scans the first 8 non-empty lines (not just the first line) and
+    optionally uses font-size detection via PyMuPDF dict output.
+    """
+    lines = text_block.strip().split("\n")
+    # Take first 8 non-empty lines
+    candidate_lines = [l for l in lines if l.strip()][:8]
+
+    # 1. Try standard patterns on first 8 lines
+    result = _detect_section_from_lines(candidate_lines)
+    if result:
+        return result
+
+    # 2. Try Roman numeral patterns
+    for line in candidate_lines:
+        line_lower = line.strip().lower()[:80]
+        if not line_lower:
+            continue
+        for pattern, name in ROMAN_SECTION_PATTERNS:
+            if re.match(pattern, line_lower, re.IGNORECASE):
+                return name
+
+    # 3. Try font-size-based detection if page object is available
+    if page is not None:
+        result = _detect_section_from_fonts(page)
+        if result:
+            return result
+
     return None
 
 
@@ -69,7 +157,7 @@ def extract_pdf(pdf_path, min_text_length=100):
             continue
 
         # Detect section transitions
-        section = detect_section(text)
+        section = detect_section(text, page=page)
         if section:
             current_section = section
 
