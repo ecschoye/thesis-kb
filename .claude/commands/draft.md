@@ -3,7 +3,43 @@ Draft a paragraph for the thesis, grounded in evidence from the knowledge base.
 ## Input
 What to write about: $ARGUMENTS
 
-## Instructions
+## Mode Detection
+
+Determine which mode to use based on the input:
+
+- **Revise mode**: The input contains an existing draft paragraph (multi-sentence prose, possibly with citations). In this mode, your job is to **improve the existing text**, not rewrite it from scratch.
+- **Draft mode**: The input is a topic description, bullet points, or a short prompt without a full draft. In this mode, write a new paragraph.
+
+## Instructions — Revise Mode
+
+1. Extract the key claims and topics from the user's existing draft. Build 2-4 targeted sub-queries to verify and enrich those specific claims:
+   ```
+   cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query --queries "sub-query 1" "sub-query 2" -n 20 --json
+   ```
+
+2. Compare the draft against the retrieved evidence. Your role is **editor/advisor**, not ghostwriter. Do NOT output a rewritten paragraph — help the user improve *their* text.
+
+3. For each issue, quote the problematic phrase and suggest a concrete fix inline. Categories:
+   - **Factual**: incorrect numbers, unsupported claims — cite KB evidence
+   - **Gap**: claims that need a citation, or KB evidence that could strengthen the point
+   - **Structure**: redundancy, unclear transitions, logical flow
+   - **Style**: awkward phrasing, unnecessary words, clarity
+
+4. Output your response in this format:
+
+### Feedback
+
+For each issue:
+- **[Category]** "quoted phrase" → suggested fix or explanation. *(Source if relevant)*
+
+### Sources
+1. arXiv:XXXX.XXXXX — "Full Paper Title" (YEAR)
+2. ...
+
+### Notes
+- [Any caveats, synthesis notes, or thin-coverage warnings]
+
+## Instructions — Draft Mode
 
 1. Break the topic into 3-5 sub-queries that cover different aspects. Run them:
    ```
@@ -31,7 +67,7 @@ What to write about: $ARGUMENTS
    - Areas where KB coverage is thin and the user should verify independently
    - Specific numbers or metrics cited, so the user can double-check them
 
-## Output Format
+### Output Format (Draft Mode)
 
 ### Draft Paragraph
 
@@ -58,4 +94,5 @@ Ensure claims are grounded in the appropriate source types.
 - Do NOT invent facts — only use evidence from KB results
 - If KB coverage is too thin for a full paragraph, say so and output what you can
 - Prefer recent papers (2020+) unless older work is foundational
+- In **Revise mode**: preserve the user's writing style and structure. Make surgical edits, not rewrites. If the draft is mostly good, say so and make minimal changes.
 - End your response with 2-3 suggested follow-up questions under a `### Suggested Follow-ups` heading

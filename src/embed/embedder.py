@@ -66,10 +66,14 @@ def load_all_nuggets(nugget_dir, augmented_dir=None):
 _tokenizer = tiktoken.get_encoding("cl100k_base")
 
 
-def format_nugget_text(nugget, instruction, max_tokens=None):
+def format_nugget_text(nugget, instruction, max_tokens=None, mode="query"):
     """Format a nugget for instruction-aware embedding.
 
-    If max_tokens is set, truncate the text to fit within the token limit.
+    Args:
+        nugget: Dict with 'question' and 'answer' keys.
+        instruction: Default instruction (used if mode-specific not available).
+        max_tokens: Optional token limit for truncation.
+        mode: 'query' for search queries, 'document' for nugget indexing.
     """
     q = nugget.get("question", "")
     a = nugget.get("answer", "")
@@ -122,7 +126,8 @@ def run_embedding(config_path="config.yaml"):
     client, model = make_embed_client(cfg)
     batch_size = emb_cfg.get("batch_size", 64)
     dimensions = emb_cfg.get("dimensions", None)
-    instruction = emb_cfg.get("instruction", "")
+    # Use doc_instruction for indexing if available, fallback to generic instruction
+    instruction = emb_cfg.get("doc_instruction", emb_cfg.get("instruction", ""))
 
     # Get backend-specific max_model_len for truncation
     backend = ecfg.get("backend", "vllm")

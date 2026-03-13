@@ -22,5 +22,5 @@ fi
 export THESIS_KB_CONFIG="config-ollama.yaml"
 
 echo "Starting API locally on port 8001 (config: config-ollama.yaml)"
-echo "Open: static/index.html"
+echo "Open: file://$(pwd)/static/index.html"
 uvicorn src.api:app --host 127.0.0.1 --port 8001 --reload

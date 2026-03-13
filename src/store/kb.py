@@ -74,7 +74,10 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db"):
             arxiv_id TEXT,
             doi TEXT,
             abstract TEXT,
-            source TEXT
+            source TEXT,
+            citation_count INTEGER DEFAULT 0,
+            influential_citation_count INTEGER DEFAULT 0,
+            paper_type TEXT DEFAULT ''
         )
     """)
 
@@ -96,10 +99,23 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db"):
     c.execute("CREATE INDEX idx_nuggets_paper ON nuggets(paper_id)")
     c.execute("CREATE INDEX idx_nuggets_type ON nuggets(type)")
 
+    # FTS5 full-text search index for BM25 retrieval
+    c.execute("""
+        CREATE VIRTUAL TABLE IF NOT EXISTS nuggets_fts USING fts5(
+            nugget_id UNINDEXED,
+            question,
+            answer,
+            content='nuggets',
+            content_rowid='rowid'
+        )
+    """)
+
     # Insert papers
     for paper in manifest:
+        pub_types = paper.get("publication_types", [])
+        paper_type = ",".join(pub_types) if isinstance(pub_types, list) else str(pub_types or "")
         c.execute(
-            "INSERT OR IGNORE INTO papers VALUES (?,?,?,?,?,?,?,?)",
+            "INSERT OR IGNORE INTO papers VALUES (?,?,?,?,?,?,?,?,?,?,?)",
             (
                 paper.get("paper_id", ""),
                 paper.get("title", ""),
@@ -109,6 +125,9 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db"):
                 paper.get("doi"),
                 paper.get("abstract", ""),
                 paper.get("source", "local"),
+                paper.get("citation_count", 0) or 0,
+                paper.get("influential_citation_count", 0) or 0,
+                paper_type,
             ),
         )
 
@@ -129,11 +148,18 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db"):
             ),
         )
 
+    # Populate FTS5 index
+    c.execute("""
+        INSERT INTO nuggets_fts(nugget_id, question, answer)
+        SELECT nugget_id, question, answer FROM nuggets
+    """)
+
     conn.commit()
     papers_count = c.execute("SELECT COUNT(*) FROM papers").fetchone()[0]
     nuggets_count = c.execute("SELECT COUNT(*) FROM nuggets").fetchone()[0]
+    fts_count = c.execute("SELECT COUNT(*) FROM nuggets_fts").fetchone()[0]
     conn.close()
-    print(f"  SQLite {db_path}: {papers_count} papers, {nuggets_count} nuggets")
+    print(f"  SQLite {db_path}: {papers_count} papers, {nuggets_count} nuggets, {fts_count} FTS entries")
 
 
 def run_build(config_path="config.yaml"):

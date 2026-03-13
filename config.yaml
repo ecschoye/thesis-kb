@@ -1,6 +1,7 @@
 paths:
   corpus_dir: corpus
   pdf_dir: ~/Documents/thesis-papers     # your existing PDFs (read-only)
+  bib_file: ~/TDT4900-master-thesis/bibtex/bibliography.bib
   fetch_dir: corpus/fetched              # downloaded papers go here
   text_dir: corpus/texts
   chunk_dir: corpus/chunks
@@ -70,6 +71,8 @@ embed:
     base_url: http://localhost:11434/v1
   embedding:
     batch_size: 64
+    query_instruction: "Given an academic research claim about event cameras, RGB-Event fusion, spiking neural networks, or object detection for autonomous platforms, retrieve related findings and evidence"
+    doc_instruction: "Represent this academic research finding for retrieval: a nugget containing methods, results, or claims about event cameras, RGB-Event fusion, spiking neural networks, or object detection"
     instruction: "Given an academic research claim about event cameras, RGB-Event fusion, spiking neural networks, or object detection for autonomous platforms, retrieve related findings and evidence"
     # dimensions: 4096  # Qwen3-Embedding-8B doesn't support matryoshka; uses native 4096 dims
 

@@ -1,5 +1,6 @@
 """Query interface for the thesis knowledge base."""
 import os, argparse, sqlite3, json
+from pathlib import Path
 import chromadb
 from src.utils import load_config
 from src.embed.embedder import make_embed_client, format_nugget_text
@@ -10,6 +11,7 @@ class ThesisKB:
 
     def __init__(self, config_path="config.yaml"):
         cfg = load_config(config_path)
+        self._config_path = config_path
         kb_dir = cfg["paths"]["kb_dir"]
         store_cfg = cfg.get("store", {})
         chroma_cfg = store_cfg.get("chromadb", {})
@@ -33,6 +35,103 @@ class ThesisKB:
         db_path = os.path.join(kb_dir, sqlite_cfg.get("db_name", "nuggets.db"))
         self.db = sqlite3.connect(db_path)
         self.db.row_factory = sqlite3.Row
+
+        # Preload paper nugget counts for depth-of-coverage scoring
+        rows = self.db.execute(
+            "SELECT paper_id, COUNT(*) FROM nuggets GROUP BY paper_id"
+        ).fetchall()
+        self._paper_nugget_counts = {r[0]: r[1] for r in rows}
+
+        # Ensure FTS5 index exists (self-migrating)
+        self._ensure_fts5()
+
+    @classmethod
+    def sqlite_only(cls, config_path="config.yaml"):
+        """Open only the SQLite connection (no embedding server needed)."""
+        cfg = load_config(config_path)
+        kb_dir = cfg["paths"]["kb_dir"]
+        sqlite_cfg = cfg.get("store", {}).get("sqlite", {})
+        db_path = os.path.join(kb_dir, sqlite_cfg.get("db_name", "nuggets.db"))
+        instance = object.__new__(cls)
+        instance.db = sqlite3.connect(db_path)
+        instance.db.row_factory = sqlite3.Row
+        instance.embed_client = None
+        instance.embed_model = None
+        instance.embed_instruction = None
+        instance.embed_dimensions = None
+        instance.chroma = None
+        instance.collection = None
+        rows = instance.db.execute(
+            "SELECT paper_id, COUNT(*) FROM nuggets GROUP BY paper_id"
+        ).fetchall()
+        instance._paper_nugget_counts = {r[0]: r[1] for r in rows}
+        return instance
+
+    def paper_nugget_count(self, paper_id):
+        """Return total nugget count for a paper (preloaded)."""
+        return self._paper_nugget_counts.get(paper_id, 0)
+
+    def _ensure_fts5(self):
+        """Create FTS5 index if it doesn't exist (self-migrating)."""
+        if not self.db:
+            return
+        exists = self.db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='nuggets_fts'"
+        ).fetchone()
+        if exists:
+            return
+        self.db.execute("""
+            CREATE VIRTUAL TABLE nuggets_fts USING fts5(
+                nugget_id UNINDEXED,
+                question,
+                answer,
+                content='nuggets',
+                content_rowid='rowid'
+            )
+        """)
+        self.db.execute("""
+            INSERT INTO nuggets_fts(nugget_id, question, answer)
+            SELECT nugget_id, question, answer FROM nuggets
+        """)
+        self.db.commit()
+
+    def bm25_search(self, query, n_results=20):
+        """BM25 full-text search over nuggets via FTS5.
+
+        Returns list of (nugget_id, bm25_score) tuples, best first.
+        """
+        if not self.db:
+            return []
+        try:
+            rows = self.db.execute(
+                """SELECT nugget_id, rank
+                   FROM nuggets_fts
+                   WHERE nuggets_fts MATCH ?
+                   ORDER BY rank
+                   LIMIT ?""",
+                (query, n_results),
+            ).fetchall()
+            # rank is negative (lower = better), convert to positive score
+            return [(r[0], -r[1]) for r in rows]
+        except Exception:
+            return []
+
+    def load_chunk(self, paper_id, chunk_id):
+        """Load a specific chunk's text from disk."""
+        cfg = load_config(self._config_path) if hasattr(self, '_config_path') else None
+        chunk_dir = cfg["paths"]["chunk_dir"] if cfg else "corpus/chunks"
+        chunk_path = Path(chunk_dir) / f"{paper_id}.json"
+        if not chunk_path.exists():
+            return None
+        try:
+            import json as _json
+            data = _json.loads(chunk_path.read_text())
+            for chunk in data.get("chunks", []):
+                if chunk.get("chunk_id") == chunk_id:
+                    return chunk.get("text", "")
+        except Exception:
+            pass
+        return None
 
     def _embed_query(self, text):
         """Embed a query string using the configured embedding backend."""
@@ -147,6 +246,39 @@ class ThesisKB:
             return dict(row)
         return None
 
+    def find_papers(self, author=None, title=None, year=None, limit=10):
+        """Search papers by author name, title substring, or year (SQLite only)."""
+        conditions = []
+        params = []
+        if author:
+            conditions.append("authors LIKE ?")
+            params.append(f"%{author}%")
+        if title:
+            conditions.append("title LIKE ?")
+            params.append(f"%{title}%")
+        if year:
+            conditions.append("year = ?")
+            params.append(year)
+        if not conditions:
+            return []
+        where = " AND ".join(conditions)
+        rows = self.db.execute(
+            f"SELECT * FROM papers WHERE {where} LIMIT ?",
+            params + [limit]
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_paper_nuggets(self, paper_id, types=None):
+        """Get all nuggets for a specific paper_id (SQLite only)."""
+        query = "SELECT * FROM nuggets WHERE paper_id = ?"
+        params = [paper_id]
+        if types:
+            placeholders = ",".join("?" * len(types))
+            query += f" AND type IN ({placeholders})"
+            params.extend(types)
+        rows = self.db.execute(query, params).fetchall()
+        return [dict(r) for r in rows]
+
     def stats(self):
         """Return KB statistics."""
         n_nuggets = self.collection.count()
@@ -192,8 +324,50 @@ def main():
     ap.add_argument("--queries", nargs="+", help="Multiple queries (deduplicated union)")
     ap.add_argument("--json", action="store_true", help="Output as JSON")
     ap.add_argument("--stats", action="store_true", help="Show KB stats")
+    ap.add_argument("--find-author", help="Find papers by author name (SQLite, no embedding server)")
+    ap.add_argument("--find-title", help="Find papers by title substring (SQLite, no embedding server)")
+    ap.add_argument("--find-year", type=int, help="Find papers by year (use with --find-author/--find-title)")
+    ap.add_argument("--paper-nuggets", help="Get all nuggets for a paper_id (SQLite, no embedding server)")
     ap.add_argument("-c", "--config", default="config.yaml")
     args = ap.parse_args()
+
+    # Direct SQLite lookups (no embedding server needed)
+    if args.find_author or args.find_title or args.paper_nuggets:
+        kb = ThesisKB.sqlite_only(args.config)
+        if args.paper_nuggets:
+            types_list = args.types.split(",") if args.types else None
+            nuggets = kb.get_paper_nuggets(args.paper_nuggets, types=types_list)
+            paper = kb._get_paper(args.paper_nuggets)
+            result = {"paper": paper, "nuggets": nuggets, "nugget_count": len(nuggets)}
+            if args.json:
+                print(json.dumps(result, indent=2))
+            else:
+                if paper:
+                    print(f"Paper: {paper.get('title')} ({paper.get('year')})")
+                    print(f"Authors: {paper.get('authors')}")
+                    print(f"paper_id: {args.paper_nuggets}")
+                print(f"\n{len(nuggets)} nuggets:")
+                for n in nuggets:
+                    print(f"  [{n['type']}] {n['question']}")
+        else:
+            papers = kb.find_papers(
+                author=args.find_author,
+                title=args.find_title,
+                year=args.find_year,
+                limit=args.num,
+            )
+            if args.json:
+                print(json.dumps(papers, indent=2))
+            else:
+                if not papers:
+                    print("No papers found.")
+                for p in papers:
+                    arxiv = f" arXiv:{p['arxiv_id']}" if p.get("arxiv_id") else ""
+                    print(f"\n{p['paper_id']}")
+                    print(f"  {p['title']} ({p['year']}){arxiv}")
+                    print(f"  Authors: {p['authors']}")
+        kb.close()
+        return
 
     kb = ThesisKB(args.config)
 

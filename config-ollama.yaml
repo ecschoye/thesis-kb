@@ -1,6 +1,7 @@
 paths:
   corpus_dir: corpus
   pdf_dir: ~/Documents/thesis-papers
+  bib_file: ~/TDT4900-master-thesis/bibtex/bibliography.bib
   fetch_dir: corpus/fetched
   text_dir: corpus/texts
   chunk_dir: corpus/chunks
@@ -43,6 +44,8 @@ embed:
     base_url: http://localhost:11434/v1
   embedding:
     batch_size: 64
+    query_instruction: "Given an academic research claim about computer vision or neural networks, retrieve related findings and evidence"
+    doc_instruction: "Represent this academic research finding for retrieval: a nugget containing methods, results, or claims from a computer vision or neural networks paper"
     instruction: "Given an academic research claim about computer vision or neural networks, retrieve related findings and evidence"
     # dimensions: 4096
 

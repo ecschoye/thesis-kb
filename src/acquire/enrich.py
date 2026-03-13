@@ -5,7 +5,7 @@ import requests
 
 MIN_TITLE_SIMILARITY = 0.75
 S2_API = "https://api.semanticscholar.org/graph/v1"
-S2_FIELDS = "title,abstract,authors,externalIds,year"
+S2_FIELDS = "title,abstract,authors,externalIds,year,citationCount,influentialCitationCount,publicationTypes"
 
 
 def _title_similarity(a, b):
@@ -23,6 +23,9 @@ def _extract_result(p):
         "arxiv_id": ext.get("ArXiv"),
         "authors": [a.get("name", "") for a in (p.get("authors") or [])],
         "year": p.get("year"),
+        "citation_count": p.get("citationCount", 0) or 0,
+        "influential_citation_count": p.get("influentialCitationCount", 0) or 0,
+        "publication_types": p.get("publicationTypes") or [],
     }
 
 
@@ -103,12 +106,14 @@ def batch_enrich(papers, delay=1.0):
     """Enrich papers missing metadata via S2."""
     enriched = 0
     skipped = 0
+    authority_enriched = 0
     for i, paper in enumerate(papers):
-        # Skip only if we already have ALL key metadata
         has_year = paper.get("year") is not None
         has_authors = bool(paper.get("authors"))
         has_abstract = bool(paper.get("abstract"))
-        if has_year and has_authors and has_abstract:
+        has_authority = "citation_count" in paper
+
+        if has_year and has_authors and has_abstract and has_authority:
             skipped += 1
             continue
 
@@ -129,9 +134,16 @@ def batch_enrich(papers, delay=1.0):
                 paper["authors_str"] = ", ".join(result.get("authors", []))
             if not paper.get("year"):
                 paper["year"] = result.get("year")
-            enriched += 1
+            # Authority metadata (always update — may be newly available)
+            paper["citation_count"] = result.get("citation_count", 0)
+            paper["influential_citation_count"] = result.get("influential_citation_count", 0)
+            paper["publication_types"] = result.get("publication_types", [])
+            if has_year and has_authors and has_abstract:
+                authority_enriched += 1
+            else:
+                enriched += 1
         if (i + 1) % 10 == 0:
-            print(f"  Enriched {i+1}/{len(papers)} ({enriched} new, {skipped} already complete)...")
+            print(f"  Enriched {i+1}/{len(papers)} ({enriched} new, {authority_enriched} authority-only, {skipped} already complete)...")
         time.sleep(delay)
-    print(f"  Enriched {enriched}/{len(papers)} papers via S2 ({skipped} already complete)")
+    print(f"  Enriched {enriched}/{len(papers)} papers via S2 ({authority_enriched} authority-only, {skipped} already complete)")
     return papers
