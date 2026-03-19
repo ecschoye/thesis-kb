@@ -7,6 +7,8 @@ The text to verify: $ARGUMENTS
 
 1. Parse the input text into individual factual claims. List each claim explicitly.
 
+2. **API mode check:** If the local API server is running (check with `curl -s http://127.0.0.1:8001/health`), add `--api --mode check` to query commands for higher-quality retrieval (query expansion, RRF fusion, reranking, diversity caps).
+
 2. For each claim, search the KB:
    ```
    cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query "the claim text" -n 10 --json

@@ -66,6 +66,29 @@ def run_ingest(config_path="config.yaml", zotero_path=None, enrich=True):
             "doi": None, "abstract": "", "source": "local",
         })
 
+    # Merge metadata from existing manifest to skip already-enriched papers
+    manifest_path = os.path.join(corpus_dir, "manifest.json")
+    if os.path.exists(manifest_path):
+        old_manifest = load_json(manifest_path)
+        old_by_id = {p["paper_id"]: p for p in old_manifest}
+        merge_keys = ("title", "authors", "authors_str", "year", "arxiv_id",
+                      "doi", "abstract", "citation_count",
+                      "influential_citation_count", "publication_types")
+        merged = 0
+        for paper in manifest:
+            old = old_by_id.get(paper["paper_id"])
+            if old:
+                for k in merge_keys:
+                    old_val = old.get(k)
+                    new_val = paper.get(k)
+                    # Merge if old has a value and new is missing/empty
+                    if old_val is not None and old_val != "" and old_val != [] and (
+                        new_val is None or new_val == "" or new_val == []
+                    ):
+                        paper[k] = old_val
+                merged += 1
+        print(f"  Merged metadata from existing manifest for {merged} papers")
+
     if enrich:
         print(f"[3/4] Enriching {len(manifest)} papers via S2...")
         manifest = batch_enrich(manifest, delay=1.0)

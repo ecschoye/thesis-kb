@@ -179,7 +179,7 @@ function loadSettings() {
     if (saved) return saved;
   } catch {}
   return {
-    model: "google/gemini-3-flash-preview",
+    model: "minimax/minimax-m2.5",
     n_variants: 6,
     n_retrieve: 30,
     n_context: 16,
@@ -1440,6 +1440,7 @@ function App() {
               <div>
                 <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Model</label>
                 <select value={settings.model} onChange={(e) => setSettings({ ...settings, model: e.target.value })} className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                  <option value="minimax/minimax-m2.5">MiniMax M2.5</option>
                   <option value="google/gemini-3-flash-preview">Gemini 3 Flash</option>
                   <option value="google/gemini-2.5-flash-preview">Gemini 2.5 Flash</option>
                   <option value="google/gemini-2.5-pro-preview">Gemini 2.5 Pro</option>

@@ -1,5 +1,5 @@
 """Query interface for the thesis knowledge base."""
-import os, argparse, sqlite3, json
+import os, sys, argparse, sqlite3, json
 from pathlib import Path
 import chromadb
 from src.utils import load_config
@@ -328,8 +328,52 @@ def main():
     ap.add_argument("--find-title", help="Find papers by title substring (SQLite, no embedding server)")
     ap.add_argument("--find-year", type=int, help="Find papers by year (use with --find-author/--find-title)")
     ap.add_argument("--paper-nuggets", help="Get all nuggets for a paper_id (SQLite, no embedding server)")
+    ap.add_argument("--api", action="store_true",
+                    help="Route queries through the API's full retrieval pipeline (requires running server)")
+    ap.add_argument("--api-url", default="http://127.0.0.1:8001",
+                    help="API server URL (default: http://127.0.0.1:8001)")
+    ap.add_argument("--mode", default="survey",
+                    help="Retrieval mode when using --api (background, draft, survey, etc.)")
     ap.add_argument("-c", "--config", default="config.yaml")
     args = ap.parse_args()
+
+    # API-routed retrieval (full pipeline: expansion, RRF, reranking, diversity caps)
+    if args.api:
+        import urllib.request, urllib.error
+        query_text = " ".join(args.queries) if args.queries else (args.query or "")
+        if not query_text:
+            print("Error: --api requires a query", file=sys.stderr)
+            sys.exit(1)
+        payload = json.dumps({
+            "query": query_text,
+            "mode": args.mode,
+            "n_context": args.num,
+        }).encode()
+        req = urllib.request.Request(
+            f"{args.api_url}/retrieve",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                data = json.loads(resp.read())
+        except urllib.error.URLError as e:
+            print(f"Error: Cannot reach API at {args.api_url} — {e}", file=sys.stderr)
+            print("Start the server first: bash scripts/start_local.sh", file=sys.stderr)
+            sys.exit(1)
+
+        results = data.get("results", [])
+        if args.json:
+            print(json.dumps(results, indent=2))
+        else:
+            for i, r in enumerate(results):
+                arxiv = f" arXiv:{r['arxiv_id']}" if r.get("arxiv_id") else ""
+                print(f"\n--- [{i+1}] score={r.get('rrf_score', 0):.4f} type={r['type']} [{r.get('section', '')}] ---")
+                print(f"Paper: {r.get('paper_title', '')} ({r.get('paper_year', '')}){arxiv}")
+                print(f"Bibtex: {r.get('bibtex_key', '')}")
+                print(f"{r['document']}")
+        return
 
     # Direct SQLite lookups (no embedding server needed)
     if args.find_author or args.find_title or args.paper_nuggets:

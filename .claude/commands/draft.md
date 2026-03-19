@@ -12,6 +12,8 @@ Determine which mode to use based on the input:
 
 ## Instructions — Revise Mode
 
+1. **API mode check:** If the local API server is running (check with `curl -s http://127.0.0.1:8001/health`), add `--api --mode draft` to query commands for higher-quality retrieval (query expansion, RRF fusion, reranking, diversity caps).
+
 1. Extract the key claims and topics from the user's existing draft. Build 2-4 targeted sub-queries to verify and enrich those specific claims:
    ```
    cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query --queries "sub-query 1" "sub-query 2" -n 20 --json

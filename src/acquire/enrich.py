@@ -1,4 +1,5 @@
 """Enrich paper metadata via Semantic Scholar API."""
+import os
 import time
 from difflib import SequenceMatcher
 import requests
@@ -6,6 +7,11 @@ import requests
 MIN_TITLE_SIMILARITY = 0.75
 S2_API = "https://api.semanticscholar.org/graph/v1"
 S2_FIELDS = "title,abstract,authors,externalIds,year,citationCount,influentialCitationCount,publicationTypes"
+
+def _s2_headers():
+    """Return headers with API key if available."""
+    key = os.environ.get("S2_API_KEY")
+    return {"x-api-key": key} if key else {}
 
 
 def _title_similarity(a, b):
@@ -35,7 +41,7 @@ def enrich_via_arxiv_id(arxiv_id, max_retries=2):
     params = {"fields": S2_FIELDS}
     for attempt in range(max_retries):
         try:
-            resp = requests.get(url, params=params, timeout=15)
+            resp = requests.get(url, params=params, headers=_s2_headers(), timeout=15)
             if resp.status_code == 429:
                 time.sleep(2 ** (attempt + 1))
                 continue
@@ -71,7 +77,7 @@ def enrich_via_s2(title, arxiv_id=None, max_retries=2):
     }
     for attempt in range(max_retries):
         try:
-            resp = requests.get(base, params=params, timeout=15)
+            resp = requests.get(base, params=params, headers=_s2_headers(), timeout=15)
             if resp.status_code == 429:
                 time.sleep(2 ** (attempt + 1))
                 continue

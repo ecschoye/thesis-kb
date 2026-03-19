@@ -5,6 +5,8 @@ What to compare: $ARGUMENTS
 
 ## Instructions
 
+1. **API mode check:** If the local API server is running (check with `curl -s http://127.0.0.1:8001/health`), add `--api --mode survey` to query commands for higher-quality retrieval (query expansion, RRF fusion, reranking, diversity caps).
+
 1. Search for result and comparison nuggets on the topic:
    ```
    cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query "$ARGUMENTS" -n 30 --types result,comparison --json

@@ -104,6 +104,13 @@ def make_embed_client(cfg):
         ollama_cfg = ecfg.get("ollama", {})
         base_url = ollama_cfg.get("base_url", "http://localhost:11434/v1")
         model = ollama_cfg.get("model", "qwen3-embedding:8b")
+    elif backend == "openrouter":
+        or_cfg = ecfg.get("openrouter", {})
+        base_url = or_cfg.get("base_url", "https://openrouter.ai/api/v1")
+        model = or_cfg.get("model", "qwen/qwen3-embedding-8b")
+        api_key = os.environ.get(or_cfg.get("api_key_env", "OPENROUTER_API_KEY"), "")
+        client = OpenAI(base_url=base_url, api_key=api_key)
+        return client, model
     else:
         vllm_cfg = ecfg.get("vllm", {})
         port = vllm_cfg.get("port", 8000)
@@ -133,6 +140,8 @@ def run_embedding(config_path="config.yaml"):
     backend = ecfg.get("backend", "vllm")
     if backend == "ollama":
         max_tokens = ecfg.get("ollama", {}).get("max_model_len", None)
+    elif backend == "openrouter":
+        max_tokens = ecfg.get("openrouter", {}).get("max_model_len", None)
     else:
         max_tokens = ecfg.get("vllm", {}).get("max_model_len", None)
 

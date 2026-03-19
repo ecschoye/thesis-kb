@@ -53,8 +53,12 @@ def find_kb_db():
 
 
 def extract_cite_keys(text):
-    r"""Extract \cite{...} keys from text. Returns list of raw key strings."""
-    return re.findall(r"\\cite\{([^}]+)\}", text)
+    r"""Extract \cite{...} keys from text. Splits comma-separated keys."""
+    raw = re.findall(r"\\cite\{([^}]+)\}", text)
+    keys = []
+    for group in raw:
+        keys.extend(k.strip() for k in group.split(",") if k.strip())
+    return keys
 
 
 def parse_author_from_key(key):

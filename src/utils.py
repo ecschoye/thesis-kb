@@ -1,6 +1,9 @@
 import json, yaml, os
 from pathlib import Path
 from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def load_config(path="config.yaml"):
     with open(path) as f:
@@ -37,6 +40,12 @@ def make_llm_client(cfg):
         base_url = ollama_cfg.get("base_url", "http://127.0.0.1:11434/v1")
         model = ollama_cfg.get("model", "qwen3.5:27b")
         client = OpenAI(base_url=base_url, api_key="ollama")
+    elif backend == "openrouter":
+        or_cfg = ncfg.get("openrouter", {})
+        base_url = or_cfg.get("base_url", "https://openrouter.ai/api/v1")
+        model = or_cfg.get("model", "qwen/qwen3.5-32b")
+        api_key = os.environ.get(or_cfg.get("api_key_env", "OPENROUTER_API_KEY"), "")
+        client = OpenAI(base_url=base_url, api_key=api_key)
     else:
         vllm_cfg = ncfg.get("vllm", {})
         port = vllm_cfg.get("port", 8000)
