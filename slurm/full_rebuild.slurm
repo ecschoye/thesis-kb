@@ -47,7 +47,7 @@ done
 # Only load HPC modules if running on cluster (not Mac)
 if command -v module &> /dev/null; then
     module purge
-    module load Python/3.12.3-GCCcore-13.3.0 CUDA/12.6.0
+    module load Python/3.12.3-GCCcore-13.3.0 CUDA/12.6.0 Tesseract/5.3.4-GCCcore-13.3.0
     source .venv/bin/activate
     export HF_HOME=/cluster/work/ecschoye/huggingface
     export HF_HUB_ENABLE_HF_TRANSFER=0

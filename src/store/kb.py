@@ -30,7 +30,10 @@ def build_chromadb(nuggets, embeddings, kb_dir, collection_name, distance_fn="co
         batch_embs = embeddings[start:end].tolist()
 
         ids = [n["nugget_id"] for n in batch_nuggets]
-        documents = [f"Q: {n['question']} A: {n['answer']}" for n in batch_nuggets]
+        documents = [
+            f"[{n.get('type', '')}] [{n.get('section', '')}] Q: {n['question']} A: {n['answer']}"
+            for n in batch_nuggets
+        ]
         metadatas = [
             {
                 "paper_id": n.get("paper_id", ""),

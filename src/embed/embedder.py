@@ -90,10 +90,28 @@ def format_nugget_text(nugget, instruction, max_tokens=None, mode="query"):
         instruction: Default instruction (used if mode-specific not available).
         max_tokens: Optional token limit for truncation.
         mode: 'query' for search queries, 'document' for nugget indexing.
+
+    In 'document' mode, nugget type and section are prepended as structured
+    tags so that vector search can leverage metadata signals.
+    In 'query' mode, no metadata is prepended (users search by content, not
+    by type/section).
     """
     q = nugget.get("question", "")
     a = nugget.get("answer", "")
-    text = f"Q: {q} A: {a}"
+
+    if mode == "document":
+        # Include metadata for richer document embeddings
+        ntype = nugget.get("type", "")
+        section = nugget.get("section", "")
+        prefix = ""
+        if ntype:
+            prefix += f"[{ntype}] "
+        if section:
+            prefix += f"[{section}] "
+        text = f"{prefix}Q: {q} A: {a}"
+    else:
+        text = f"Q: {q} A: {a}"
+
     if instruction:
         text = f"Instruct: {instruction}\nQuery: {text}"
     if max_tokens:
@@ -177,7 +195,8 @@ def run_embedding(config_path="config.yaml"):
         print("No nuggets found."); return
 
     # Format texts (truncate to max_model_len if configured)
-    texts = [format_nugget_text(n, instruction, max_tokens=max_tokens) for n in nuggets]
+    # Use mode="document" to include type/section metadata in embeddings
+    texts = [format_nugget_text(n, instruction, max_tokens=max_tokens, mode="document") for n in nuggets]
 
     # Embed in batches
     print(f"[embed] Embedding {len(texts)} nuggets (batch_size={batch_size})...")
