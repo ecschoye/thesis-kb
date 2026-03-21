@@ -1,5 +1,6 @@
 """Cross-encoder reranker for improving retrieval precision."""
 import time
+import signal
 from flashrank import Ranker, RerankRequest
 from src.log import get_logger
 
@@ -7,16 +8,24 @@ log = get_logger("rerank", "api.log")
 
 # Singleton ranker instance (model loads once)
 _ranker: Ranker | None = None
+_ranker_failed: bool = False  # True if model loading failed — skip future attempts
 
 
-def get_ranker(model_name: str = "ms-marco-MiniLM-L-12-v2") -> Ranker:
-    """Get or create the singleton Ranker instance."""
-    global _ranker
+def get_ranker(model_name: str = "ms-marco-MiniLM-L-12-v2") -> Ranker | None:
+    """Get or create the singleton Ranker instance. Returns None on load failure."""
+    global _ranker, _ranker_failed
+    if _ranker_failed:
+        return None
     if _ranker is None:
         log.info("Loading reranker model: %s", model_name)
-        t0 = time.time()
-        _ranker = Ranker(model_name=model_name)
-        log.info("Reranker loaded in %.1fs", time.time() - t0)
+        try:
+            t0 = time.time()
+            _ranker = Ranker(model_name=model_name)
+            log.info("Reranker loaded in %.1fs", time.time() - t0)
+        except Exception as e:
+            log.error("Failed to load reranker model %s: %s", model_name, e)
+            _ranker_failed = True
+            return None
     return _ranker
 
 
@@ -28,6 +37,7 @@ def rerank_nuggets(
     top_n: int = 60,
     blend_weight: float = 0.6,
     model_name: str = "ms-marco-MiniLM-L-12-v2",
+    timeout: int = 10,
 ) -> dict[str, float]:
     """Rerank nuggets using a cross-encoder and blend with RRF scores.
 
@@ -39,11 +49,15 @@ def rerank_nuggets(
         top_n: Number of top candidates to rerank (rest keep RRF scores).
         blend_weight: Weight for cross-encoder score (0-1). Higher = trust reranker more.
         model_name: Cross-encoder model name.
+        timeout: Max seconds for reranking before falling back to RRF-only.
 
     Returns:
         Updated rrf_scores dict with blended scores.
     """
     ranker = get_ranker(model_name)
+    if ranker is None:
+        log.warning("Reranker unavailable, returning RRF-only scores")
+        return rrf_scores
 
     # Only rerank top candidates (cross-encoder is O(n) per query)
     candidates = nugget_ids[:top_n]
@@ -57,8 +71,26 @@ def rerank_nuggets(
         passages.append({"id": nid, "text": text})
 
     t0 = time.time()
-    request = RerankRequest(query=query, passages=passages)
-    results = ranker.rerank(request)
+    try:
+        request = RerankRequest(query=query, passages=passages)
+
+        # Use signal-based timeout on Unix
+        def _timeout_handler(signum, frame):
+            raise TimeoutError(f"Reranking exceeded {timeout}s timeout")
+
+        old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+        signal.alarm(timeout)
+        try:
+            results = ranker.rerank(request)
+        finally:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, old_handler)
+    except (TimeoutError, Exception) as e:
+        elapsed = time.time() - t0
+        log.warning("Reranking failed after %.0fms, falling back to RRF-only: %s",
+                     elapsed * 1000, e)
+        return rrf_scores
+
     elapsed = time.time() - t0
     log.debug("Reranked %d candidates in %.0fms", len(candidates), elapsed * 1000)
 

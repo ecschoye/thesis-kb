@@ -183,6 +183,9 @@ function loadSettings() {
     n_variants: 6,
     n_retrieve: 30,
     n_context: 16,
+    max_per_paper: 3,
+    rerank_weight: 0.6,
+    rerank_top_n: 60,
     year_min: "",
     year_max: "",
     type_filter: [],
@@ -362,6 +365,56 @@ function FeedbackButtons({ nugget, query, mode }) {
   );
 }
 
+function highlightNuggetInChunk(chunkText, nuggetDoc) {
+  // Extract the answer portion from "Q: ... A: ..." format
+  const aMatch = nuggetDoc && nuggetDoc.match(/A:\s*([\s\S]+)/);
+  const answer = aMatch ? aMatch[1].trim() : (nuggetDoc || "").trim();
+  if (!answer || answer.length < 20) return chunkText;
+  // Try to find longest common substring (use first 120 chars of answer for matching)
+  const needle = answer.slice(0, 120).toLowerCase().replace(/\s+/g, " ");
+  const haystack = chunkText.toLowerCase().replace(/\s+/g, " ");
+  // Sliding window fuzzy match
+  let bestStart = -1, bestLen = 0;
+  for (let winLen = Math.min(needle.length, haystack.length); winLen >= 30; winLen -= 5) {
+    for (let i = 0; i <= haystack.length - winLen; i++) {
+      const sub = haystack.slice(i, i + winLen);
+      let matches = 0;
+      for (let j = 0; j < Math.min(sub.length, needle.length); j++) {
+        if (sub[j] === needle[j]) matches++;
+      }
+      if (matches / winLen > 0.7 && winLen > bestLen) {
+        bestStart = i; bestLen = winLen; break;
+      }
+    }
+    if (bestLen > 0) break;
+  }
+  if (bestStart < 0) return chunkText;
+  // Map back to original text positions (accounting for whitespace normalization)
+  let origStart = 0, normIdx = 0;
+  const origChars = chunkText.split("");
+  let mappedStart = -1, mappedEnd = -1;
+  for (let i = 0; i < origChars.length && normIdx <= bestStart + bestLen; i++) {
+    if (normIdx === bestStart && mappedStart < 0) mappedStart = i;
+    if (normIdx === bestStart + bestLen) { mappedEnd = i; break; }
+    if (/\s/.test(origChars[i])) {
+      // Skip consecutive whitespace
+      while (i + 1 < origChars.length && /\s/.test(origChars[i + 1])) i++;
+      normIdx++;
+    } else {
+      normIdx++;
+    }
+  }
+  if (mappedStart < 0) return chunkText;
+  if (mappedEnd < 0) mappedEnd = chunkText.length;
+  return [
+    chunkText.slice(0, mappedStart),
+    "\u2588HIGHLIGHT_START\u2588",
+    chunkText.slice(mappedStart, mappedEnd),
+    "\u2588HIGHLIGHT_END\u2588",
+    chunkText.slice(mappedEnd),
+  ].join("");
+}
+
 function ChunkExpander({ nugget }) {
   const [chunkText, setChunkText] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -375,6 +428,19 @@ function ChunkExpander({ nugget }) {
       .then(d => { setChunkText(d.text || "No text found"); setLoading(false); })
       .catch(() => { setChunkText("Failed to load chunk"); setLoading(false); });
   };
+  const rendered = useMemo(() => {
+    if (!chunkText) return null;
+    const highlighted = highlightNuggetInChunk(chunkText, nugget.document);
+    const parts = highlighted.split(/\u2588HIGHLIGHT_START\u2588|\u2588HIGHLIGHT_END\u2588/);
+    if (parts.length === 3) {
+      return React.createElement("span", null,
+        parts[0],
+        React.createElement("mark", { className: "bg-yellow-200 dark:bg-yellow-800/60 rounded px-0.5" }, parts[1]),
+        parts[2]
+      );
+    }
+    return chunkText;
+  }, [chunkText, nugget.document]);
   return (
     <span>
       <button onClick={toggle} className="text-purple-500 hover:text-purple-700 dark:text-purple-400 text-xs ml-2">
@@ -382,7 +448,7 @@ function ChunkExpander({ nugget }) {
       </button>
       {chunkText !== null && (
         <div className="mt-1 p-2 bg-purple-50 dark:bg-purple-900/20 rounded text-gray-600 dark:text-gray-400 whitespace-pre-wrap leading-relaxed text-xs border border-purple-100 dark:border-purple-800">
-          {chunkText}
+          {rendered}
         </div>
       )}
     </span>
@@ -1165,9 +1231,12 @@ function App() {
         n_variants: settings.n_variants,
         n_retrieve: settings.n_retrieve,
         n_context: settings.n_context,
+        max_per_paper: settings.max_per_paper || 3,
         model: settings.model,
         latex_mode: latexMode,
         rerank: rerankMode,
+        rerank_weight: settings.rerank_weight ?? 0.6,
+        rerank_top_n: settings.rerank_top_n ?? 60,
         excluded_nuggets: allExcluded,
         excluded_papers: allExcludedPapers,
       };
@@ -1265,9 +1334,12 @@ function App() {
         n_variants: settings.n_variants,
         n_retrieve: settings.n_retrieve,
         n_context: settings.n_context,
+        max_per_paper: settings.max_per_paper || 3,
         model: settings.model,
         latex_mode: latexMode,
         rerank: rerankMode,
+        rerank_weight: settings.rerank_weight ?? 0.6,
+        rerank_top_n: settings.rerank_top_n ?? 60,
       };
       if (settings.type_filter && settings.type_filter.length > 0) body.type_filter = settings.type_filter;
       if (settings.year_min) body.year_min = parseInt(settings.year_min);
@@ -1460,6 +1532,14 @@ function App() {
               <div>
                 <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Context nuggets: {settings.n_context}</label>
                 <input type="range" min="4" max="30" value={settings.n_context} onChange={(e) => setSettings({ ...settings, n_context: parseInt(e.target.value) })} className="w-full" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Max per paper: {settings.max_per_paper}</label>
+                <input type="range" min="1" max="10" value={settings.max_per_paper} onChange={(e) => setSettings({ ...settings, max_per_paper: parseInt(e.target.value) })} className="w-full" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Rerank weight: {settings.rerank_weight.toFixed(1)}</label>
+                <input type="range" min="0" max="10" value={Math.round(settings.rerank_weight * 10)} onChange={(e) => setSettings({ ...settings, rerank_weight: parseInt(e.target.value) / 10 })} className="w-full" />
               </div>
               <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
                 <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">Year Filter</div>

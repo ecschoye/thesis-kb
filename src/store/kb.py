@@ -55,7 +55,7 @@ def build_chromadb(nuggets, embeddings, kb_dir, collection_name, distance_fn="co
     return collection
 
 
-def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db"):
+def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
     """Build SQLite metadata database."""
     db_path = os.path.join(kb_dir, db_name)
     if os.path.exists(db_path):
@@ -92,12 +92,18 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db"):
             section TEXT,
             source_chunk INTEGER,
             thesis_relevance INTEGER DEFAULT 0,
+            overall_score REAL DEFAULT NULL,
+            flagged INTEGER DEFAULT 0,
             FOREIGN KEY (paper_id) REFERENCES papers(paper_id)
         )
     """)
 
     c.execute("CREATE INDEX idx_nuggets_paper ON nuggets(paper_id)")
     c.execute("CREATE INDEX idx_nuggets_type ON nuggets(type)")
+    c.execute("CREATE INDEX idx_nuggets_relevance ON nuggets(thesis_relevance)")
+    c.execute("CREATE INDEX idx_nuggets_section ON nuggets(section)")
+    c.execute("CREATE INDEX idx_nuggets_paper_type ON nuggets(paper_id, type)")
+    c.execute("CREATE INDEX idx_nuggets_flagged ON nuggets(flagged)")
 
     # FTS5 full-text search index for BM25 retrieval
     c.execute("""
@@ -131,12 +137,35 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db"):
             ),
         )
 
+    # Load quality scores if available
+    quality_dir = cfg.get("paths", {}).get("quality_dir", "corpus/nuggets_quality") if cfg else None
+    quality_scores = {}
+    if quality_dir and os.path.isdir(quality_dir):
+        for fname in os.listdir(quality_dir):
+            if not fname.endswith(".json"):
+                continue
+            qdata = load_json(os.path.join(quality_dir, fname))
+            for rated in qdata.get("rated_nuggets", []):
+                nid = rated.get("nugget_id", "")
+                if nid:
+                    quality_scores[nid] = {
+                        "overall_score": rated.get("overall_score"),
+                        "flagged": 1 if (rated.get("overall_score") or 5) <= (
+                            cfg.get("nuggets", {}).get("quality", {}).get("flag_threshold", 2)
+                            if cfg else 2
+                        ) else 0,
+                    }
+        if quality_scores:
+            print(f"  Loaded quality scores for {len(quality_scores)} nuggets")
+
     # Insert nuggets
     for n in nuggets:
+        nid = n.get("nugget_id", "")
+        qs = quality_scores.get(nid, {})
         c.execute(
-            "INSERT OR IGNORE INTO nuggets VALUES (?,?,?,?,?,?,?,?,?)",
+            "INSERT OR IGNORE INTO nuggets VALUES (?,?,?,?,?,?,?,?,?,?,?)",
             (
-                n.get("nugget_id", ""),
+                nid,
                 n.get("paper_id", ""),
                 n.get("question", ""),
                 n.get("answer", ""),
@@ -145,6 +174,8 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db"):
                 n.get("section", ""),
                 n.get("source_chunk"),
                 n.get("thesis_relevance", 0),
+                qs.get("overall_score"),
+                qs.get("flagged", 0),
             ),
         )
 
@@ -200,7 +231,7 @@ def run_build(config_path="config.yaml"):
     # Build SQLite
     print("[store] Building SQLite...")
     db_name = sqlite_cfg.get("db_name", "nuggets.db")
-    build_sqlite(nuggets, manifest, kb_dir, db_name)
+    build_sqlite(nuggets, manifest, kb_dir, db_name, cfg=cfg)
 
     print("\nKB build complete.")
 

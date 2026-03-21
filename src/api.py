@@ -31,23 +31,23 @@ _embed_client = None
 _embed_model = None
 _embed_instruction = ""
 _collection = None
-_executor = ThreadPoolExecutor(max_workers=4)
+_executor = None  # initialized in _init()
+_retrieval_cfg: dict = {}  # loaded from config.yaml retrieval section
 _bib_lookup: dict[str, str] = {}  # normalised key → bibtex cite key
 _feedback_db = None  # separate SQLite connection for feedback
 
-# Mode-specific retrieval strategies
-MODE_ROUTING = {
+# Default mode routing (overridden by config.yaml retrieval.modes)
+_DEFAULT_MODE_ROUTING = {
     "background": {
         "n_retrieve": 25,
         "allowed_types": {"background", "method"},
         "preferred_sections": {"abstract", "introduction", "background", "related work"},
-        "authority_boost": 1.5,  # stronger citation count boost
-        "review_boost": 0.3,    # extra boost for review/survey papers
+        "authority_boost": 1.5,
+        "review_boost": 0.3,
         "max_per_paper": 2,
     },
     "draft": {
         "n_retrieve": 25,
-        "preferred_sections": None,  # all sections
         "authority_boost": 1.0,
         "review_boost": 0.0,
         "max_per_paper": 3,
@@ -57,7 +57,7 @@ MODE_ROUTING = {
         "preferred_sections": {"results", "experiments", "methods", "discussion"},
         "authority_boost": 1.2,
         "review_boost": 0.0,
-        "max_per_paper": 4,  # more per paper for verification
+        "max_per_paper": 4,
     },
     "review": {
         "n_retrieve": 30,
@@ -76,18 +76,57 @@ MODE_ROUTING = {
     "gaps": {
         "n_retrieve": 30,
         "preferred_sections": {"discussion", "conclusion", "limitations", "future work"},
-        "authority_boost": 0.8,  # newer, less-cited papers may have gaps
+        "authority_boost": 0.8,
         "review_boost": 0.2,
         "max_per_paper": 2,
     },
     "outline": {
         "n_retrieve": 30,
-        "preferred_sections": None,  # cast wide net
         "authority_boost": 1.0,
         "review_boost": 0.1,
         "max_per_paper": 2,
     },
 }
+MODE_ROUTING = dict(_DEFAULT_MODE_ROUTING)
+
+
+def _load_retrieval_config(cfg: dict) -> dict:
+    """Load retrieval parameters from config, return the retrieval section."""
+    ret = cfg.get("retrieval", {})
+    # Merge mode configs from YAML over defaults
+    yaml_modes = ret.get("modes", {})
+    for mode_name, mode_cfg in yaml_modes.items():
+        base = dict(_DEFAULT_MODE_ROUTING.get(mode_name, {}))
+        # Convert lists to sets for preferred_sections and allowed_types
+        if "preferred_sections" in mode_cfg and isinstance(mode_cfg["preferred_sections"], list):
+            mode_cfg["preferred_sections"] = set(mode_cfg["preferred_sections"])
+        if "allowed_types" in mode_cfg and isinstance(mode_cfg["allowed_types"], list):
+            mode_cfg["allowed_types"] = set(mode_cfg["allowed_types"])
+        base.update(mode_cfg)
+        MODE_ROUTING[mode_name] = base
+    return ret
+
+from functools import lru_cache
+
+# Query embedding cache — mutable wrapper so maxsize can be set at init
+_embed_cache_size = 256
+
+def _cached_embed(text: str) -> list[float]:
+    """Embed a query string with LRU caching."""
+    return _cached_embed_inner(text)
+
+@lru_cache(maxsize=256)
+def _cached_embed_inner(text: str) -> list[float]:
+    formatted = format_nugget_text(
+        {"question": text, "answer": ""}, _embed_instruction
+    )
+    kwargs = {"model": _embed_model, "input": [formatted]}
+    emb_cfg = _cfg.get("embed", {}).get("embedding", {})
+    dims = emb_cfg.get("dimensions")
+    if dims:
+        kwargs["dimensions"] = dims
+    resp = _embed_client.embeddings.create(**kwargs)
+    return resp.data[0].embedding
 
 COMMANDS_DIR = Path(__file__).resolve().parent.parent / ".claude" / "commands"
 WEB_PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
@@ -243,6 +282,7 @@ def _init_feedback_db(kb_dir: str):
     import sqlite3
     fb_path = os.path.join(kb_dir, "feedback.db")
     _feedback_db = sqlite3.connect(fb_path, check_same_thread=False)
+    _feedback_db.execute("PRAGMA journal_mode=WAL")
     _feedback_db.row_factory = sqlite3.Row
     _feedback_db.execute("""
         CREATE TABLE IF NOT EXISTS nugget_feedback (
@@ -267,9 +307,13 @@ def _init_feedback_db(kb_dir: str):
 
 
 def _init(config_path: str):
-    global _cfg, _kb, _embed_client, _embed_model, _embed_instruction, _collection, _bib_lookup
+    global _cfg, _kb, _embed_client, _embed_model, _embed_instruction, _collection, _bib_lookup, _executor, _retrieval_cfg
     log.info("Initializing with config=%s", config_path)
     _cfg = load_config(config_path)
+    _retrieval_cfg = _load_retrieval_config(_cfg)
+    max_workers = _retrieval_cfg.get("max_workers", 8)
+    _executor = ThreadPoolExecutor(max_workers=max_workers)
+    log.info("ThreadPoolExecutor: max_workers=%d", max_workers)
     _kb = ThesisKB(config_path)
     _embed_client, _embed_model = make_embed_client(_cfg)
     emb_cfg = _cfg.get("embed", {}).get("embedding", {})
@@ -668,23 +712,16 @@ async def _run_retrieval(
 
     log.debug("Expanded to %d variants: %s", len(variants), variants)
 
-    # --- Step 2: Embed each variant ---
+    # --- Step 2: Embed each variant (with LRU cache) ---
     def _embed_one(text):
-        formatted = format_nugget_text(
-            {"question": text, "answer": ""}, _embed_instruction
-        )
-        kwargs = {"model": _embed_model, "input": [formatted]}
-        emb_cfg = _cfg.get("embed", {}).get("embedding", {})
-        dims = emb_cfg.get("dimensions")
-        if dims:
-            kwargs["dimensions"] = dims
-        resp = _embed_client.embeddings.create(**kwargs)
-        return resp.data[0].embedding
+        return _cached_embed(text)
 
+    t_embed = time.time()
     embed_tasks = [
         loop.run_in_executor(_executor, _embed_one, v) for v in variants
     ]
     embeddings = await asyncio.gather(*embed_tasks)
+    log.info("Embedded %d variants in %.0fms", len(variants), (time.time() - t_embed) * 1000)
 
     # --- Step 3: Multi-vector ChromaDB retrieval + BM25 ---
     routing = MODE_ROUTING.get(mode, {})
@@ -713,11 +750,14 @@ async def _run_retrieval(
             bm25_results.extend(_kb.bm25_search(v, n_results=effective_n_retrieve))
         return bm25_results
 
+    t_retrieve = time.time()
     bm25_task = loop.run_in_executor(_executor, _bm25_search)
     all_results = await asyncio.gather(*retrieve_tasks)
     bm25_raw = await bm25_task
+    log.info("Vector+BM25 retrieval in %.0fms", (time.time() - t_retrieve) * 1000)
 
     # --- Step 4: Reciprocal Rank Fusion ---
+    rrf_k = _retrieval_cfg.get("rrf_k", 30)
     rrf_scores: dict[str, float] = {}
     overlap_count: dict[str, int] = {}
     matched_queries: dict[str, list[int]] = {}
@@ -731,7 +771,7 @@ async def _run_retrieval(
         for rank, (nid, meta, doc, dist) in enumerate(
             zip(ids, metas, docs, dists)
         ):
-            rrf_scores[nid] = rrf_scores.get(nid, 0) + 1 / (rank + 30)
+            rrf_scores[nid] = rrf_scores.get(nid, 0) + 1 / (rank + rrf_k)
             overlap_count[nid] = overlap_count.get(nid, 0) + 1
             matched_queries.setdefault(nid, []).append(qi)
             if nid not in nugget_data:
@@ -753,7 +793,7 @@ async def _run_retrieval(
             bm25_seen[nid] = score
     bm25_ranked = sorted(bm25_seen.keys(), key=lambda x: bm25_seen[x], reverse=True)
     for rank, nid in enumerate(bm25_ranked[:effective_n_retrieve]):
-        rrf_scores[nid] = rrf_scores.get(nid, 0) + 1 / (rank + 30)
+        rrf_scores[nid] = rrf_scores.get(nid, 0) + 1 / (rank + rrf_k)
         overlap_count[nid] = overlap_count.get(nid, 0) + 1
         matched_queries.setdefault(nid, []).append(len(variants))
         if nid not in nugget_data:
@@ -786,12 +826,13 @@ async def _run_retrieval(
         rrf_scores[nid] *= 1.0 + (relevance - 3) * 0.2
 
     # Section-aware boosting (mode-specific)
+    section_boost = _retrieval_cfg.get("section_boost", 1.15)
     preferred_sections = routing.get("preferred_sections")
     if preferred_sections:
         for nid in rrf_scores:
             section = nugget_data[nid].get("section", "").lower()
             if any(ps in section for ps in preferred_sections):
-                rrf_scores[nid] *= 1.15
+                rrf_scores[nid] *= section_boost
 
     # Feedback boosting (from user's prior ratings)
     if _feedback_db:
@@ -802,16 +843,20 @@ async def _run_retrieval(
             nugget_fb = {r[0]: r[1] for r in _feedback_db.execute(
                 "SELECT nugget_id, SUM(rating) FROM nugget_feedback GROUP BY nugget_id HAVING SUM(rating) != 0"
             ).fetchall()}
+            fb_pos = _retrieval_cfg.get("feedback_positive", 1.3)
+            fb_neg = _retrieval_cfg.get("feedback_negative", 0.5)
+            fb_step = _retrieval_cfg.get("paper_feedback_step", 0.05)
+            fb_max = _retrieval_cfg.get("paper_feedback_max", 0.3)
             for nid in rrf_scores:
                 nfb = nugget_fb.get(nid, 0)
                 if nfb > 0:
-                    rrf_scores[nid] *= 1.3
+                    rrf_scores[nid] *= fb_pos
                 elif nfb < 0:
-                    rrf_scores[nid] *= 0.5
+                    rrf_scores[nid] *= fb_neg
                 pid = nugget_data[nid]["paper_id"]
                 pfb = paper_fb.get(pid, 0)
                 if pfb > 0:
-                    rrf_scores[nid] *= 1.0 + min(pfb * 0.05, 0.3)
+                    rrf_scores[nid] *= 1.0 + min(pfb * fb_step, fb_max)
                 elif pfb < 0:
                     rrf_scores[nid] *= max(1.0 + pfb * 0.1, 0.3)
         except Exception as e:
@@ -822,13 +867,16 @@ async def _run_retrieval(
     for nid in rrf_scores:
         paper_hits[nugget_data[nid]["paper_id"]].add(nid)
 
+    depth_frac_w = _retrieval_cfg.get("depth_fraction_weight", 0.3)
+    depth_div = _retrieval_cfg.get("depth_abs_divisor", 5)
+    depth_max = _retrieval_cfg.get("depth_abs_max", 0.3)
     paper_depth: dict[str, float] = {}
     for pid, nids in paper_hits.items():
         total = _kb.paper_nugget_count(pid) or 1
         raw_hits = len(nids)
         hit_fraction = min(raw_hits / total, 1.0)
-        abs_boost = min(math.log2(max(raw_hits, 1)) / 5, 0.3)
-        paper_depth[pid] = 1.0 + hit_fraction * 0.3 + abs_boost
+        abs_boost = min(math.log2(max(raw_hits, 1)) / depth_div, depth_max)
+        paper_depth[pid] = 1.0 + hit_fraction * depth_frac_w + abs_boost
 
     for nid in rrf_scores:
         pid = nugget_data[nid]["paper_id"]
@@ -866,6 +914,7 @@ async def _run_retrieval(
 
     # Cross-encoder reranking
     if rerank:
+        rerank_timeout = _retrieval_cfg.get("rerank_timeout", 10)
         pre_rerank = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x], reverse=True)
         rrf_scores = await loop.run_in_executor(
             _executor,
@@ -876,6 +925,7 @@ async def _run_retrieval(
                 rrf_scores=rrf_scores,
                 top_n=rerank_top_n,
                 blend_weight=rerank_weight,
+                timeout=rerank_timeout,
             ),
         )
         log.info("Reranked top %d candidates (weight=%.1f)", rerank_top_n, rerank_weight)
@@ -924,6 +974,7 @@ async def _run_retrieval(
         if len(selected) >= n_context:
             break
 
+    # Backfill respecting max_per_paper
     for nid in ranked:
         if len(selected) >= n_context:
             break
@@ -931,12 +982,14 @@ async def _run_retrieval(
             selected.append(nid)
             paper_counts[nugget_data[nid]["paper_id"]] += 1
 
-    for nid in ranked:
-        if len(selected) >= n_context:
-            break
-        if nid not in selected:
-            selected.append(nid)
-            paper_counts[nugget_data[nid]["paper_id"]] += 1
+    # Final backfill ignoring max_per_paper only if still short
+    if len(selected) < n_context:
+        for nid in ranked:
+            if len(selected) >= n_context:
+                break
+            if nid not in selected:
+                selected.append(nid)
+                paper_counts[nugget_data[nid]["paper_id"]] += 1
 
     top_ids = selected
 

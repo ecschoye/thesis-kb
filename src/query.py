@@ -1,9 +1,12 @@
 """Query interface for the thesis knowledge base."""
-import os, sys, argparse, sqlite3, json
+import os, sys, argparse, sqlite3, json, re
 from pathlib import Path
 import chromadb
 from src.utils import load_config
 from src.embed.embedder import make_embed_client, format_nugget_text
+from src.log import get_logger
+
+log = get_logger("query", "query.log")
 
 
 class ThesisKB:
@@ -42,8 +45,10 @@ class ThesisKB:
         ).fetchall()
         self._paper_nugget_counts = {r[0]: r[1] for r in rows}
 
-        # Ensure FTS5 index exists (self-migrating)
+        # Ensure FTS5 index and schema migrations exist (self-migrating)
         self._ensure_fts5()
+        self._ensure_quality_columns()
+        self._ensure_indexes()
 
     @classmethod
     def sqlite_only(cls, config_path="config.yaml"):
@@ -95,6 +100,55 @@ class ThesisKB:
         """)
         self.db.commit()
 
+    def _ensure_quality_columns(self):
+        """Add quality score columns if missing (self-migrating)."""
+        if not self.db:
+            return
+        cols = {row[1] for row in self.db.execute("PRAGMA table_info(nuggets)").fetchall()}
+        if "overall_score" not in cols:
+            self.db.execute("ALTER TABLE nuggets ADD COLUMN overall_score REAL DEFAULT NULL")
+            log.info("Migrated: added overall_score column")
+        if "flagged" not in cols:
+            self.db.execute("ALTER TABLE nuggets ADD COLUMN flagged INTEGER DEFAULT 0")
+            log.info("Migrated: added flagged column")
+            self.db.commit()
+
+    def _ensure_indexes(self):
+        """Create missing indexes (self-migrating)."""
+        if not self.db:
+            return
+        existing = {row[1] for row in self.db.execute(
+            "SELECT * FROM sqlite_master WHERE type='index'"
+        ).fetchall()}
+        indexes = {
+            "idx_nuggets_relevance": "CREATE INDEX idx_nuggets_relevance ON nuggets(thesis_relevance)",
+            "idx_nuggets_section": "CREATE INDEX idx_nuggets_section ON nuggets(section)",
+            "idx_nuggets_paper_type": "CREATE INDEX idx_nuggets_paper_type ON nuggets(paper_id, type)",
+            "idx_nuggets_flagged": "CREATE INDEX idx_nuggets_flagged ON nuggets(flagged)",
+        }
+        for name, ddl in indexes.items():
+            if name not in existing:
+                try:
+                    self.db.execute(ddl)
+                    log.info("Migrated: created index %s", name)
+                except Exception as e:
+                    log.warning("Failed to create index %s: %s", name, e)
+        self.db.commit()
+
+    @staticmethod
+    def _sanitize_fts5_query(query: str) -> str:
+        """Escape FTS5 special syntax so user input is treated as plain terms.
+
+        Wraps each token in double-quotes to neutralise operators
+        (AND, OR, NOT, NEAR, *, ^) and other FTS5 metacharacters.
+        """
+        # Strip characters that cannot appear even inside quoted strings
+        query = re.sub(r'["\']', " ", query)
+        tokens = query.split()
+        if not tokens:
+            return '""'
+        return " ".join(f'"{t}"' for t in tokens)
+
     def bm25_search(self, query, n_results=20):
         """BM25 full-text search over nuggets via FTS5.
 
@@ -102,6 +156,7 @@ class ThesisKB:
         """
         if not self.db:
             return []
+        sanitized = self._sanitize_fts5_query(query)
         try:
             rows = self.db.execute(
                 """SELECT nugget_id, rank
@@ -109,11 +164,12 @@ class ThesisKB:
                    WHERE nuggets_fts MATCH ?
                    ORDER BY rank
                    LIMIT ?""",
-                (query, n_results),
+                (sanitized, n_results),
             ).fetchall()
             # rank is negative (lower = better), convert to positive score
             return [(r[0], -r[1]) for r in rows]
-        except Exception:
+        except Exception as e:
+            log.warning("BM25 search failed for query %r: %s", query, e)
             return []
 
     def load_chunk(self, paper_id, chunk_id):
@@ -129,8 +185,8 @@ class ThesisKB:
             for chunk in data.get("chunks", []):
                 if chunk.get("chunk_id") == chunk_id:
                     return chunk.get("text", "")
-        except Exception:
-            pass
+        except Exception as e:
+            log.warning("Failed to load chunk %s/%s: %s", paper_id, chunk_id, e)
         return None
 
     def _embed_query(self, text):
@@ -172,7 +228,9 @@ class ThesisKB:
         elif len(where_clauses) > 1:
             where = {"$and": where_clauses}
 
+        t0 = __import__("time").time()
         query_embedding = self._embed_query(text)
+        log.debug("Embedded query in %.0fms", (__import__("time").time() - t0) * 1000)
 
         # Fetch extra results if we need to post-filter by year
         fetch_n = n_results * 3 if (year_min or year_max) else n_results
