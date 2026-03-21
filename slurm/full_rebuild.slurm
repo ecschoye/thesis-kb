@@ -4,8 +4,8 @@
 #SBATCH --partition=GPUQ
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="gpu80g"
-#SBATCH --time=0-24:00:00
-#SBATCH --mem=64G
+#SBATCH --time=0-16:00:00
+#SBATCH --mem=96G
 #SBATCH --cpus-per-task=8
 #SBATCH --output=logs/rebuild_%j.out
 #SBATCH --error=logs/rebuild_%j.err
@@ -161,11 +161,11 @@ if [ "$RUN_GPU" = true ]; then
 
     vllm serve Qwen/Qwen3.5-27B \
         --port 8000 \
-        --max-model-len 4096 \
-        --gpu-memory-utilization 0.90 \
+        --max-model-len 8192 \
+        --gpu-memory-utilization 0.95 \
         --dtype bfloat16 \
         --enable-chunked-prefill \
-        --max-num-seqs 64 \
+        --max-num-seqs 128 \
         --trust-remote-code &
     VLLM_PID=$!
     wait_for_vllm

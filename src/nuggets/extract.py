@@ -75,7 +75,7 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
     try:
         user_content = "Extract the key knowledge nuggets from this academic text:\n\n" + chunk_text
         if prior_questions:
-            already = "\n".join(f"- {q}" for q in prior_questions[-30:])  # last 30 to stay in context
+            already = "\n".join(f"- {q}" for q in prior_questions[-20:])  # last 20 to stay in context
             user_content += f"\n\nNuggets ALREADY EXTRACTED from earlier chunks of this paper (do NOT repeat these):\n{already}"
         kwargs = dict(
             model=model,
@@ -113,12 +113,20 @@ def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay
     if len(text.strip()) < 50:
         return []
 
+    cur_prior = prior_questions
     for attempt in range(max_retries):
-        nuggets, raw = extract_nuggets_from_chunk(client, text, model, temp, max_tok, extra_body=extra_body, prior_questions=prior_questions)
+        nuggets, raw = extract_nuggets_from_chunk(client, text, model, temp, max_tok, extra_body=extra_body, prior_questions=cur_prior)
         if nuggets:
             break
-        if "rate" in str(raw).lower():
+        raw_str = str(raw).lower()
+        if "rate" in raw_str:
             time.sleep(retry_delay * (2 ** attempt))
+        elif "too long" in raw_str or "maximum context" in raw_str or "400" in raw_str or "max_model_len" in raw_str or "prompt is too long" in raw_str:
+            # Token overflow — drop prior_questions and retry
+            if cur_prior:
+                cur_prior = cur_prior[-10:] if len(cur_prior) > 10 else None
+            else:
+                break
         else:
             break
 

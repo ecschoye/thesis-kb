@@ -204,7 +204,9 @@ def run_extraction(config_path="config.yaml"):
             skipped_count += 1
             continue
 
-        pdf_path = paper["local_pdf"]
+        # Use pdf_dir from config + filename, since local_pdf may have a stale absolute path
+        pdf_filename = os.path.basename(paper["local_pdf"])
+        pdf_path = os.path.join(pdf_dir, pdf_filename)
         if not os.path.exists(pdf_path):
             print(f"  [{i+1}] SKIP (file missing): {pdf_path}")
             failed += 1
