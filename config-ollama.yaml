@@ -6,6 +6,7 @@ paths:
   text_dir: corpus/texts
   chunk_dir: corpus/chunks
   nugget_dir: corpus/nuggets
+  unified_dir: corpus/nuggets_unified
   kb_dir: kb
 
 acquire:

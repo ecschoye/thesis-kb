@@ -8,6 +8,7 @@ paths:
     nugget_dir: corpus/nuggets
     quality_dir: corpus/nuggets_quality
     augmented_dir: corpus/nuggets_augmented
+    unified_dir: corpus/nuggets_unified
     kb_dir: kb
 
 acquire:
@@ -58,6 +59,10 @@ nuggets:
         gap_max_nuggets: 2 # chunks with <= this many nuggets get gap-filled
         gap_min_tokens: 100 # skip very short chunks
         gap_skip_sections: [references, acknowledgments, bibliography]
+    unified:
+        max_workers: 32
+        flag_threshold: 2       # overall <= this -> removed from final output
+        improve_threshold: 2    # overall <= this -> attempt improvement before removal
 
 embed:
     backend: vllm # vllm (HPC) or ollama (local)

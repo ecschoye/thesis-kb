@@ -6,15 +6,31 @@ from openai import OpenAI
 from src.utils import load_config, load_json, save_json
 
 
-def load_all_nuggets(nugget_dir, augmented_dir=None):
-    """Load all nuggets, merging augmented versions when available.
+def load_all_nuggets(nugget_dir, augmented_dir=None, unified_dir=None):
+    """Load all nuggets, preferring unified output, then augmented merge.
 
-    If augmented_dir is provided, improved nuggets replace their originals
-    (matched by original_nugget_id) and gap-filled nuggets are appended.
+    Priority per paper:
+    1. unified_dir (already quality-filtered + augmented)
+    2. nugget_dir + augmented_dir merge (legacy pipeline)
+    3. nugget_dir only (raw extraction)
     """
     all_nuggets = []
+
+    # Load unified papers first (already filtered + augmented)
+    unified_papers = set()
+    if unified_dir and os.path.isdir(unified_dir):
+        for fname in sorted(os.listdir(unified_dir)):
+            if not fname.endswith(".json"):
+                continue
+            data = load_json(os.path.join(unified_dir, fname))
+            all_nuggets.extend(data.get("nuggets", []))
+            unified_papers.add(fname)
+
+    # Load remaining papers from nugget_dir (skip unified ones)
     for fname in sorted(os.listdir(nugget_dir)):
         if not fname.endswith(".json"):
+            continue
+        if fname in unified_papers:
             continue
         data = load_json(os.path.join(nugget_dir, fname))
         nuggets = data.get("nuggets", [])
@@ -125,6 +141,7 @@ def run_embedding(config_path="config.yaml"):
     cfg = load_config(config_path)
     nugget_dir = cfg["paths"]["nugget_dir"]
     augmented_dir = cfg["paths"].get("augmented_dir")
+    unified_dir = cfg["paths"].get("unified_dir")
     kb_dir = cfg["paths"]["kb_dir"]
     ecfg = cfg.get("embed", {})
     emb_cfg = ecfg.get("embedding", {})
@@ -145,9 +162,12 @@ def run_embedding(config_path="config.yaml"):
     else:
         max_tokens = ecfg.get("vllm", {}).get("max_model_len", None)
 
-    # Load nuggets (merging augmented versions if available)
+    # Load nuggets (preferring unified > augmented > raw)
     print("[embed] Loading nuggets...")
-    if augmented_dir and os.path.isdir(augmented_dir):
+    if unified_dir and os.path.isdir(unified_dir):
+        print(f"  Loading unified nuggets from {unified_dir}")
+        nuggets = load_all_nuggets(nugget_dir, augmented_dir, unified_dir)
+    elif augmented_dir and os.path.isdir(augmented_dir):
         print(f"  Merging augmented nuggets from {augmented_dir}")
         nuggets = load_all_nuggets(nugget_dir, augmented_dir)
     else:

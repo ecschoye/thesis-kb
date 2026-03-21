@@ -159,9 +159,18 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
             print(f"  Loaded quality scores for {len(quality_scores)} nuggets")
 
     # Insert nuggets
+    flag_threshold = (cfg.get("nuggets", {}).get("quality", {}).get("flag_threshold", 2)
+                      if cfg else 2)
     for n in nuggets:
         nid = n.get("nugget_id", "")
-        qs = quality_scores.get(nid, {})
+        # Prefer inlined quality (from unified pipeline)
+        if "quality" in n and isinstance(n["quality"], dict):
+            overall_score = n["quality"].get("overall")
+            flagged = 1 if (overall_score or 5) <= flag_threshold else 0
+        else:
+            qs = quality_scores.get(nid, {})
+            overall_score = qs.get("overall_score")
+            flagged = qs.get("flagged", 0)
         c.execute(
             "INSERT OR IGNORE INTO nuggets VALUES (?,?,?,?,?,?,?,?,?,?,?)",
             (
@@ -174,8 +183,8 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
                 n.get("section", ""),
                 n.get("source_chunk"),
                 n.get("thesis_relevance", 0),
-                qs.get("overall_score"),
-                qs.get("flagged", 0),
+                overall_score,
+                flagged,
             ),
         )
 
