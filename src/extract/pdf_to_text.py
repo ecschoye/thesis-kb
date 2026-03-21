@@ -321,15 +321,15 @@ def extract_pdf(pdf_path, min_text_length=100, ocr_fallback=False, column_detect
         if used_ocr:
             ocr_pages += 1
 
+        # Always check for section transitions, even on sparse pages
+        section = detect_section(text, page=page)
+        if section:
+            current_section = section
+
         char_count = len(text.strip())
         if char_count < min_text_length:
             skipped += 1
             continue
-
-        # Detect section transitions
-        section = detect_section(text, page=page)
-        if section:
-            current_section = section
 
         pages.append({
             "page_num": page_num + 1,
@@ -365,7 +365,7 @@ def run_extraction(config_path="config.yaml"):
     # Load manifest for paper IDs
     manifest_path = os.path.join(corpus_dir, "manifest.json")
     if not os.path.exists(manifest_path):
-        print("No manifest.json found. Run ingest first.")
+        log.error("No manifest.json found. Run ingest first.")
         return
     manifest = load_json(manifest_path)
 

@@ -9,8 +9,10 @@ _LATEX_BLOCK_START = re.compile(r"\\begin\{(equation|align|table|figure|lstlisti
 _LATEX_BLOCK_END = re.compile(r"\\end\{(equation|align|table|figure|lstlisting|verbatim|itemize|enumerate)\*?\}")
 _DISPLAY_MATH_RE = re.compile(r"\$\$")
 
-# Sentence-ending punctuation followed by whitespace or newline
-_SENTENCE_END_RE = re.compile(r"[.!?]\s")
+# Split-point patterns in priority order (best → worst)
+_SENTENCE_END_RE = re.compile(r"[.!?]\s")       # sentence boundary (best)
+_PARA_BREAK_RE = re.compile(r"\n\s*\n")          # paragraph break
+_LINE_BREAK_RE = re.compile(r"\n")               # line break (worst natural boundary)
 
 
 def _find_protected_spans(text):
@@ -102,32 +104,47 @@ def token_chunks(text, enc, chunk_size=400, overlap=50, flex_pct=0.15,
         end = min(start + chunk_size, total_tokens)
 
         if end < total_tokens:
-            # Try to find a sentence boundary in the flex zone
-            # Search backward from end to (end - flex_size)
+            # Try to find a natural split point in the flex zone.
+            # Priority: sentence end > paragraph break > line break > raw token
             search_start = max(start, end - flex_size)
             chunk_text_candidate = enc.decode(tokens[search_start:end])
+            min_end = start + int(chunk_size * (1 - flex_pct))
 
-            # Find the last sentence-ending position in this zone
-            best_offset = None
-            for m in _SENTENCE_END_RE.finditer(chunk_text_candidate):
-                # Position within the search zone (character-level)
-                best_offset = m.start() + 1  # include the punctuation
+            def _last_match(pattern, text):
+                """Return char offset of the best split point, or None.
+                For sentence ends, include the punctuation but not trailing space.
+                For breaks, include the full break."""
+                best = None
+                for m in pattern.finditer(text):
+                    if pattern is _SENTENCE_END_RE:
+                        best = m.start() + 1  # include punctuation, not space
+                    else:
+                        best = m.end()  # include the full break
+                return best
 
-            if best_offset is not None:
-                # Map character offset back to token position
-                prefix_text = chunk_text_candidate[:best_offset]
-                tok_adjustment = len(enc.encode(prefix_text))
-                new_end = search_start + tok_adjustment
-                # Only use if we're not shrinking too much
-                if new_end > start + int(chunk_size * (1 - flex_pct)):
-                    end = new_end
+            chosen = None
+            for pattern in (_SENTENCE_END_RE, _PARA_BREAK_RE, _LINE_BREAK_RE):
+                offset = _last_match(pattern, chunk_text_candidate)
+                if offset is not None:
+                    tok_adj = len(enc.encode(chunk_text_candidate[:offset]))
+                    candidate = search_start + tok_adj
+                    if candidate > min_end:
+                        chosen = candidate
+                        break  # use best available pattern
+
+            if chosen is not None:
+                end = chosen
 
             # Check if end falls inside a protected block — extend to block end
             for ps, pe in protected_tok_spans:
                 if ps < end <= pe:
-                    # Don't extend beyond 2× chunk_size
                     if pe <= start + chunk_size * 2:
+                        # Extend to cover the full protected block
                         end = pe
+                    elif ps > start + overlap:
+                        # Block too large — cut before it (only if chunk stays meaningful)
+                        end = ps
+                    # else: block starts too close to chunk start, keep original end
                     break
 
         chunk_text = enc.decode(tokens[start:end])

@@ -24,7 +24,7 @@ The **unified pipeline** (`src.nuggets.unified`) combines nugget extraction, qua
 | **Chunk** | `src.chunk` | Token chunking with sentence-boundary flex and block protection |
 | **Nuggets** | `src.nuggets` | LLM nugget extraction (Qwen3.5-27B) |
 | **Unified** | `src.nuggets.unified` | Single-pass extract + quality + augment (replaces separate stages) |
-| **Embed** | `src.embed` | Instruction-aware embedding with metadata tags (Qwen3-Embedding-8B) |
+| **Embed** | `src.embed` | Pipelined instruction-aware embedding with metadata tags (Qwen3-Embedding-8B) |
 | **Store** | `src.store` | ChromaDB vector index + SQLite metadata + FTS5 full-text search |
 
 ### Query Server
@@ -45,7 +45,7 @@ The API has **mode-based retrieval** — different commands (`/background`, `/dr
 | `src/rerank.py` | Cross-encoder reranking (ms-marco-MiniLM-L-12-v2 via flashrank) |
 | `src/nuggets/extract.py` | LLM nugget extraction with domain-specific system prompt |
 | `src/nuggets/unified.py` | Unified extract + quality + augment pipeline |
-| `src/embed/embedder.py` | Instruction-aware embedding with asymmetric metadata |
+| `src/embed/embedder.py` | Pipelined instruction-aware embedding with asymmetric metadata |
 | `src/store/kb.py` | ChromaDB + SQLite KB builder with quality score integration |
 | `static/index.html` | Single-file React 18 frontend (~1,700 lines, no build step) |
 
@@ -84,7 +84,7 @@ python -m src.store -c config.yaml
 
 ### SLURM (HPC)
 
-One script per stage, fully independent:
+One script per stage, fully independent. All GPU scripts support **dynamic multi-GPU scaling** — change `--gres=gpu:N` to allocate more GPUs and vLLM parameters (tensor parallelism, max sequences) scale automatically.
 
 ```bash
 sbatch slurm/extract.slurm        # CPU  — text extraction
@@ -101,15 +101,31 @@ Full pipeline (all stages, handles model swaps):
 sbatch slurm/full_pipeline.slurm   # GPU — extract → chunk → unified → embed → store
 ```
 
+**Multi-GPU example** (2× throughput for nugget extraction):
+```bash
+# Edit the SBATCH header or override:
+sbatch --gres=gpu:2 slurm/unified.slurm
+```
+
 | Script | Partition | Time | GPU | Memory |
 |--------|-----------|------|-----|--------|
 | `extract.slurm` | CPUQ | 1h | — | 16GB |
 | `chunk.slurm` | CPUQ | 30m | — | 8GB |
-| `nuggets.slurm` | GPUQ | 20h | 1× 80GB | 64GB |
-| `unified.slurm` | GPUQ | 18h | 1× 80GB | 64GB |
-| `embed.slurm` | GPUQ | 4h | 1× 80GB | 32GB |
+| `nuggets.slurm` | GPUQ | 20h | 1–N × 80GB | 64GB |
+| `unified.slurm` | GPUQ | 18h | 1–N × 80GB | 64GB |
+| `embed.slurm` | GPUQ | 4h | 1–N × 80GB | 32GB |
 | `store.slurm` | CPUQ | 30m | — | 16GB |
-| `full_pipeline.slurm` | GPUQ | 24h | 1× 80GB | 64GB |
+| `full_pipeline.slurm` | GPUQ | 24h | 1–N × 80GB | 64GB |
+
+### GPU Utilization
+
+The pipeline is tuned for maximum GPU throughput:
+
+- **vLLM prefix caching** — nugget extraction reuses the same system prompt; prefix caching avoids re-computing KV cache for it on every request
+- **Tensor parallelism** — auto-detected from SLURM GPU allocation; splits model across GPUs for higher throughput
+- **Scaled concurrency** — `max-num-seqs` scales as 64 × GPU count; Python-side `max_workers` set to 64 to saturate the GPU queue
+- **Pipelined embedding** — multiple batches submitted concurrently (configurable `embed_workers`); batch N+1 queued while GPU processes batch N
+- **Large embedding batches** — batch size 256 for Qwen3-Embedding-8B (small model, GPU can handle it)
 
 ## Web UI
 
@@ -146,8 +162,8 @@ Key config sections:
 - **paths** — Input/output directories for each pipeline stage
 - **extract** — `ocr_fallback`, `column_detection`
 - **chunk** — `token_size`, `overlap`, `flex_pct`, `protect_blocks`
-- **nuggets** — LLM model, extraction/quality/augmentation parameters
-- **embed** — Embedding model, backend selection, instruction text
+- **nuggets** — LLM model, extraction/quality/augmentation parameters, `max_workers`
+- **embed** — Embedding model, backend selection, `batch_size`, `embed_workers`, instruction text
 - **store** — ChromaDB collection and SQLite settings
 - **retrieval** — RRF constant, reranker weights, per-mode overrides
 
@@ -180,4 +196,5 @@ static/
 |----------|----------|-------------|
 | `OPENROUTER_API_KEY` | Yes (for query server) | Set in env or `~/.openrouter_key` |
 | `THESIS_KB_CONFIG` | No | Override config path (default: `config.yaml`) |
+| `VLLM_PORT` | No (auto-set by SLURM) | vLLM server port; Python reads this before config fallback |
 | `HF_HOME` | No (HPC only) | Hugging Face cache directory |

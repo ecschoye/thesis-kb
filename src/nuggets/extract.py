@@ -75,7 +75,12 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
     try:
         user_content = "Extract the key knowledge nuggets from this academic text:\n\n" + chunk_text
         if prior_questions:
-            already = "\n".join(f"- {q}" for q in prior_questions[-20:])  # last 20 to stay in context
+            truncated = prior_questions[-20:]  # last 20 to stay in context
+            if len(prior_questions) > 20:
+                import logging
+                logging.getLogger("nuggets.extract").warning(
+                    "Prior questions truncated from %d to 20 — dedup context lost", len(prior_questions))
+            already = "\n".join(f"- {q}" for q in truncated)
             user_content += f"\n\nNuggets ALREADY EXTRACTED from earlier chunks of this paper (do NOT repeat these):\n{already}"
         kwargs = dict(
             model=model,
@@ -97,9 +102,13 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
         valid = []
         for n in nuggets:
             if isinstance(n, dict) and "question" in n and "answer" in n:
+                q = str(n["question"]).strip()
+                a = str(n["answer"]).strip()
+                if len(q) < 10 or len(a) < 10:
+                    continue  # skip empty/trivial nuggets
                 valid.append({
-                    "question": str(n["question"]),
-                    "answer": str(n["answer"]),
+                    "question": q,
+                    "answer": a,
                     "type": str(n.get("type", "background")),
                 })
         return valid, raw

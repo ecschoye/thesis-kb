@@ -48,9 +48,9 @@ embed:
     base_url: http://localhost:11434/v1
   embedding:
     batch_size: 64
-    query_instruction: "Given an academic research claim about computer vision or neural networks, retrieve related findings and evidence"
-    doc_instruction: "Represent this academic research finding for retrieval: a nugget containing methods, results, or claims from a computer vision or neural networks paper"
-    instruction: "Given an academic research claim about computer vision or neural networks, retrieve related findings and evidence"
+    query_instruction: "Given an academic research claim about event cameras, RGB-Event fusion, spiking neural networks, or object detection for autonomous platforms, retrieve related findings and evidence"
+    doc_instruction: "Represent this academic research finding for retrieval: a nugget containing methods, results, or claims about event cameras, RGB-Event fusion, spiking neural networks, or object detection"
+    instruction: "Given an academic research claim about event cameras, RGB-Event fusion, spiking neural networks, or object detection for autonomous platforms, retrieve related findings and evidence"
     # dimensions: 4096
 
 store:

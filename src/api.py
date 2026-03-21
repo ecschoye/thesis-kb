@@ -1,5 +1,5 @@
 """FastAPI backend for thesis-kb web chat interface."""
-import os, json, asyncio, re, time, math
+import os, json, asyncio, re, time, math, threading
 import httpx
 from collections import defaultdict
 from contextlib import asynccontextmanager
@@ -9,7 +9,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from openai import OpenAI
 
 from src.utils import load_config
@@ -35,6 +35,7 @@ _executor = None  # initialized in _init()
 _retrieval_cfg: dict = {}  # loaded from config.yaml retrieval section
 _bib_lookup: dict[str, str] = {}  # normalised key → bibtex cite key
 _feedback_db = None  # separate SQLite connection for feedback
+_feedback_lock = threading.Lock()  # serialize feedback DB writes
 
 # Default mode routing (overridden by config.yaml retrieval.modes)
 _DEFAULT_MODE_ROUTING = {
@@ -329,7 +330,10 @@ def _init(config_path: str):
 
 
 def _shutdown():
-    global _kb
+    global _kb, _feedback_db
+    if _feedback_db:
+        _feedback_db.close()
+        _feedback_db = None
     if _kb:
         _kb.close()
         _kb = None
@@ -381,6 +385,16 @@ class ChatRequest(BaseModel):
     rerank_top_n: int = 60
     rerank_weight: float = 0.6
 
+    @field_validator("rerank_top_n")
+    @classmethod
+    def clamp_rerank_top_n(cls, v):
+        return max(1, min(v, 200))
+
+    @field_validator("rerank_weight")
+    @classmethod
+    def clamp_rerank_weight(cls, v):
+        return max(0.0, min(v, 1.0))
+
 class RetrieveRequest(BaseModel):
     query: str
     mode: str = "background"
@@ -395,6 +409,16 @@ class RetrieveRequest(BaseModel):
     rerank: bool = True
     rerank_top_n: int = 60
     rerank_weight: float = 0.6
+
+    @field_validator("rerank_top_n")
+    @classmethod
+    def clamp_rerank_top_n(cls, v):
+        return max(1, min(v, 200))
+
+    @field_validator("rerank_weight")
+    @classmethod
+    def clamp_rerank_weight(cls, v):
+        return max(0.0, min(v, 1.0))
 
 # ---------------------------------------------------------------------------
 # Endpoints
@@ -459,21 +483,22 @@ async def submit_feedback(req: FeedbackRequest):
     """Record user feedback on a retrieved nugget."""
     if not _feedback_db:
         raise HTTPException(503, "Feedback DB not initialized")
-    _feedback_db.execute(
-        """INSERT OR REPLACE INTO nugget_feedback (nugget_id, paper_id, rating, query, mode)
-           VALUES (?, ?, ?, ?, ?)""",
-        (req.nugget_id, req.paper_id, req.rating, req.query, req.mode),
-    )
-    # Aggregate paper-level rating
-    _feedback_db.execute(
-        """INSERT INTO paper_feedback (paper_id, rating, updated_at)
-           VALUES (?, ?, datetime('now'))
-           ON CONFLICT(paper_id) DO UPDATE SET
-             rating = (SELECT SUM(rating) FROM nugget_feedback WHERE paper_id = ?),
-             updated_at = datetime('now')""",
-        (req.paper_id, req.rating, req.paper_id),
-    )
-    _feedback_db.commit()
+    with _feedback_lock:
+        _feedback_db.execute(
+            """INSERT OR REPLACE INTO nugget_feedback (nugget_id, paper_id, rating, query, mode)
+               VALUES (?, ?, ?, ?, ?)""",
+            (req.nugget_id, req.paper_id, req.rating, req.query, req.mode),
+        )
+        # Aggregate paper-level rating
+        _feedback_db.execute(
+            """INSERT INTO paper_feedback (paper_id, rating, updated_at)
+               VALUES (?, ?, datetime('now'))
+               ON CONFLICT(paper_id) DO UPDATE SET
+                 rating = (SELECT SUM(rating) FROM nugget_feedback WHERE paper_id = ?),
+                 updated_at = datetime('now')""",
+            (req.paper_id, req.rating, req.paper_id),
+        )
+        _feedback_db.commit()
     return {"status": "ok"}
 
 
@@ -539,7 +564,7 @@ async def query_endpoint(req: QueryRequest):
     if not _kb:
         raise HTTPException(503, "KB not initialized")
     try:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         results = await loop.run_in_executor(
             _executor, lambda: _kb.query(req.query, n_results=req.n)
         )
@@ -575,7 +600,7 @@ async def _run_retrieval(
         raise HTTPException(500, "OPENROUTER_API_KEY not set")
 
     t0 = time.time()
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     last_msg = query
 
     expand_client = OpenAI(
@@ -837,12 +862,13 @@ async def _run_retrieval(
     # Feedback boosting (from user's prior ratings)
     if _feedback_db:
         try:
-            paper_fb = {r[0]: r[1] for r in _feedback_db.execute(
-                "SELECT paper_id, rating FROM paper_feedback WHERE rating != 0"
-            ).fetchall()}
-            nugget_fb = {r[0]: r[1] for r in _feedback_db.execute(
-                "SELECT nugget_id, SUM(rating) FROM nugget_feedback GROUP BY nugget_id HAVING SUM(rating) != 0"
-            ).fetchall()}
+            with _feedback_lock:
+                paper_fb = {r[0]: r[1] for r in _feedback_db.execute(
+                    "SELECT paper_id, rating FROM paper_feedback WHERE rating != 0"
+                ).fetchall()}
+                nugget_fb = {r[0]: r[1] for r in _feedback_db.execute(
+                    "SELECT nugget_id, SUM(rating) FROM nugget_feedback GROUP BY nugget_id HAVING SUM(rating) != 0"
+                ).fetchall()}
             fb_pos = _retrieval_cfg.get("feedback_positive", 1.3)
             fb_neg = _retrieval_cfg.get("feedback_negative", 0.5)
             fb_step = _retrieval_cfg.get("paper_feedback_step", 0.05)
@@ -1234,7 +1260,7 @@ async def chat_endpoint(req: ChatRequest):
             raise HTTPException(500, "OPENROUTER_API_KEY not set")
 
         t0 = time.time()
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         # --- Step 5: Build context + call OpenRouter ---
         web_file = WEB_MODE_FILES.get(req.mode, "")
         web_path = WEB_PROMPTS_DIR / web_file if web_file else None

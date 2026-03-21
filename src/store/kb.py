@@ -148,7 +148,7 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
             if not fname.endswith(".json"):
                 continue
             qdata = load_json(os.path.join(quality_dir, fname))
-            for rated in qdata.get("rated_nuggets", []):
+            for rated in qdata.get("scores", qdata.get("rated_nuggets", [])):
                 nid = rated.get("nugget_id", "")
                 if nid:
                     quality_scores[nid] = {

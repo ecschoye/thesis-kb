@@ -174,6 +174,10 @@ class ThesisKB:
 
     def load_chunk(self, paper_id, chunk_id):
         """Load a specific chunk's text from disk."""
+        import re as _re
+        if not _re.match(r'^[a-zA-Z0-9_.\-]+$', str(paper_id)):
+            log.warning("Invalid paper_id rejected: %r", paper_id)
+            return None
         cfg = load_config(self._config_path) if hasattr(self, '_config_path') else None
         chunk_dir = cfg["paths"]["chunk_dir"] if cfg else "corpus/chunks"
         chunk_path = Path(chunk_dir) / f"{paper_id}.json"
@@ -191,11 +195,15 @@ class ThesisKB:
 
     def _embed_query(self, text):
         """Embed a query string using the configured embedding backend."""
+        if not self.embed_client:
+            raise RuntimeError("Embedding client not initialized — check embed config")
         formatted = format_nugget_text({"question": text, "answer": ""}, self.embed_instruction)
         kwargs = {"model": self.embed_model, "input": [formatted]}
         if self.embed_dimensions:
             kwargs["dimensions"] = self.embed_dimensions
         resp = self.embed_client.embeddings.create(**kwargs)
+        if not resp.data:
+            raise RuntimeError("Embedding API returned empty response")
         return resp.data[0].embedding
 
     def query(self, text, n_results=10, type_filter=None, section_filter=None,

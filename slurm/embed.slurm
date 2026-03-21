@@ -12,6 +12,9 @@
 
 # Embed nuggets using Qwen3-Embedding-8B via vLLM.
 # Requires: nuggets in corpus/nuggets/ or corpus/nuggets_unified/
+#
+# Multi-GPU: change --gres=gpu:2 for tensor parallelism (marginal benefit
+# for 8B model — only useful if embedding 500k+ nuggets).
 
 set -euo pipefail
 
@@ -24,6 +27,14 @@ export HF_HUB_ENABLE_HF_TRANSFER=0
 export PYTHONUNBUFFERED=1
 mkdir -p logs
 
+# Dynamic port to avoid collisions when multiple jobs land on the same node
+export VLLM_PORT=$((8000 + SLURM_JOB_ID % 1000))
+
+# Detect GPU count and scale vLLM parameters
+GPU_COUNT=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l)
+GPU_COUNT=${GPU_COUNT:-1}
+echo "GPUs: $GPU_COUNT | port: $VLLM_PORT"
+
 VLLM_PID=""
 cleanup() {
     if [ -n "$VLLM_PID" ] && kill -0 "$VLLM_PID" 2>/dev/null; then
@@ -35,16 +46,17 @@ trap cleanup EXIT
 echo "=== Starting vLLM (Qwen3-Embedding-8B) ==="
 vllm serve Qwen/Qwen3-Embedding-8B \
     --task embed \
-    --port 8000 \
+    --port $VLLM_PORT \
     --max-model-len 1024 \
-    --gpu-memory-utilization 0.90 \
-    --dtype bfloat16 &
+    --gpu-memory-utilization 0.92 \
+    --dtype bfloat16 \
+    --tensor-parallel-size $GPU_COUNT &
 VLLM_PID=$!
 
 echo "Waiting for vLLM..."
 for i in $(seq 1 60); do
     kill -0 "$VLLM_PID" 2>/dev/null || { echo "ERROR: vLLM died"; exit 1; }
-    curl -s http://localhost:8000/health >/dev/null 2>&1 && { echo "Ready ($((i*10))s)"; break; }
+    curl -s http://localhost:$VLLM_PORT/health >/dev/null 2>&1 && { echo "Ready ($((i*10))s)"; break; }
     [ "$i" -eq 60 ] && { echo "ERROR: vLLM timeout"; exit 1; }
     sleep 10
 done

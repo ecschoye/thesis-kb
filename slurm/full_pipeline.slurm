@@ -12,6 +12,9 @@
 
 # Full pipeline: extract → chunk → unified nuggets → embed → store.
 # Single job, handles model swaps between GPU phases.
+#
+# Multi-GPU: change --gres=gpu:2 (or more) to enable tensor parallelism.
+# vLLM parameters scale automatically based on allocated GPU count.
 
 set -euo pipefail
 
@@ -23,6 +26,15 @@ export HF_HOME=/cluster/work/ecschoye/huggingface
 export HF_HUB_ENABLE_HF_TRANSFER=0
 export PYTHONUNBUFFERED=1
 mkdir -p logs
+
+# Dynamic port to avoid collisions when multiple jobs land on the same node
+export VLLM_PORT=$((8000 + SLURM_JOB_ID % 1000))
+
+# Detect GPU count and scale vLLM parameters
+GPU_COUNT=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l)
+GPU_COUNT=${GPU_COUNT:-1}
+MAX_NUM_SEQS=$((64 * GPU_COUNT))
+echo "GPUs: $GPU_COUNT | max-num-seqs: $MAX_NUM_SEQS | port: $VLLM_PORT"
 
 VLLM_PID=""
 
@@ -37,7 +49,7 @@ wait_for_vllm() {
     echo "Waiting for vLLM..."
     for i in $(seq 1 60); do
         kill -0 "$VLLM_PID" 2>/dev/null || { echo "ERROR: vLLM died"; exit 1; }
-        curl -s http://localhost:8000/health >/dev/null 2>&1 && { echo "Ready ($((i*10))s)"; return 0; }
+        curl -s http://localhost:$VLLM_PORT/health >/dev/null 2>&1 && { echo "Ready ($((i*10))s)"; return 0; }
         [ "$i" -eq 60 ] && { echo "ERROR: vLLM timeout"; exit 1; }
         sleep 10
     done
@@ -73,12 +85,14 @@ echo "  Phase 2: Unified Nuggets (Qwen3.5-27B)"
 echo "=========================================="
 
 vllm serve Qwen/Qwen3.5-27B \
-    --port 8000 \
+    --port $VLLM_PORT \
     --max-model-len 4096 \
-    --gpu-memory-utilization 0.90 \
+    --gpu-memory-utilization 0.92 \
     --dtype bfloat16 \
     --enable-chunked-prefill \
-    --max-num-seqs 64 \
+    --enable-prefix-caching \
+    --max-num-seqs $MAX_NUM_SEQS \
+    --tensor-parallel-size $GPU_COUNT \
     --trust-remote-code &
 VLLM_PID=$!
 wait_for_vllm
@@ -97,10 +111,11 @@ echo "=========================================="
 
 vllm serve Qwen/Qwen3-Embedding-8B \
     --task embed \
-    --port 8000 \
+    --port $VLLM_PORT \
     --max-model-len 1024 \
-    --gpu-memory-utilization 0.90 \
-    --dtype bfloat16 &
+    --gpu-memory-utilization 0.92 \
+    --dtype bfloat16 \
+    --tensor-parallel-size $GPU_COUNT &
 VLLM_PID=$!
 wait_for_vllm
 

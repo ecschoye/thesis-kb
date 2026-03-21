@@ -37,7 +37,7 @@ nuggets:
         gpu_memory_utilization: 0.90
         dtype: bfloat16
     extraction:
-        max_workers: 32
+        max_workers: 64          # match vLLM --max-num-seqs for full GPU saturation
         max_retries: 3
         max_tokens: 1500
         temperature: 0.1
@@ -45,15 +45,15 @@ nuggets:
         nugget_types:
             [method, result, claim, limitation, comparison, background]
     quality:
-        batch_size: 5
-        max_workers: 48
+        batch_size: 20           # larger batches = fewer round-trips to vLLM
+        max_workers: 64
         max_tokens: 2000
         temperature: 0.0
         max_retries: 3
         retry_base_delay: 2.0
         flag_threshold: 2
     augmentation:
-        max_workers: 32
+        max_workers: 64
         max_tokens: 2000
         temperature: 0.1
         max_retries: 3
@@ -63,7 +63,7 @@ nuggets:
         gap_min_tokens: 100 # skip very short chunks
         gap_skip_sections: [references, acknowledgments, bibliography]
     unified:
-        max_workers: 32
+        max_workers: 64
         flag_threshold: 2       # overall <= this -> removed from final output
         improve_threshold: 2    # overall <= this -> attempt improvement before removal
 
@@ -79,7 +79,8 @@ embed:
         model: qwen3-embedding:8b
         base_url: http://localhost:11434/v1
     embedding:
-        batch_size: 64
+        batch_size: 256          # Qwen3-Embedding-8B is small; larger batches = better GPU throughput
+        embed_workers: 4         # pipelined batch submission (prepare next while GPU processes current)
         query_instruction: "Given an academic research claim about event cameras, RGB-Event fusion, spiking neural networks, or object detection for autonomous platforms, retrieve related findings and evidence"
         doc_instruction: "Represent this academic research finding for retrieval: a nugget containing methods, results, or claims about event cameras, RGB-Event fusion, spiking neural networks, or object detection"
         instruction: "Given an academic research claim about event cameras, RGB-Event fusion, spiking neural networks, or object detection for autonomous platforms, retrieve related findings and evidence"

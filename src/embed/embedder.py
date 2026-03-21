@@ -1,5 +1,6 @@
 """Embed nuggets using Qwen3-Embedding-8B via vLLM."""
 import os, argparse, json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 import tiktoken
 from openai import OpenAI
@@ -117,6 +118,10 @@ def format_nugget_text(nugget, instruction, max_tokens=None, mode="query"):
     if max_tokens:
         tokens = _tokenizer.encode(text)
         if len(tokens) > max_tokens:
+            import logging
+            logging.getLogger("embed").debug(
+                "Truncated nugget from %d to %d tokens (paper=%s)",
+                len(tokens), max_tokens, nugget.get("paper_id", "?"))
             text = _tokenizer.decode(tokens[:max_tokens])
     return text
 
@@ -147,7 +152,7 @@ def make_embed_client(cfg):
         return client, model
     else:
         vllm_cfg = ecfg.get("vllm", {})
-        port = vllm_cfg.get("port", 8000)
+        port = int(os.environ.get("VLLM_PORT", vllm_cfg.get("port", 8000)))
         base_url = f"http://localhost:{port}/v1"
         model = vllm_cfg.get("model", "Qwen/Qwen3-Embedding-8B")
     client = OpenAI(base_url=base_url, api_key="none")
@@ -198,16 +203,38 @@ def run_embedding(config_path="config.yaml"):
     # Use mode="document" to include type/section metadata in embeddings
     texts = [format_nugget_text(n, instruction, max_tokens=max_tokens, mode="document") for n in nuggets]
 
-    # Embed in batches
-    print(f"[embed] Embedding {len(texts)} nuggets (batch_size={batch_size})...")
+    # Embed in batches with pipelined submission
+    embed_workers = emb_cfg.get("embed_workers", 4)
+    print(f"[embed] Embedding {len(texts)} nuggets (batch_size={batch_size}, workers={embed_workers})...")
+
+    # Build batch ranges
+    batch_ranges = [(s, min(s + batch_size, len(texts)))
+                    for s in range(0, len(texts), batch_size)]
+    total_batches = len(batch_ranges)
+
+    # Results indexed by batch order to maintain alignment
+    results_by_idx = [None] * total_batches
+
+    def _embed_one_batch(idx, start, end):
+        embs = embed_batch(client, texts[start:end], model, dimensions)
+        return idx, embs
+
+    with ThreadPoolExecutor(max_workers=embed_workers) as pool:
+        futures = {
+            pool.submit(_embed_one_batch, i, s, e): i
+            for i, (s, e) in enumerate(batch_ranges)
+        }
+        done = 0
+        for fut in as_completed(futures):
+            idx, embs = fut.result()
+            results_by_idx[idx] = embs
+            done += 1
+            if done % 10 == 0 or done == total_batches:
+                print(f"  {done}/{total_batches} batches embedded")
+
     all_embeddings = []
-    for start in range(0, len(texts), batch_size):
-        batch = texts[start:start + batch_size]
-        embs = embed_batch(client, batch, model, dimensions)
+    for embs in results_by_idx:
         all_embeddings.extend(embs)
-        batch_num = start // batch_size + 1
-        if batch_num % 10 == 0:
-            print(f"  {start + len(batch)}/{len(texts)} embedded")
 
     # Save embeddings as numpy matrix
     emb_matrix = np.array(all_embeddings, dtype=np.float32)

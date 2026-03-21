@@ -3,7 +3,7 @@
 # Usage: bash scripts/start_api.sh [--config config-ollama.yaml] [--port 8001]
 
 set -euo pipefail
-cd /cluster/work/ecschoye/thesis-kb
+cd "$(dirname "$0")/.."
 
 CONFIG="config.yaml"
 PORT="8001"

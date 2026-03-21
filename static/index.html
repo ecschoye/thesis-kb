@@ -351,7 +351,7 @@ function FeedbackButtons({ nugget, query, mode }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nugget_id: nugget.nugget_id, paper_id: nugget.paper_id, rating: newRating, query: query || "", mode: mode || "" }),
-    }).catch(() => {});
+    }).catch((e) => console.warn("Feedback submit failed:", e));
   };
   return (
     <div className="flex items-center gap-0.5">
@@ -426,7 +426,7 @@ function ChunkExpander({ nugget }) {
     fetch(`${API_BASE}/api/chunk/${nugget.paper_id}/${nugget.source_chunk}`)
       .then(r => r.json())
       .then(d => { setChunkText(d.text || "No text found"); setLoading(false); })
-      .catch(() => { setChunkText("Failed to load chunk"); setLoading(false); });
+      .catch((e) => { console.warn("Chunk load failed:", e); setChunkText("Failed to load chunk"); setLoading(false); });
   };
   const rendered = useMemo(() => {
     if (!chunkText) return null;
@@ -1016,7 +1016,7 @@ function PaperSearch({ pinnedPapers, setPinnedPapers, onClose }) {
       try {
         const resp = await fetch(`${API_BASE}/api/papers/search?q=${encodeURIComponent(query.trim())}&limit=8`);
         if (resp.ok) setResults(await resp.json());
-      } catch {}
+      } catch (e) { console.warn("Paper search failed:", e); }
       setLoading(false);
     }, 300);
     return () => clearTimeout(debounceRef.current);

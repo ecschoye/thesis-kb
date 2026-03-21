@@ -48,7 +48,7 @@ def make_llm_client(cfg):
         client = OpenAI(base_url=base_url, api_key=api_key)
     else:
         vllm_cfg = ncfg.get("vllm", {})
-        port = vllm_cfg.get("port", 8000)
+        port = int(os.environ.get("VLLM_PORT", vllm_cfg.get("port", 8000)))
         model = vllm_cfg.get("model", "Qwen/Qwen3.5-27B")
         client = OpenAI(base_url=f"http://localhost:{port}/v1", api_key="none")
     return client, model
