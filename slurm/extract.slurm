@@ -14,7 +14,7 @@
 set -euo pipefail
 
 module purge
-module load Python/3.12.3-GCCcore-13.3.0 Tesseract/5.3.4-GCCcore-13.3.0
+module load Python/3.12.3-GCCcore-13.3.0 tesseract/5.5.0-GCCcore-13.3.0
 source .venv/bin/activate
 
 export PYTHONUNBUFFERED=1

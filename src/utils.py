@@ -54,6 +54,27 @@ def make_llm_client(cfg):
     return client, model
 
 
+def make_llm_clients(cfg):
+    """Create multiple OpenAI-compatible clients for multi-instance vLLM.
+
+    If VLLM_PORTS env var is set (comma-separated), returns one client per port.
+    Otherwise falls back to a single client via make_llm_client.
+
+    Returns (clients_list, model) tuple.
+    """
+    ports_env = os.environ.get("VLLM_PORTS", "")
+    if not ports_env:
+        client, model = make_llm_client(cfg)
+        return [client], model
+
+    ncfg = cfg.get("nuggets", {})
+    vllm_cfg = ncfg.get("vllm", {})
+    model = vllm_cfg.get("model", "Qwen/Qwen3.5-27B")
+    ports = [int(p.strip()) for p in ports_env.split(",") if p.strip()]
+    clients = [OpenAI(base_url=f"http://localhost:{p}/v1", api_key="none") for p in ports]
+    return clients, model
+
+
 def already_processed(paper_id, output_dir, ext=".json"):
     path = os.path.join(output_dir, f"{paper_id}{ext}")
     if not os.path.exists(path):

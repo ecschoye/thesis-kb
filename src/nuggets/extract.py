@@ -70,7 +70,7 @@ def repair_json(text):
     return None
 
 
-def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_tokens=3000, extra_body=None, prior_questions=None):
+def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_tokens=3000, extra_body=None, prior_questions=None, max_model_len=4096):
     """Send a chunk to the LLM and parse nuggets."""
     try:
         user_content = "Extract the key knowledge nuggets from this academic text:\n\n" + chunk_text
@@ -82,6 +82,11 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
                     "Prior questions truncated from %d to 20 — dedup context lost", len(prior_questions))
             already = "\n".join(f"- {q}" for q in truncated)
             user_content += f"\n\nNuggets ALREADY EXTRACTED from earlier chunks of this paper (do NOT repeat these):\n{already}"
+        # Cap max_tokens to fit within context window
+        input_estimate = (len(SYSTEM_PROMPT) + len(user_content)) // 3
+        effective_max_tokens = max_tokens
+        if input_estimate + max_tokens > max_model_len:
+            effective_max_tokens = max(256, max_model_len - input_estimate)
         kwargs = dict(
             model=model,
             messages=[
@@ -89,7 +94,7 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
                 {"role": "user", "content": user_content},
             ],
             temperature=temperature,
-            max_tokens=max_tokens,
+            max_tokens=effective_max_tokens,
         )
         if extra_body:
             kwargs["extra_body"] = extra_body
@@ -116,7 +121,7 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
         return [], str(e)
 
 
-def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay, paper_id, extra_body=None, prior_questions=None):
+def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay, paper_id, extra_body=None, prior_questions=None, max_model_len=4096):
     """Process a single chunk — designed for use in a thread pool."""
     text = chunk["text"]
     if len(text.strip()) < 50:
@@ -124,7 +129,7 @@ def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay
 
     cur_prior = prior_questions
     for attempt in range(max_retries):
-        nuggets, raw = extract_nuggets_from_chunk(client, text, model, temp, max_tok, extra_body=extra_body, prior_questions=cur_prior)
+        nuggets, raw = extract_nuggets_from_chunk(client, text, model, temp, max_tok, extra_body=extra_body, prior_questions=cur_prior, max_model_len=max_model_len)
         if nuggets:
             break
         raw_str = str(raw).lower()

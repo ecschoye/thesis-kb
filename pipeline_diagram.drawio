@@ -1,0 +1,365 @@
+<mxfile host="app.diagrams.net" modified="2026-03-20T00:00:00.000Z" agent="Claude" version="24.0.0" type="device">
+  <diagram id="pipeline" name="Complete Pipeline">
+    <mxGraphModel dx="2200" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="3300" pageHeight="2400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ============================================================ -->
+        <!-- TITLE                                                        -->
+        <!-- ============================================================ -->
+        <mxCell id="title" value="&lt;b&gt;Thesis Knowledge Base — Complete Pipeline&lt;/b&gt;" style="text;html=1;fontSize=22;fontFamily=Inter;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="600" y="20" width="700" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- BATCH PIPELINE CONTAINER                                     -->
+        <!-- ============================================================ -->
+        <mxCell id="batch_container" value="&lt;b&gt;BATCH PIPELINE&lt;/b&gt;  (offline — builds knowledge base)" style="swimlane;startSize=30;fillColor=#F5F5F5;strokeColor=#666666;fontFamily=Inter;fontSize=14;rounded=1;arcSize=8;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1820" height="520" as="geometry" />
+        </mxCell>
+
+        <!-- ── Stage 1: ACQUIRE ── -->
+        <mxCell id="pdf_input" value="&lt;b&gt;PDFs&lt;/b&gt;&lt;br&gt;(844 papers)" style="shape=document;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=11;rounded=1;" vertex="1" parent="batch_container">
+          <mxGeometry x="30" y="60" width="110" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="acquire" value="&lt;b&gt;1. Acquire&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Scan PDFs&lt;br&gt;Enrich metadata&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="180" y="55" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="sem_scholar" value="&lt;b&gt;Semantic&lt;br&gt;Scholar API&lt;/b&gt;" style="shape=cloud;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=10;" vertex="1" parent="batch_container">
+          <mxGeometry x="195" y="160" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="manifest" value="&lt;b&gt;manifest.json&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;paper_id, title,&lt;br&gt;authors, year,&lt;br&gt;arxiv_id, citations&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=10;size=14;" vertex="1" parent="batch_container">
+          <mxGeometry x="185" y="240" width="130" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ── Stage 2: EXTRACT ── -->
+        <mxCell id="extract" value="&lt;b&gt;2. Extract&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;PyMuPDF text&lt;br&gt;Section detection&lt;br&gt;(font size + regex)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="370" y="55" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="texts_out" value="&lt;b&gt;texts/&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;{paper_id}.json&lt;br&gt;pages + sections&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=10;size=14;" vertex="1" parent="batch_container">
+          <mxGeometry x="380" y="240" width="120" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ── Stage 3: CHUNK ── -->
+        <mxCell id="chunk" value="&lt;b&gt;3. Chunk&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;tiktoken cl100k&lt;br&gt;800 tokens, 100 overlap&lt;br&gt;Section-aware&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="555" y="55" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="chunks_out" value="&lt;b&gt;chunks/&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;{paper_id}.json&lt;br&gt;overlapping windows&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=10;size=14;" vertex="1" parent="batch_container">
+          <mxGeometry x="565" y="240" width="130" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ── Stage 4: NUGGETS EXTRACT ── -->
+        <mxCell id="nugget_extract" value="&lt;b&gt;4. Nuggets&lt;br&gt;Extract&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;LLM → Q/A pairs&lt;br&gt;3–8 per chunk&lt;br&gt;6 types&lt;br&gt;Deduplication&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="750" y="45" width="150" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vllm_nugget" value="&lt;b&gt;vLLM&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Qwen3.5-27B&lt;br&gt;Domain prompt&lt;/font&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=10;size=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="770" y="170" width="110" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="nuggets_out" value="&lt;b&gt;nuggets/&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;{paper_id}.json&lt;br&gt;~150k Q/A nuggets&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=10;size=14;" vertex="1" parent="batch_container">
+          <mxGeometry x="765" y="240" width="120" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ── Stage 5: QUALITY ── -->
+        <mxCell id="quality" value="&lt;b&gt;5. Quality&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;LLM scoring&lt;br&gt;6 dimensions&lt;br&gt;(1–5 scale)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="950" y="55" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vllm_quality" value="&lt;b&gt;vLLM&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Qwen3.5-27B&lt;br&gt;Structured output&lt;/font&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=10;size=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="955" y="170" width="120" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="quality_out" value="&lt;b&gt;nuggets_quality/&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;{paper_id}.json&lt;br&gt;per-nugget scores&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=10;size=14;" vertex="1" parent="batch_container">
+          <mxGeometry x="950" y="240" width="130" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ── Stage 6: AUGMENT ── -->
+        <mxCell id="augment" value="&lt;b&gt;6. Augment&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;LLM improve&lt;br&gt;+ gap-fill&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="1120" y="55" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vllm_augment" value="&lt;b&gt;vLLM&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Qwen3.5-27B&lt;br&gt;Improve + gapfill&lt;/font&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=10;size=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="1125" y="170" width="120" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="augment_out" value="&lt;b&gt;nuggets_augmented/&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;{paper_id}.json&lt;br&gt;improved nuggets&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=10;size=14;" vertex="1" parent="batch_container">
+          <mxGeometry x="1115" y="240" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ── Stage 7: EMBED ── -->
+        <mxCell id="embed" value="&lt;b&gt;7. Embed&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Instruction-aware&lt;br&gt;4096-dim vectors&lt;br&gt;Batch size 64&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="1300" y="55" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vllm_embed" value="&lt;b&gt;vLLM&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Qwen3-Embedding-8B&lt;br&gt;4096-D&lt;/font&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=10;size=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="1310" y="170" width="130" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="embeddings_out" value="&lt;b&gt;embeddings.npy&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;(N × 4096) float32&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=10;size=14;" vertex="1" parent="batch_container">
+          <mxGeometry x="1310" y="240" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ── Stage 8: STORE ── -->
+        <mxCell id="store" value="&lt;b&gt;8. Store&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Build indices&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="1500" y="55" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="chromadb" value="&lt;b&gt;ChromaDB&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Vector search&lt;br&gt;cosine distance&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontFamily=Inter;fontSize=10;size=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="1500" y="190" width="110" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="sqlite" value="&lt;b&gt;SQLite&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Metadata + FTS5&lt;br&gt;BM25 search&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontFamily=Inter;fontSize=10;size=12;" vertex="1" parent="batch_container">
+          <mxGeometry x="1650" y="190" width="110" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ── Batch Pipeline Arrows ── -->
+        <mxCell id="e1" edge="1" source="pdf_input" target="acquire" parent="batch_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1b" edge="1" source="acquire" target="sem_scholar" parent="batch_container" style="dashed=1;strokeColor=#996185;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1c" edge="1" source="acquire" target="manifest" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" source="acquire" target="extract" parent="batch_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2b" edge="1" source="extract" target="texts_out" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- texts/ feeds into Chunk -->
+        <mxCell id="e3_data" edge="1" source="texts_out" target="chunk" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3b" edge="1" source="chunk" target="chunks_out" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- chunks/ feeds into Nuggets Extract -->
+        <mxCell id="e4_data" edge="1" source="chunks_out" target="nugget_extract" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4b" edge="1" source="nugget_extract" target="vllm_nugget" parent="batch_container" style="dashed=1;strokeColor=#996185;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4c" edge="1" source="nugget_extract" target="nuggets_out" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- nuggets/ feeds into Quality -->
+        <mxCell id="e5_data" edge="1" source="nuggets_out" target="quality" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5b" edge="1" source="quality" target="vllm_quality" parent="batch_container" style="dashed=1;strokeColor=#996185;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5c" edge="1" source="quality" target="quality_out" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- nuggets_quality/ feeds into Augment -->
+        <mxCell id="e6_data" edge="1" source="quality_out" target="augment" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6b" edge="1" source="augment" target="vllm_augment" parent="batch_container" style="dashed=1;strokeColor=#996185;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6c" edge="1" source="augment" target="augment_out" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- nuggets_augmented/ feeds into Embed -->
+        <mxCell id="e7_data" edge="1" source="augment_out" target="embed" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" source="embed" target="vllm_embed" parent="batch_container" style="dashed=1;strokeColor=#996185;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8b" edge="1" source="embed" target="embeddings_out" parent="batch_container" style="strokeColor=#D6B656;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8c" edge="1" source="embeddings_out" target="store" parent="batch_container" style="strokeColor=#D6B656;curved=1;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1450" y="270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" source="embed" target="store" parent="batch_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9b" edge="1" source="store" target="chromadb" parent="batch_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9c" edge="1" source="store" target="sqlite" parent="batch_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- manifest also feeds into store -->
+        <mxCell id="e_manifest_store" edge="1" source="manifest" target="store" parent="batch_container" style="dashed=1;strokeColor=#D6B656;curved=1;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="380" />
+              <mxPoint x="1565" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- QUERY SERVER CONTAINER                                       -->
+        <!-- ============================================================ -->
+        <mxCell id="query_container" value="&lt;b&gt;QUERY SERVER&lt;/b&gt;  (online — answers questions)" style="swimlane;startSize=30;fillColor=#F0F7FF;strokeColor=#4472C4;fontFamily=Inter;fontSize=14;rounded=1;arcSize=8;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="40" y="640" width="1820" height="470" as="geometry" />
+        </mxCell>
+
+        <!-- ── User Input ── -->
+        <mxCell id="user_query" value="&lt;b&gt;User Query&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;+ mode (survey,&lt;br&gt;draft, check, ...)&lt;/font&gt;" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=11;" vertex="1" parent="query_container">
+          <mxGeometry x="30" y="120" width="80" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ── Step 1: Query Expansion ── -->
+        <mxCell id="expand" value="&lt;b&gt;1. Query&lt;br&gt;Expansion&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;LLM → 6 variants&lt;br&gt;Mode-specific&lt;br&gt;target types&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="query_container">
+          <mxGeometry x="150" y="100" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="openrouter" value="&lt;b&gt;OpenRouter&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;minimax-m2.5&lt;/font&gt;" style="shape=cloud;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=10;" vertex="1" parent="query_container">
+          <mxGeometry x="140" y="230" width="130" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ── Step 2: Multi-Vector Embed ── -->
+        <mxCell id="query_embed" value="&lt;b&gt;2. Embed&lt;br&gt;Variants&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;6 × 4096-D&lt;br&gt;query vectors&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="query_container">
+          <mxGeometry x="330" y="110" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vllm_qembed" value="&lt;b&gt;vLLM&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Qwen3-Embedding-8B&lt;/font&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=10;size=12;" vertex="1" parent="query_container">
+          <mxGeometry x="325" y="230" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ── Step 3: Dual Retrieval ── -->
+        <mxCell id="vector_search" value="&lt;b&gt;3a. Vector&lt;br&gt;Search&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;ChromaDB cosine&lt;br&gt;n=30 per variant&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontFamily=Inter;fontSize=11;arcSize=12;" vertex="1" parent="query_container">
+          <mxGeometry x="510" y="60" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="bm25_search" value="&lt;b&gt;3b. BM25&lt;br&gt;Search&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;SQLite FTS5&lt;br&gt;n=30 per variant&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontFamily=Inter;fontSize=11;arcSize=12;" vertex="1" parent="query_container">
+          <mxGeometry x="510" y="170" width="130" height="80" as="geometry" />
+        </mxCell>
+
+
+        <!-- ── Step 4: RRF Fusion ── -->
+        <mxCell id="rrf" value="&lt;b&gt;4. RRF&lt;br&gt;Fusion&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;1/(rank+30)&lt;br&gt;Merge vector + BM25&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="query_container">
+          <mxGeometry x="690" y="100" width="130" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ── Step 5: Scoring & Boosting ── -->
+        <mxCell id="scoring" value="&lt;b&gt;5. Score &amp;amp; Boost&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:9px&quot;&gt;• Thesis relevance&lt;br&gt;• Section-aware boost&lt;br&gt;• User feedback boost&lt;br&gt;• Depth-of-coverage&lt;br&gt;• Paper authority&lt;br&gt;&amp;nbsp; (citations, metadata)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="query_container">
+          <mxGeometry x="860" y="80" width="150" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- ── Step 6: Cross-Encoder Rerank ── -->
+        <mxCell id="rerank" value="&lt;b&gt;6. Cross-Encoder&lt;br&gt;Rerank&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;flashrank&lt;br&gt;ms-marco-MiniLM&lt;br&gt;Top 60 candidates&lt;br&gt;Blend: 0.4×RRF + 0.6×CE&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="query_container">
+          <mxGeometry x="1050" y="80" width="160" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="flashrank" value="&lt;b&gt;flashrank&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;ms-marco-MiniLM&lt;br&gt;-L-12-v2&lt;/font&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=10;size=12;" vertex="1" parent="query_container">
+          <mxGeometry x="1060" y="230" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ── Step 7: Selection ── -->
+        <mxCell id="selection" value="&lt;b&gt;7. Select&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Type-balanced&lt;br&gt;Paper-diverse&lt;br&gt;max 2–4 per paper&lt;br&gt;→ 16 nuggets&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="query_container">
+          <mxGeometry x="1250" y="90" width="140" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- ── Step 8: LLM Answer ── -->
+        <mxCell id="llm_answer" value="&lt;b&gt;8. LLM&lt;br&gt;Answer&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Streaming SSE&lt;br&gt;Nuggets as citations&lt;br&gt;in system prompt&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=Inter;fontSize=12;arcSize=12;" vertex="1" parent="query_container">
+          <mxGeometry x="1430" y="100" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vllm_answer" value="&lt;b&gt;vLLM&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Qwen3.5-27B&lt;/font&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=10;size=12;" vertex="1" parent="query_container">
+          <mxGeometry x="1445" y="230" width="110" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ── Frontend ── -->
+        <mxCell id="frontend" value="&lt;b&gt;React 18 SPA&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font style=&quot;font-size:9px&quot;&gt;9 modes • Chat UI&lt;br&gt;Source cards • Feedback&lt;br&gt;Dark mode • Markdown&lt;br&gt;Tailwind + Babel&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=12;arcSize=12;strokeWidth=2;" vertex="1" parent="query_container">
+          <mxGeometry x="1620" y="90" width="150" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- ── Query Server Arrows ── -->
+        <mxCell id="q1" edge="1" source="user_query" target="expand" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q1b" edge="1" source="expand" target="openrouter" parent="query_container" style="dashed=1;strokeColor=#996185;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q2" edge="1" source="expand" target="query_embed" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q2b" edge="1" source="query_embed" target="vllm_qembed" parent="query_container" style="dashed=1;strokeColor=#996185;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q3a" edge="1" source="query_embed" target="vector_search" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q3b" edge="1" source="query_embed" target="bm25_search" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q3c" edge="1" source="vector_search" target="chromadb_ref" parent="query_container" style="dashed=1;strokeColor=#B85450;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q3d" edge="1" source="bm25_search" target="sqlite_ref" parent="query_container" style="dashed=1;strokeColor=#B85450;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q4a" edge="1" source="vector_search" target="rrf" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q4b" edge="1" source="bm25_search" target="rrf" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q5" edge="1" source="rrf" target="scoring" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q6" edge="1" source="scoring" target="rerank" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q6b" edge="1" source="rerank" target="flashrank" parent="query_container" style="dashed=1;strokeColor=#996185;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q7" edge="1" source="rerank" target="selection" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q8" edge="1" source="selection" target="llm_answer" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q8b" edge="1" source="llm_answer" target="vllm_answer" parent="query_container" style="dashed=1;strokeColor=#996185;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="q9" edge="1" source="llm_answer" target="frontend" parent="query_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Feedback loop -->
+        <mxCell id="q_feedback" edge="1" source="frontend" target="scoring" parent="query_container" style="dashed=1;strokeColor=#82B366;curved=1;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1695" y="380" />
+              <mxPoint x="935" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="feedback_label" value="&lt;font style=&quot;font-size:9px;color:#82B366&quot;&gt;&lt;i&gt;user feedback (+1/−1)&lt;/i&gt;&lt;/font&gt;" style="text;html=1;fontFamily=Inter;align=center;" vertex="1" parent="query_container">
+          <mxGeometry x="1200" y="385" width="150" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LEGEND                                                       -->
+        <!-- ============================================================ -->
+        <mxCell id="legend_container" value="&lt;b&gt;Legend&lt;/b&gt;" style="swimlane;startSize=22;fillColor=#FAFAFA;strokeColor=#CCCCCC;fontFamily=Inter;fontSize=11;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1130" width="900" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="Processing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontFamily=Inter;fontSize=9;arcSize=12;" vertex="1" parent="legend_container">
+          <mxGeometry x="20" y="35" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="LLM Stage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=Inter;fontSize=9;arcSize=12;" vertex="1" parent="legend_container">
+          <mxGeometry x="110" y="35" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="Ranking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontFamily=Inter;fontSize=9;arcSize=12;" vertex="1" parent="legend_container">
+          <mxGeometry x="200" y="35" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="Data" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=Inter;fontSize=9;size=8;" vertex="1" parent="legend_container">
+          <mxGeometry x="290" y="32" width="60" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" value="Database" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontFamily=Inter;fontSize=9;size=8;" vertex="1" parent="legend_container">
+          <mxGeometry x="360" y="30" width="70" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6" value="External Service" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=9;size=8;" vertex="1" parent="legend_container">
+          <mxGeometry x="440" y="35" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="leg7" value="Cloud API" style="shape=cloud;whiteSpace=wrap;html=1;fillColor=#E6D0DE;strokeColor=#996185;fontFamily=Inter;fontSize=9;" vertex="1" parent="legend_container">
+          <mxGeometry x="550" y="28" width="90" height="40" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

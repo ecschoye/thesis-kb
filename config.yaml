@@ -33,7 +33,7 @@ nuggets:
     vllm:
         model: Qwen/Qwen3.5-27B
         port: 8000
-        max_model_len: 4096
+        max_model_len: 8192
         gpu_memory_utilization: 0.90
         dtype: bfloat16
     extraction:

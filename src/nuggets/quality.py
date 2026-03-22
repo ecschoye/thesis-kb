@@ -56,10 +56,14 @@ def build_quality_prompt(batch, paper_title, paper_id):
     return "\n".join(lines)
 
 
-def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg):
+def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg, max_model_len=4096):
     """Send a batch of nuggets to the LLM for quality rating."""
     prompt = build_quality_prompt(batch, paper_title, paper_id)
     max_tokens = cfg.get("max_tokens", 800)
+    # Estimate input tokens (~4 chars/token) and cap max_tokens to fit context
+    input_estimate = (len(QUALITY_SYSTEM_PROMPT) + len(prompt)) // 3  # conservative
+    if input_estimate + max_tokens > max_model_len:
+        max_tokens = max(256, max_model_len - input_estimate)
     temperature = cfg.get("temperature", 0.0)
     max_retries = cfg.get("max_retries", 3)
     retry_delay = cfg.get("retry_base_delay", 2.0)

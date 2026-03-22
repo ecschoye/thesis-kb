@@ -7,10 +7,10 @@ Usage:
     python -m src.nuggets.unified -c config.yaml              # full pipeline
     python -m src.nuggets.unified -c config.yaml --reprocess   # quality+augment only
 """
-import os, json, sys, time, argparse, threading
+import os, json, sys, time, argparse, threading, itertools
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.utils import load_config, load_json, save_json, make_llm_client
+from src.utils import load_config, load_json, save_json, make_llm_client, make_llm_clients
 
 # Reuse existing stage implementations
 from src.nuggets.extract import _process_chunk, _deduplicate_nuggets
@@ -37,6 +37,7 @@ def _get_paper_title(nuggets, paper_id):
 def _process_paper_unified(
     client, paper_id, chunks, model, ext_cfg, qcfg, acfg, ucfg,
     extra_body=None, worker_id=0, print_lock=None, counters=None,
+    max_model_len=4096,
 ):
     """Full extract→quality→augment pipeline for one paper, all in memory.
 
@@ -75,6 +76,7 @@ def _process_paper_unified(
                 client, c, model, temp, max_tok,
                 max_retries, retry_delay, paper_id, extra_body,
                 prior_questions=prior_questions if prior_questions else None,
+                max_model_len=max_model_len,
             )
         except Exception as e:
             _log(f"  WARN {short_id} chunk {ci}: {e}")
@@ -107,6 +109,7 @@ def _process_paper_unified(
         batch = deduped[i:i + batch_size]
         results, err = rate_nugget_batch(
             client, batch, model, paper_title, paper_id, qcfg,
+            max_model_len=max_model_len,
         )
         if results:
             for r in results:
@@ -252,6 +255,7 @@ def _process_paper_unified(
 def _process_paper_reprocess(
     client, paper_id, nuggets, chunks, model, qcfg, acfg, ucfg,
     extra_body=None, print_lock=None, counters=None,
+    max_model_len=4096,
 ):
     """Quality + augment on existing nuggets (skip extraction)."""
     flag_threshold = ucfg.get("flag_threshold", 2)
@@ -294,6 +298,7 @@ def _process_paper_reprocess(
         batch = nuggets[i:i + batch_size]
         results, err = rate_nugget_batch(
             client, batch, model, paper_title, paper_id, qcfg,
+            max_model_len=max_model_len,
         )
         if results:
             for r in results:
@@ -435,12 +440,15 @@ def run_unified(config_path="config.yaml", reprocess=False):
     qcfg = ncfg.get("quality", {})
     acfg = ncfg.get("augmentation", {})
     ucfg = ncfg.get("unified", {})
-    max_workers = ucfg.get("max_workers", ext_cfg.get("max_workers", 8))
+    max_workers = int(os.environ.get("MAX_NUM_SEQS", ucfg.get("max_workers", ext_cfg.get("max_workers", 8))))
+    max_model_len = ncfg.get("vllm", {}).get("max_model_len", 4096)
     os.makedirs(unified_dir, exist_ok=True)
 
-    client, model = make_llm_client(cfg)
+    clients, model = make_llm_clients(cfg)
+    num_instances = len(clients)
     backend = ncfg.get("backend", "vllm")
     extra_body = {"chat_template_kwargs": {"enable_thinking": False}} if backend == "vllm" else None
+    print(f"[unified] vLLM instances: {num_instances}")
 
     # Resume: skip papers with existing unified output
     def _done(paper_id):
@@ -494,15 +502,15 @@ def run_unified(config_path="config.yaml", reprocess=False):
                     os.path.join(unified_dir, f"{paper_id}.json"),
                 )
                 continue
-            paper_chunks[paper_id] = chunks
-
             if reprocess:
                 nug_data = load_json(os.path.join(nugget_dir, f"{paper_id}.json"))
                 nugs = nug_data.get("nuggets", [])
                 if nugs:
                     paper_nuggets[paper_id] = nugs
                 else:
-                    continue
+                    continue  # skip before adding to paper_chunks
+
+            paper_chunks[paper_id] = chunks
         except Exception as e:
             print(f"  ERROR loading {paper_id}: {e}")
             load_failed += 1
@@ -529,18 +537,25 @@ def run_unified(config_path="config.yaml", reprocess=False):
             )
             sys.stderr.flush()
 
+    _rr_counter = itertools.count()
+    _rr_lock = threading.Lock()
+
     def _worker(paper_id):
+        with _rr_lock:
+            client = clients[next(_rr_counter) % num_instances]
         if reprocess:
             result = _process_paper_reprocess(
                 client, paper_id, paper_nuggets[paper_id],
                 paper_chunks[paper_id], model, qcfg, acfg, ucfg,
                 extra_body=extra_body, print_lock=print_lock, counters=counters,
+                max_model_len=max_model_len,
             )
         else:
             result = _process_paper_unified(
                 client, paper_id, paper_chunks[paper_id], model,
                 ext_cfg, qcfg, acfg, ucfg,
                 extra_body=extra_body, print_lock=print_lock, counters=counters,
+                max_model_len=max_model_len,
             )
         _on_result(paper_id, result)
         return result

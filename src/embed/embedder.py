@@ -159,6 +159,27 @@ def make_embed_client(cfg):
     return client, model
 
 
+def make_embed_clients(cfg):
+    """Create multiple OpenAI clients for multi-instance vLLM embedding.
+
+    If VLLM_PORTS env var is set, returns one client per port.
+    Otherwise falls back to a single client.
+
+    Returns (clients_list, model) tuple.
+    """
+    ports_env = os.environ.get("VLLM_PORTS", "")
+    if not ports_env:
+        client, model = make_embed_client(cfg)
+        return [client], model
+
+    ecfg = cfg.get("embed", {})
+    vllm_cfg = ecfg.get("vllm", {})
+    model = vllm_cfg.get("model", "Qwen/Qwen3-Embedding-8B")
+    ports = [int(p.strip()) for p in ports_env.split(",") if p.strip()]
+    clients = [OpenAI(base_url=f"http://localhost:{p}/v1", api_key="none") for p in ports]
+    return clients, model
+
+
 def run_embedding(config_path="config.yaml"):
     """Embed all nuggets and save to KB directory."""
     cfg = load_config(config_path)
@@ -170,7 +191,9 @@ def run_embedding(config_path="config.yaml"):
     emb_cfg = ecfg.get("embedding", {})
     os.makedirs(kb_dir, exist_ok=True)
 
-    client, model = make_embed_client(cfg)
+    clients, model = make_embed_clients(cfg)
+    num_instances = len(clients)
+    print(f"[embed] vLLM instances: {num_instances}")
     batch_size = emb_cfg.get("batch_size", 64)
     dimensions = emb_cfg.get("dimensions", None)
     # Use doc_instruction for indexing if available, fallback to generic instruction
@@ -216,6 +239,7 @@ def run_embedding(config_path="config.yaml"):
     results_by_idx = [None] * total_batches
 
     def _embed_one_batch(idx, start, end):
+        client = clients[idx % num_instances]
         embs = embed_batch(client, texts[start:end], model, dimensions)
         return idx, embs
 
