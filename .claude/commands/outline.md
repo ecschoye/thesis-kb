@@ -5,20 +5,13 @@ Section to outline: $ARGUMENTS
 
 ## Instructions
 
-1. **API mode check:** If the local API server is running (check with `curl -s http://127.0.0.1:8001/health`), add `--api --mode outline` to query commands for higher-quality retrieval (query expansion, RRF fusion, reranking, diversity caps).
+1. Generate 5-8 sub-queries spanning the likely scope of this section. Run them using the `multi_search` MCP tool with n=50.
 
-1. Generate 5-8 sub-queries spanning the likely scope of this section. Run them:
-   ```
-   cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query --queries "sub-query 1" "sub-query 2" "sub-query 3" "sub-query 4" "sub-query 5" -n 50 --json
-   ```
-
-2. Run type-stratified queries to understand what kinds of evidence exist:
-   ```
-   python -m src.query "[main topic]" -n 15 --types background --json
-   python -m src.query "[main topic]" -n 20 --types method --json
-   python -m src.query "[main topic]" -n 15 --types result,comparison --json
-   python -m src.query "[main topic]" -n 10 --types limitation --json
-   ```
+2. Run type-stratified queries using the `semantic_search` MCP tool:
+   - `semantic_search(query="[main topic]", n=15, types=["background"])`
+   - `semantic_search(query="[main topic]", n=20, types=["method"])`
+   - `semantic_search(query="[main topic]", n=15, types=["result", "comparison"])`
+   - `semantic_search(query="[main topic]", n=10, types=["limitation"])`
 
 3. Cluster the nuggets thematically. Identify natural groupings.
 

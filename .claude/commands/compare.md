@@ -5,23 +5,15 @@ What to compare: $ARGUMENTS
 
 ## Instructions
 
-1. **API mode check:** If the local API server is running (check with `curl -s http://127.0.0.1:8001/health`), add `--api --mode survey` to query commands for higher-quality retrieval (query expansion, RRF fusion, reranking, diversity caps).
-
-1. Search for result and comparison nuggets on the topic:
-   ```
-   cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query "$ARGUMENTS" -n 30 --types result,comparison --json
-   ```
+1. Search for result and comparison nuggets using the `semantic_search` MCP tool:
+   `semantic_search(query="$ARGUMENTS", n=30, types=["result", "comparison"])`
 
 2. Also search for method descriptions to understand what's being compared:
-   ```
-   python -m src.query "$ARGUMENTS" -n 20 --types method --json
-   ```
+   `semantic_search(query="$ARGUMENTS", n=20, types=["method"])`
 
 3. If the user specified metrics (e.g., "accuracy, latency"), run additional targeted queries:
-   ```
-   python -m src.query "[topic] accuracy benchmark" -n 15 --types result --json
-   python -m src.query "[topic] latency inference speed" -n 15 --types result --json
-   ```
+   `semantic_search(query="[topic] accuracy benchmark", n=15, types=["result"])`
+   `semantic_search(query="[topic] latency inference speed", n=15, types=["result"])`
 
 4. Extract quantitative data from nuggets: accuracy, mAP, FPS, latency, parameters, FLOPs, energy consumption, etc.
 

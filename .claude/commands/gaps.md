@@ -5,24 +5,15 @@ Research area to analyze: $ARGUMENTS
 
 ## Instructions
 
-1. **API mode check:** If the local API server is running (check with `curl -s http://127.0.0.1:8001/health`), add `--api --mode survey` to query commands for higher-quality retrieval (query expansion, RRF fusion, reranking, diversity caps).
-
-1. Search for limitations and claims about the topic:
-   ```
-   cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query "$ARGUMENTS" -n 20 --types limitation --json
-   python -m src.query "$ARGUMENTS" -n 15 --types claim --json
-   ```
+1. Search for limitations and claims about the topic using the `semantic_search` MCP tool:
+   `semantic_search(query="$ARGUMENTS", n=20, types=["limitation"])`
+   `semantic_search(query="$ARGUMENTS", n=15, types=["claim"])`
 
 2. Search for methods to understand what HAS been done:
-   ```
-   python -m src.query "$ARGUMENTS" -n 20 --types method --json
-   ```
+   `semantic_search(query="$ARGUMENTS", n=20, types=["method"])`
 
-3. Search for "future work" and "open problem" related content:
-   ```
-   python -m src.query "$ARGUMENTS future work open problems" -n 15 --json
-   python -m src.query "$ARGUMENTS challenges unsolved" -n 15 --json
-   ```
+3. Search for "future work" and "open problem" related content using the `multi_search` MCP tool:
+   `multi_search(queries=["$ARGUMENTS future work open problems", "$ARGUMENTS challenges unsolved"], n=15)`
 
 4. Cross-reference: for each limitation found, check if other papers in the KB have addressed it.
 

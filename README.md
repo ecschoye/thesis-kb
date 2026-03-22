@@ -69,6 +69,46 @@ brew install tesseract  # for OCR fallback
 
 ## Usage
 
+### Adding a New Paper
+
+1. **Place the PDF** in the input directory:
+   ```bash
+   cp /path/to/paper.pdf /cluster/work/ecschoye/thesis-papers/
+   ```
+   Use the arXiv ID with underscores as the filename (e.g. `2401_17151.pdf`). Non-arXiv papers can use any filename.
+
+2. **Register it** in the manifest:
+   ```bash
+   python -m src.acquire -c config.yaml
+   ```
+   This scans the PDF directory, enriches metadata via Semantic Scholar, and updates `corpus/manifest.json`.
+
+3. **Run the pipeline** — each stage skips already-processed papers:
+   ```bash
+   python -m src.extract -c config.yaml    # PDF → structured text
+   python -m src.chunk -c config.yaml      # text → token chunks
+   python -m src.nuggets -c config.yaml    # chunks → QA nuggets (requires GPU / LLM)
+   python -m src.embed -c config.yaml      # nuggets → vector embeddings (requires GPU)
+   python -m src.store -c config.yaml      # embeddings → ChromaDB + SQLite
+   ```
+
+   **On HPC**, submit everything as one job:
+   ```bash
+   sbatch slurm/full_pipeline.slurm
+   ```
+
+**Incremental vs full-rebuild stages:**
+- **Extract, Chunk, Nuggets** — incremental. Only new papers are processed; existing output files are skipped.
+- **Embed, Store** — full rebuild. All nuggets are re-embedded and the KB is recreated. This is fast but means the entire index is rebuilt.
+
+**To reprocess a paper**, delete its output file and rerun the stage:
+```bash
+rm corpus/texts/2401_17151.json      # rerun extract
+rm corpus/chunks/2401_17151.json     # rerun chunk
+rm corpus/nuggets/2401_17151.json    # rerun nuggets
+# Then rerun embed + store to update the KB
+```
+
 ### Running stages individually
 
 ```bash

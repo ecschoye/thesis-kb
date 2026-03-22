@@ -46,6 +46,46 @@ sbatch slurm/nugget_extract.slurm       # individual stages also available
 python -m venv venv && source venv/bin/activate && pip install -r requirements.txt
 ```
 
+## Adding a New Paper to the KB
+
+### Step 1: Place the PDF
+Copy the PDF to the input directory:
+```bash
+cp /path/to/paper.pdf /cluster/work/ecschoye/thesis-papers/
+```
+Naming convention: use the arXiv ID with underscores, e.g. `2401_17151.pdf`. If the paper has no arXiv ID, use any descriptive filename — the acquire stage will generate a stable paper ID from it.
+
+### Step 2: Register in manifest
+```bash
+python -m src.acquire -c config.yaml
+```
+This scans `pdf_dir` for PDFs, enriches metadata via Semantic Scholar, and writes/updates `corpus/manifest.json`. Already-known papers are skipped.
+
+### Step 3: Run the pipeline
+Each stage is incremental — it skips papers that already have output files:
+```bash
+python -m src.extract -c config.yaml    # PDF → text (skips if corpus/texts/{id}.json exists)
+python -m src.chunk -c config.yaml      # text → chunks (skips if corpus/chunks/{id}.json exists)
+python -m src.nuggets -c config.yaml    # chunks → QA nuggets (skips if corpus/nuggets/{id}.json exists with nuggets)
+python -m src.embed -c config.yaml      # all nuggets → embeddings (full rebuild)
+python -m src.store -c config.yaml      # embeddings → ChromaDB + SQLite (full rebuild)
+```
+
+**On HPC**: submit the full pipeline as a single SLURM job:
+```bash
+sbatch slurm/full_pipeline.slurm
+```
+
+### Important notes
+- **Extract, Chunk, Nuggets** are incremental — only new papers are processed.
+- **Embed and Store** are full rebuilds — they reload all nuggets and recreate the KB. This is fast (~minutes for embed, ~seconds for store) but means the entire KB is rebuilt each time.
+- To **reprocess** a paper (e.g. after fixing extraction), delete its output file and rerun the stage:
+  ```bash
+  rm corpus/texts/2401_17151.json    # then rerun extract
+  rm corpus/chunks/2401_17151.json   # then rerun chunk
+  rm corpus/nuggets/2401_17151.json  # then rerun nuggets
+  ```
+
 ## Architecture
 
 **Two-phase system**: batch pipeline builds the KB, then a query server answers questions from it.
@@ -94,11 +134,22 @@ Three deployment configs, all using OpenAI-compatible API:
 
 ## Claude Integration
 
-### MCP Server (thesis-papers-rag)
-40 tools for the knowledge base — see the global CLAUDE.md tool reference. Key tools: `find_citations`, `search_papers`, `get_paper_summary`, `section_gap_analysis`, `review_section`.
+### MCP Server (`src/mcp_server.py`)
+Persistent process exposing KB search via ChromaDB vector search + SQLite FTS5. Configured in `.mcp.json`. Uses Ollama (`qwen3-embedding:8b`) for query embeddings locally.
+
+**Tools:**
+| Tool | Purpose |
+|------|---------|
+| `semantic_search(query, n, types, section, year_min, year_max)` | Vector search via ChromaDB |
+| `multi_search(queries, n, types)` | Multiple queries, deduplicated |
+| `bm25_search(query, n, types)` | FTS5 keyword search |
+| `find_papers(author, title, year)` | Paper metadata lookup |
+| `get_paper_nuggets(paper_id, types, limit)` | All nuggets for a paper |
+| `get_paper_info(paper_id)` | Single paper metadata |
+| `kb_stats()` | Counts, type/year distributions |
 
 ### Slash Commands (.claude/commands/)
-8 thesis-writing commands: `/survey`, `/draft`, `/outline`, `/cite`, `/check`, `/compare`, `/gaps`, `/background`, `/review`, `/stats`
+11 thesis-writing commands that use MCP tools for retrieval: `/survey`, `/draft`, `/outline`, `/cite`, `/check`, `/compare`, `/gaps`, `/background`, `/review`, `/stats`, `/intro`
 
 ### Hooks
 `cite_prefetch.py` runs on every prompt submission — extracts `\cite{Key}` references, queries SQLite for matching papers, returns nuggets as context. Must use `hookSpecificOutput` wrapper format.

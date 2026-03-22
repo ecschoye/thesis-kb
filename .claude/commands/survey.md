@@ -5,19 +5,12 @@ Topic to survey: $ARGUMENTS
 
 ## Instructions
 
-1. **API mode check:** If the local API server is running (check with `curl -s http://127.0.0.1:8001/health`), add `--api --mode survey` to query commands for higher-quality retrieval (query expansion, RRF fusion, reranking, diversity caps).
+1. Generate 5-7 diverse sub-queries covering different aspects of the topic (methods, results, limitations, comparisons, background). Run them using the `multi_search` MCP tool with n=50.
 
-1. Generate 5-7 diverse sub-queries covering different aspects of the topic (methods, results, limitations, comparisons, background). Run them all:
-   ```
-   cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query --queries "sub-query 1" "sub-query 2" "sub-query 3" "sub-query 4" "sub-query 5" -n 50 --json
-   ```
-
-2. Also run type-specific searches to ensure coverage:
-   ```
-   python -m src.query "$ARGUMENTS" -n 20 --types method --json
-   python -m src.query "$ARGUMENTS" -n 20 --types result,comparison --json
-   python -m src.query "$ARGUMENTS" -n 10 --types limitation --json
-   ```
+2. Also run type-specific searches to ensure coverage using the `semantic_search` MCP tool:
+   - `semantic_search(query="$ARGUMENTS", n=20, types=["method"])`
+   - `semantic_search(query="$ARGUMENTS", n=20, types=["result", "comparison"])`
+   - `semantic_search(query="$ARGUMENTS", n=10, types=["limitation"])`
 
 3. Deduplicate results across all queries (by nugget_id).
 

@@ -12,12 +12,7 @@ Determine which mode to use based on the input:
 
 ## Instructions — Revise Mode
 
-1. **API mode check:** If the local API server is running (check with `curl -s http://127.0.0.1:8001/health`), add `--api --mode draft` to query commands for higher-quality retrieval (query expansion, RRF fusion, reranking, diversity caps).
-
-1. Extract the key claims and topics from the user's existing draft. Build 2-4 targeted sub-queries to verify and enrich those specific claims:
-   ```
-   cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query --queries "sub-query 1" "sub-query 2" -n 20 --json
-   ```
+1. Extract the key claims and topics from the user's existing draft. Build 2-4 targeted sub-queries and run them using the `multi_search` MCP tool with n=20.
 
 2. Compare the draft against the retrieved evidence. Your role is **editor/advisor**, not ghostwriter. Do NOT output a rewritten paragraph — help the user improve *their* text.
 
@@ -43,15 +38,12 @@ For each issue:
 
 ## Instructions — Draft Mode
 
-1. Break the topic into 3-5 sub-queries that cover different aspects. Run them:
-   ```
-   cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query --queries "sub-query 1" "sub-query 2" "sub-query 3" -n 30 --json
-   ```
+1. Break the topic into 3-5 sub-queries that cover different aspects. Run them using the `multi_search` MCP tool with n=30.
 
-2. If the topic focuses on specific nugget types, use `--types` to narrow results:
-   - Methods/architectures: `--types method`
-   - Performance/benchmarks: `--types result,comparison`
-   - Open problems: `--types limitation,claim`
+2. If the topic focuses on specific nugget types, use the `types` parameter:
+   - Methods/architectures: `types=["method"]`
+   - Performance/benchmarks: `types=["result", "comparison"]`
+   - Open problems: `types=["limitation", "claim"]`
 
 3. Read through all returned nuggets. Identify the key facts, claims, and evidence.
 

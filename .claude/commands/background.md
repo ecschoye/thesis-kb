@@ -75,18 +75,10 @@ Rules:
 
 ### Step 2: Semantic Search (additional supporting literature)
 
-Detect environment: if `/cluster/work/ecschoye/thesis-kb` exists use `cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate`; otherwise `cd ~/thesis-kb && source venv/bin/activate`.
-
 **Only run this AFTER reviewing Step 1 results.** This finds papers the user did NOT cite.
 
-If the local API server is running (check with `curl -s http://127.0.0.1:8001/health`), use the `--api` flag for higher-quality retrieval (query expansion, RRF fusion, cross-encoder reranking, paper diversity caps, authority boost):
-```
-python -m src.query --queries "topic query 1" "topic query 2" -n 16 --json --api --mode background
-```
-If the API is not running, fall back to direct embedding search:
-```
-python -m src.query --queries "topic query 1" "topic query 2" -n 15 --json
-```
+Use the `multi_search` MCP tool with 2-4 topic-focused queries and n=16:
+`multi_search(queries=["topic query 1", "topic query 2"], n=16)`
 
 ### Step 3: Build Citation Key Registry
 
@@ -115,19 +107,15 @@ Examples of extractable claims:
 - "pixel sizes: 18.5 um (DAVIS346), 9 um (DVXplorer)" → query: `"DAVIS346 pixel size" "DVXplorer pixel pitch"`
 - "2 MHz to 1200 MHz readout" → query: `"AER readout rate MHz event camera"`
 
-Run metric verification queries (use `--api --mode background` if API is running):
-```
-python -m src.query --queries "event camera dynamic range dB" "DAVIS346 pixel size micron" -n 10 --json --api --mode background
-```
+Run metric verification queries using the `multi_search` MCP tool:
+`multi_search(queries=["event camera dynamic range dB", "DAVIS346 pixel size micron"], n=10)`
 
 For each metric found in the input, track whether KB evidence **confirms**, **contradicts**, or **has no data** for that value. Report this in the Notes section.
 
 ### Step 5: General Topic Retrieval
 
-Build 2-4 sub-queries focused on the *mechanics and properties* of the topic (not comparisons, not limitations-of-X-vs-Y):
-```
-python -m src.query --queries "sub-query 1" "sub-query 2" -n 16 --json --api --mode background
-```
+Build 2-4 sub-queries focused on the *mechanics and properties* of the topic (not comparisons, not limitations-of-X-vs-Y). Use the `multi_search` MCP tool:
+`multi_search(queries=["sub-query 1", "sub-query 2"], n=16)`
 
 ### Step 6: Filter and Merge
 
@@ -240,7 +228,7 @@ Your response MUST contain ONLY the structured sections defined in Output Format
 - Paper titles with scores or retrieval metadata
 - Concatenated query text without spaces or formatting
 
-Process all query results **silently** — use them to compose the output sections, then discard. Always use the `--json` flag on all `python -m src.query` commands.
+Process all query results **silently** — use them to compose the output sections, then discard.
 
 **Your response ENDS after `### Suggested Follow-ups`.** If any text appears after that heading's content, delete it. No trailing output of any kind.
 

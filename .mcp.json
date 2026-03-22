@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "thesis-kb": {
+      "command": "python",
+      "args": ["src/mcp_server.py"],
+      "env": {
+        "THESIS_KB_CONFIG": "config-ollama.yaml"
+      }
+    }
+  }
+}

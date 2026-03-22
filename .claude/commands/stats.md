@@ -6,24 +6,12 @@ Optional topic focus: $ARGUMENTS
 ## Instructions
 
 ### If no topic specified (general stats):
-1. Get overall KB statistics:
-   ```
-   cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query --stats --json
-   ```
-
+1. Get overall KB statistics using the `kb_stats` MCP tool.
 2. Format the statistics clearly.
 
 ### If a topic is specified:
-1. Get overall stats first:
-   ```
-   cd /cluster/work/ecschoye/thesis-kb && source .venv/bin/activate && python -m src.query --stats --json
-   ```
-
-2. Search for nuggets on the topic:
-   ```
-   python -m src.query "$ARGUMENTS" -n 50 --json
-   ```
-
+1. Get overall stats using the `kb_stats` MCP tool.
+2. Search for nuggets on the topic using the `semantic_search` MCP tool with n=50.
 3. Analyze the results:
    - Count unique papers contributing to this topic
    - Break down by nugget type
