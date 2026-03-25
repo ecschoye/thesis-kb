@@ -119,6 +119,9 @@ python -m src.extract -c config.yaml
 echo "=== Chunk texts ==="
 python -m src.chunk -c config.yaml
 
+echo "=== Extract code chunks (AST) ==="
+python -m src.code_extract -c config.yaml
+
 # ── Phase 2: Unified nuggets (Qwen3.5-27B) ───────────────────────────
 
 echo ""
@@ -156,6 +159,9 @@ done
 echo "=== Unified nugget pipeline ==="
 python -m src.nuggets.unified -c config.yaml
 
+echo "=== Code nugget extraction ==="
+python -m src.code_extract.nuggets -c config.yaml
+
 stop_vllm
 
 # ── Phase 3: Embed + Store (Qwen3-Embedding-8B) ──────────────────────
@@ -185,11 +191,11 @@ for i in $(seq 0 $((NUM_INSTANCES - 1))); do
     wait_for_vllm $PORT ${VLLM_PIDS[$i]}
 done
 
-echo "=== Embed nuggets ==="
+echo "=== Embed paper nuggets ==="
 python -m src.embed -c config.yaml
 
-echo "=== Build KB ==="
-python -m src.store -c config.yaml
+echo "=== Embed code nuggets + merge + build KB ==="
+python -m src.code_extract.embed_and_merge -c config.yaml
 
 stop_vllm
 
