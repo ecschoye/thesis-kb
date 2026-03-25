@@ -3,6 +3,9 @@
 Exposes ChromaDB vector search + SQLite FTS5 keyword search as tools
 for Claude Code. Persistent process — ChromaDB and Ollama init happens
 once at startup, then queries are instant.
+
+Also registers 27 analysis tools from src/tools/ for citation validation,
+quality auditing, gap analysis, formatting compliance, and language checks.
 """
 import os
 import re
@@ -154,6 +157,22 @@ def _get_nugget_qa(nugget_id: str) -> dict | None:
 
 
 # ---------------------------------------------------------------------------
+# Initialize shared state for tool modules
+# ---------------------------------------------------------------------------
+
+from src.tools._shared import init as _init_shared
+_init_shared(
+    cfg=CFG,
+    project_root=PROJECT_ROOT,
+    db_path=DB_PATH,
+    chroma_path=CHROMA_PATH,
+    collection_name=COLLECTION_NAME,
+    embed_base_url=EMBED_BASE_URL,
+    embed_model=EMBED_MODEL,
+    embed_instruction=EMBED_INSTRUCTION,
+)
+
+# ---------------------------------------------------------------------------
 # MCP Server
 # ---------------------------------------------------------------------------
 
@@ -161,12 +180,64 @@ mcp = FastMCP("thesis-kb", instructions="""
 Thesis knowledge base with ~150k QA nuggets from 1500+ academic papers on
 event cameras, RGB-Event fusion, spiking neural networks, and object detection.
 
-Use semantic_search for natural language queries (best quality).
-Use bm25_search for keyword-based lookups (no embedding needed).
-Use find_papers / get_paper_nuggets for paper-specific lookups.
+## Search Tools
+- semantic_search: Natural language queries via vector search (best quality)
+- bm25_search: Keyword-based lookups via FTS5 (no embedding needed)
+- multi_search: Multiple queries, deduplicated results
+- find_papers / get_paper_nuggets / get_paper_info: Paper-specific lookups
+- kb_stats: Database statistics
+
+## Citation Tools
+- scan_references: Extract + validate all cite keys against KB and .bib
+- verify_claim: Check if a paper supports a specific claim
+- check_references: Find broken cites, unused bib entries, label/ref issues
+- check_bibtex_health: Validate .bib file integrity
+- citation_density: Cites per 100 words per section
+- validate_citation_context: Semantic check of citation-claim alignment
+- author_diversity: Detect over-reliance on single author groups
+
+## Quality Tools
+- writing_stats: Word counts, readability, structural metrics
+- chapter_overview: Section hierarchy with counts
+- check_terminology: Inconsistent terms, glossary compliance
+- missing_definitions: Undefined acronyms
+- section_balance: Section length proportionality
+- check_figure_discussion: Unreferenced figures/tables
+
+## Gap Analysis Tools
+- find_citations_for_text: Find KB evidence for uncited claims
+- section_gap_analysis: Find uncited relevant papers
+- suggest_coverage: Recommend papers to strengthen a topic
+- find_counter_evidence: Find contradicting nuggets
+- compare_papers: Side-by-side paper comparison
+
+## Conflict Tools
+- find_conflicting_nuggets: Cross-paper contradictions
+- nugget_consensus: Multi-paper consensus vs single-source claims
+- paper_timeline: Chronological evolution of a topic
+
+## Formatting Tools
+- check_latex_compliance: Supervisor's 14 flagging rules
+- check_chapter_boundaries: Cross-chapter content constraints
+- check_cross_references: Broken refs, unused labels
+
+## Language Tools
+- detect_ai_patterns: Flag AI-writing phrases
+- check_first_person: Find first-person pronouns
+- check_hedging_strength: Flag overclaiming and excessive hedging
 
 Paper IDs use underscores (2401_17151); convert to arXiv dots (2401.17151) for citations.
-Nugget types: method, result, claim, limitation, comparison, background.
+## Code-Aware Tools
+- code_search: Search implementation nuggets from the SMCM-MCFNet codebase
+- code_structure: Browse module hierarchy (classes, methods, inheritance)
+- find_implementations: Find code files implementing a paper's methods
+- find_papers_for_code: Find papers that inspired a code file
+- implementation_detail: Side-by-side code vs. paper for a component
+- training_config: Query training run configurations
+
+Paper IDs use underscores (2401_17151); convert to arXiv dots (2401.17151) for citations.
+Nugget types: method, result, claim, limitation, comparison, background, implementation, config, experiment.
+Code nuggets use paper_id='__smcm_mcfnet__'.
 """)
 
 
@@ -450,6 +521,13 @@ def kb_stats() -> dict:
         "nuggets_by_section": {row[0]: row[1] for row in sections},
     }
 
+
+# ---------------------------------------------------------------------------
+# Register analysis tools from src/tools/
+# ---------------------------------------------------------------------------
+
+from src.tools import register_all
+register_all(mcp)
 
 # ---------------------------------------------------------------------------
 # Entry point

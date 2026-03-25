@@ -41,6 +41,7 @@ def build_chromadb(nuggets, embeddings, kb_dir, collection_name, distance_fn="co
                 "confidence": n.get("confidence", ""),
                 "section": n.get("section", ""),
                 "thesis_relevance": n.get("thesis_relevance", 3),
+                "source_file": n.get("source_file", ""),
             }
             for n in batch_nuggets
         ]
@@ -97,6 +98,7 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
             thesis_relevance INTEGER DEFAULT 0,
             overall_score REAL DEFAULT NULL,
             flagged INTEGER DEFAULT 0,
+            source_file TEXT DEFAULT NULL,
             FOREIGN KEY (paper_id) REFERENCES papers(paper_id)
         )
     """)
@@ -107,6 +109,21 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
     c.execute("CREATE INDEX idx_nuggets_section ON nuggets(section)")
     c.execute("CREATE INDEX idx_nuggets_paper_type ON nuggets(paper_id, type)")
     c.execute("CREATE INDEX idx_nuggets_flagged ON nuggets(flagged)")
+    c.execute("CREATE INDEX idx_nuggets_source_file ON nuggets(source_file)")
+
+    # Code-paper cross-reference table
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS code_links (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            paper_id TEXT NOT NULL,
+            source_file TEXT NOT NULL,
+            link_type TEXT NOT NULL,
+            description TEXT,
+            FOREIGN KEY (paper_id) REFERENCES papers(paper_id)
+        )
+    """)
+    c.execute("CREATE INDEX idx_code_links_paper ON code_links(paper_id)")
+    c.execute("CREATE INDEX idx_code_links_file ON code_links(source_file)")
 
     # FTS5 full-text search index for BM25 retrieval
     c.execute("""
@@ -175,7 +192,7 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
             overall_score = qs.get("overall_score")
             flagged = qs.get("flagged", 0)
         c.execute(
-            "INSERT OR IGNORE INTO nuggets VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT OR IGNORE INTO nuggets VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 nid,
                 n.get("paper_id", ""),
@@ -188,6 +205,7 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
                 n.get("thesis_relevance", 0),
                 overall_score,
                 flagged,
+                n.get("source_file"),
             ),
         )
 
@@ -196,6 +214,22 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
         INSERT INTO nuggets_fts(nugget_id, question, answer)
         SELECT nugget_id, question, answer FROM nuggets
     """)
+
+    # Populate code_links from JSON manifest if available
+    code_links_path = cfg.get("paths", {}).get("code_links", "code_links.json") if cfg else None
+    if code_links_path:
+        # Resolve relative to project root (parent of kb_dir)
+        if not os.path.isabs(code_links_path):
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(kb_dir)))
+            code_links_path = os.path.join(project_root, code_links_path)
+        if os.path.exists(code_links_path):
+            links = load_json(code_links_path)
+            for link in links:
+                c.execute(
+                    "INSERT INTO code_links (paper_id, source_file, link_type, description) VALUES (?,?,?,?)",
+                    (link["paper_id"], link["source_file"], link["link_type"], link.get("description", "")),
+                )
+            print(f"  Loaded {len(links)} code-paper cross-references")
 
     conn.commit()
     papers_count = c.execute("SELECT COUNT(*) FROM papers").fetchone()[0]

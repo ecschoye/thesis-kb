@@ -1,0 +1,98 @@
+[
+  {
+    "paper_id": "Sun_et_al._-_2025_-_ST-FlowNet_An_efficient_Spiking_Neural_Network_for_e_88fce2f5",
+    "source_file": "smcfnet/model/ofe/st_flownet.py",
+    "link_type": "implements",
+    "description": "ST-FlowNet SNN optical flow estimator with semi-pyramidal encoder-decoder"
+  },
+  {
+    "paper_id": "Sun_et_al._-_2025_-_ST-FlowNet_An_efficient_Spiking_Neural_Network_for_e_88fce2f5",
+    "source_file": "smcfnet/model/spiking_blocks.py",
+    "link_type": "implements",
+    "description": "BISNN training strategy: LIF neurons with ClipFloor ANN-mode, surrogate gradients"
+  },
+  {
+    "paper_id": "Ge_et_al._-_2021_-_YOLOX_Exceeding_YOLO_Series_in_2021",
+    "source_file": "smcfnet/model/yolox.py",
+    "link_type": "implements",
+    "description": "YOLOX detection architecture adapted for dual-stream RGB-Event fusion"
+  },
+  {
+    "paper_id": "Ge_et_al._-_2021_-_YOLOX_Exceeding_YOLO_Series_in_2021",
+    "source_file": "smcfnet/model/backbone.py",
+    "link_type": "implements",
+    "description": "CSPDarknet backbone and PAFPN neck from YOLOX"
+  },
+  {
+    "paper_id": "Ge_et_al._-_2021_-_YOLOX_Exceeding_YOLO_Series_in_2021",
+    "source_file": "smcfnet/model/yolo_head.py",
+    "link_type": "implements",
+    "description": "YOLOX decoupled detection head"
+  },
+  {
+    "paper_id": "Ge_et_al._-_2021_-_YOLOX_Exceeding_YOLO_Series_in_2021",
+    "source_file": "smcfnet/model/yolo_pafpn.py",
+    "link_type": "implements",
+    "description": "YOLOX path aggregation feature pyramid network"
+  },
+  {
+    "paper_id": "Paredes-Vallés_et_al._-_2023_-_Taming_Contrast_Maximization_for_Learning_285ed220",
+    "source_file": "smcfnet/model/mcm/ecm/ecm.py",
+    "link_type": "inspired_by",
+    "description": "Contrast maximization loss for self-supervised optical flow learning"
+  },
+  {
+    "paper_id": "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb",
+    "source_file": "smcfnet/model/event_warping.py",
+    "link_type": "inspired_by",
+    "description": "Event warping and contrast maximization framework"
+  },
+  {
+    "paper_id": "2103_06011",
+    "source_file": "smcfnet/dataset/dsec/dsec_dataset.py",
+    "link_type": "implements",
+    "description": "DSEC stereo event camera dataset loader for driving scenarios"
+  },
+  {
+    "paper_id": "2103_06011",
+    "source_file": "smcfnet/dataset/dsec/dsec_slicer.py",
+    "link_type": "implements",
+    "description": "DSEC event-RGB temporal alignment and slicing"
+  },
+  {
+    "paper_id": "Liu_et_al._-_2025_-_Beyond_conventional_vision_RGB-event_fusion_for_robu_e958aa7d",
+    "source_file": "smcfnet/model/mcm/mcm.py",
+    "link_type": "extends",
+    "description": "MCM extends MCFNet-style motion compensation with spiking flow estimators"
+  },
+  {
+    "paper_id": "Fan_et_al._-_2025_-_Efficient_Spiking_Neural_Network_for_RGB–Event_Fusio_de576663",
+    "source_file": "smcfnet/model/spiking_blocks.py",
+    "link_type": "inspired_by",
+    "description": "Efficient SNN patterns for RGB-Event fusion detection"
+  },
+  {
+    "paper_id": "__smcm_mcfnet__",
+    "source_file": "smcfnet/model/mcm/mcm.py",
+    "link_type": "implements",
+    "description": "Thesis novel: generic Motion Compensation Module compositing flow estimation + warping"
+  },
+  {
+    "paper_id": "__smcm_mcfnet__",
+    "source_file": "smcfnet/model/edum.py",
+    "link_type": "implements",
+    "description": "Thesis novel: Event Dynamic Upsampling Module bridging event-to-RGB resolution"
+  },
+  {
+    "paper_id": "__smcm_mcfnet__",
+    "source_file": "smcfnet/model/sparse_event_warper.py",
+    "link_type": "implements",
+    "description": "Thesis contribution: sparse event-domain warping preserving temporal structure"
+  },
+  {
+    "paper_id": "2003_03118",
+    "source_file": "smcfnet/model/mcm/ecm/ecm.py",
+    "link_type": "inspired_by",
+    "description": "Self-supervised SNN optical flow from Hagenaars et al."
+  }
+]

@@ -8,6 +8,17 @@ paths:
   nugget_dir: corpus/nuggets
   unified_dir: corpus/nuggets_unified
   kb_dir: kb
+  code_dir: ~/SMCM-MCFNet/src/smcfnet
+  code_config_dir: ~/SMCM-MCFNet/src/smcfnet/config/runs
+  code_chunk_dir: corpus/code_chunks
+  code_nugget_dir: corpus/code_nuggets
+  code_links: code_links.json
+
+thesis:
+  root: ~/TDT4900-master-thesis
+  chapters_dir: chapters
+  bib_file: bibtex/bibliography.bib
+  glossary_file: bibtex/glossary.tex
 
 acquire:
   zotero_export: null

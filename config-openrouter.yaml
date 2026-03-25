@@ -7,6 +7,11 @@ paths:
   chunk_dir: corpus/chunks
   nugget_dir: corpus/nuggets
   kb_dir: kb
+  code_dir: ~/SMCM-MCFNet/src/smcfnet
+  code_config_dir: ~/SMCM-MCFNet/src/smcfnet/config/runs
+  code_chunk_dir: corpus/code_chunks
+  code_nugget_dir: corpus/code_nuggets
+  code_links: code_links.json
 
 acquire:
   zotero_export: null
@@ -29,12 +34,12 @@ chunk:
 nuggets:
   backend: openrouter
   openrouter:
-    model: xiaomi/mimo-v2-flash
+    model: deepseek/deepseek-v3.2
     base_url: https://openrouter.ai/api/v1
     api_key_env: OPENROUTER_API_KEY
   extraction:
     max_chunk_chars: 2000
-    max_workers: 4
+    max_workers: 16
     max_retries: 3
     max_tokens: 3000
     temperature: 0.1
@@ -42,10 +47,11 @@ nuggets:
     nugget_types: [method, result, claim, limitation, comparison, background]
 
 embed:
-  backend: ollama
-  ollama:
-    model: qwen3-embedding:8b
-    base_url: http://localhost:11434/v1
+  backend: openrouter
+  openrouter:
+    model: qwen/qwen3-embedding-8b
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
   embedding:
     batch_size: 64
     query_instruction: "Given an academic research claim about event cameras, RGB-Event fusion, spiking neural networks, or object detection for autonomous platforms, retrieve related findings and evidence"

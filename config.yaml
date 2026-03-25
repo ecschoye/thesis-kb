@@ -10,6 +10,12 @@ paths:
     augmented_dir: corpus/nuggets_augmented
     unified_dir: corpus/nuggets_unified
     kb_dir: kb
+    # Code-aware KB paths
+    code_dir: ~/SMCM-MCFNet/src/smcfnet
+    code_config_dir: ~/SMCM-MCFNet/src/smcfnet/config/runs
+    code_chunk_dir: corpus/code_chunks
+    code_nugget_dir: corpus/code_nuggets
+    code_links: code_links.json
 
 acquire:
     zotero_export: null
@@ -150,3 +156,25 @@ retrieval:
             authority_boost: 1.0
             review_boost: 0.1
             max_per_paper: 2
+        # Code-aware retrieval modes
+        implementation:
+            n_retrieve: 25
+            allowed_types: [implementation, config, method]
+            preferred_sections: [methods, code]
+            authority_boost: 0.5     # prioritise code over papers
+            review_boost: 0.0
+            max_per_paper: 5
+        architecture:
+            n_retrieve: 30
+            allowed_types: [implementation, method, comparison]
+            preferred_sections: [methods, code, abstract]
+            authority_boost: 1.0
+            review_boost: 0.0
+            max_per_paper: 3
+        experiments:
+            n_retrieve: 30
+            allowed_types: [config, experiment, result, comparison]
+            preferred_sections: [experiments, results, code]
+            authority_boost: 0.8
+            review_boost: 0.0
+            max_per_paper: 4
