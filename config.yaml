@@ -11,8 +11,8 @@ paths:
     unified_dir: corpus/nuggets_unified
     kb_dir: kb
     # Code-aware KB paths
-    code_dir: ~/SMCM-MCFNet/src/smcfnet
-    code_config_dir: ~/SMCM-MCFNet/src/smcfnet/config/runs
+    code_dir: /cluster/work/ecschoye/SMCM-MCFNet/src/smcfnet
+    code_config_dir: /cluster/work/ecschoye/SMCM-MCFNet/src/smcfnet/config/runs
     code_chunk_dir: corpus/code_chunks
     code_nugget_dir: corpus/code_nuggets
     code_links: code_links.json
