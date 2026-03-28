@@ -6,3 +6,4 @@ corpus/
 kb/
 logs/
 .env
+.mcp.json
