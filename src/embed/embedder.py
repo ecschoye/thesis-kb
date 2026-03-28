@@ -1,9 +1,13 @@
 """Embed nuggets using Qwen3-Embedding-8B via vLLM."""
-import os, argparse, json
+
+import argparse
+import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import numpy as np
 import tiktoken
 from openai import OpenAI
+
 from src.utils import load_config, load_json, save_json
 
 
@@ -28,7 +32,7 @@ def load_all_nuggets(nugget_dir, augmented_dir=None, unified_dir=None):
             unified_papers.add(fname)
 
     # Load remaining papers from nugget_dir (skip unified ones)
-    for fname in sorted(os.listdir(nugget_dir)):
+    for fname in sorted(os.listdir(nugget_dir)) if os.path.isdir(nugget_dir) else []:
         if not fname.endswith(".json"):
             continue
         if fname in unified_papers:
@@ -116,13 +120,20 @@ def format_nugget_text(nugget, instruction, max_tokens=None, mode="query"):
     if instruction:
         text = f"Instruct: {instruction}\nQuery: {text}"
     if max_tokens:
+        # Apply 5% safety margin: tiktoken (cl100k_base) and the model tokenizer
+        # may count tokens differently, so truncate slightly below the limit.
+        safe_limit = int(max_tokens * 0.95)
         tokens = _tokenizer.encode(text)
-        if len(tokens) > max_tokens:
+        if len(tokens) > safe_limit:
             import logging
+
             logging.getLogger("embed").debug(
                 "Truncated nugget from %d to %d tokens (paper=%s)",
-                len(tokens), max_tokens, nugget.get("paper_id", "?"))
-            text = _tokenizer.decode(tokens[:max_tokens])
+                len(tokens),
+                safe_limit,
+                nugget.get("paper_id", "?"),
+            )
+            text = _tokenizer.decode(tokens[:safe_limit])
     return text
 
 
@@ -176,7 +187,9 @@ def make_embed_clients(cfg):
     vllm_cfg = ecfg.get("vllm", {})
     model = vllm_cfg.get("model", "Qwen/Qwen3-Embedding-8B")
     ports = [int(p.strip()) for p in ports_env.split(",") if p.strip()]
-    clients = [OpenAI(base_url=f"http://localhost:{p}/v1", api_key="none") for p in ports]
+    clients = [
+        OpenAI(base_url=f"http://localhost:{p}/v1", api_key="none") for p in ports
+    ]
     return clients, model
 
 
@@ -220,19 +233,26 @@ def run_embedding(config_path="config.yaml"):
         nuggets = load_all_nuggets(nugget_dir)
     print(f"  Loaded {len(nuggets)} nuggets")
     if not nuggets:
-        print("No nuggets found."); return
+        print("No nuggets found.")
+        return
 
     # Format texts (truncate to max_model_len if configured)
     # Use mode="document" to include type/section metadata in embeddings
-    texts = [format_nugget_text(n, instruction, max_tokens=max_tokens, mode="document") for n in nuggets]
+    texts = [
+        format_nugget_text(n, instruction, max_tokens=max_tokens, mode="document")
+        for n in nuggets
+    ]
 
     # Embed in batches with pipelined submission
     embed_workers = emb_cfg.get("embed_workers", 4)
-    print(f"[embed] Embedding {len(texts)} nuggets (batch_size={batch_size}, workers={embed_workers})...")
+    print(
+        f"[embed] Embedding {len(texts)} nuggets (batch_size={batch_size}, workers={embed_workers})..."
+    )
 
     # Build batch ranges
-    batch_ranges = [(s, min(s + batch_size, len(texts)))
-                    for s in range(0, len(texts), batch_size)]
+    batch_ranges = [
+        (s, min(s + batch_size, len(texts))) for s in range(0, len(texts), batch_size)
+    ]
     total_batches = len(batch_ranges)
 
     # Results indexed by batch order to maintain alignment

@@ -4,13 +4,22 @@ Keeps chunks in memory, runs all three stages sequentially per paper,
 saves one output JSON per paper with inlined quality scores and audit trail.
 
 Usage:
-    python -m src.nuggets.unified -c config.yaml              # full pipeline
-    python -m src.nuggets.unified -c config.yaml --reprocess   # quality+augment only
+    python -m src.nuggets.unified -c config.yaml                # full pipeline (new papers)
+    python -m src.nuggets.unified -c config.yaml --reprocess    # quality+augment on raw nuggets
+    python -m src.nuggets.unified -c config.yaml --regenerate   # force re-extract from chunks
+    python -m src.nuggets.unified -c config.yaml --review       # review existing unified nuggets
+    python -m src.nuggets.unified -c config.yaml --oldest 500   # review 500 oldest (implies --review)
 """
-import os, json, sys, time, argparse, threading, itertools
+import os
+import json
+import sys
+import time
+import argparse
+import threading
+import itertools
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.utils import load_config, load_json, save_json, make_llm_client, make_llm_clients
+from src.utils import load_config, load_json, save_json, make_llm_clients
 
 # Reuse existing stage implementations
 from src.nuggets.extract import _process_chunk, _deduplicate_nuggets
@@ -326,6 +335,21 @@ def _process_paper_reprocess(
             "flags": q.get("flags", []),
         }
 
+    # If ALL nuggets have overall=0, scoring failed entirely — keep originals unchanged
+    all_scores = [n["quality"]["overall"] for n in nuggets]
+    if all_scores and all(s == 0 for s in all_scores):
+        _log(f"{short_id}: scoring failed for all nuggets — skipping review, keeping originals")
+        return {
+            "paper_id": paper_id,
+            "num_nuggets": len(nuggets),
+            "num_removed": 0,
+            "num_improved": 0,
+            "num_gap_filled": 0,
+            "quality_summary": {"scoring_failed": True},
+            "nuggets": nuggets,
+            "removed": [],
+        }
+
     # Improve + filter
     improved_count = 0
     removed = []
@@ -424,12 +448,19 @@ def _process_paper_reprocess(
     }
 
 
-def run_unified(config_path="config.yaml", reprocess=False):
+def run_unified(config_path="config.yaml", reprocess=False, regenerate=False, review=False, paper_ids=None):
     """Run the unified nugget pipeline.
 
     Args:
         reprocess: If True, skip extraction and run quality+augment on existing
                    nuggets from nugget_dir. Useful for re-tuning thresholds.
+        regenerate: If True, force re-extraction even if unified output exists.
+                    Deletes old unified output before processing.
+        review: If True, re-score and refine existing unified nuggets in-place.
+                Reads from unified_dir, keeps good nuggets, improves weak ones,
+                removes bad ones, gap-fills sparse chunks. Like reprocess but
+                operates on unified output instead of raw extractions.
+        paper_ids: Optional set of paper IDs to process. If None, process all.
     """
     cfg = load_config(config_path)
     chunk_dir = cfg["paths"]["chunk_dir"]
@@ -452,6 +483,8 @@ def run_unified(config_path="config.yaml", reprocess=False):
 
     # Resume: skip papers with existing unified output
     def _done(paper_id):
+        if regenerate or review:
+            return False  # force re-processing
         path = os.path.join(unified_dir, f"{paper_id}.json")
         if not os.path.exists(path):
             return False
@@ -467,19 +500,31 @@ def run_unified(config_path="config.yaml", reprocess=False):
     skipped = 0
     for fname in chunk_files:
         paper_id = fname.replace(".json", "")
+        # Filter by paper_ids if provided
+        if paper_ids is not None and paper_id not in paper_ids:
+            skipped += 1
+            continue
         if _done(paper_id):
             skipped += 1
-        elif reprocess:
-            # In reprocess mode, need existing nuggets
-            nug_path = os.path.join(nugget_dir, f"{paper_id}.json")
+        elif reprocess or review:
+            # In reprocess/review mode, need existing nuggets
+            src_dir = unified_dir if review else nugget_dir
+            nug_path = os.path.join(src_dir, f"{paper_id}.json")
             if os.path.exists(nug_path):
                 to_process.append(paper_id)
             else:
-                skipped += 1  # no nuggets to reprocess
+                skipped += 1  # no nuggets to reprocess/review
         else:
             to_process.append(paper_id)
 
-    mode_label = "reprocess (quality+augment)" if reprocess else "full (extract+quality+augment)"
+    if regenerate:
+        mode_label = "regenerate (re-extract+quality+augment)"
+    elif review:
+        mode_label = "review (score+improve+gap-fill unified nuggets)"
+    elif reprocess:
+        mode_label = "reprocess (quality+augment)"
+    else:
+        mode_label = "full (extract+quality+augment)"
     print(f"[unified] {mode_label}: {len(to_process)} papers ({skipped} skipped) via {model}, workers={max_workers}")
 
     if not to_process:
@@ -502,8 +547,9 @@ def run_unified(config_path="config.yaml", reprocess=False):
                     os.path.join(unified_dir, f"{paper_id}.json"),
                 )
                 continue
-            if reprocess:
-                nug_data = load_json(os.path.join(nugget_dir, f"{paper_id}.json"))
+            if reprocess or review:
+                src_dir = unified_dir if review else nugget_dir
+                nug_data = load_json(os.path.join(src_dir, f"{paper_id}.json"))
                 nugs = nug_data.get("nuggets", [])
                 if nugs:
                     paper_nuggets[paper_id] = nugs
@@ -543,7 +589,7 @@ def run_unified(config_path="config.yaml", reprocess=False):
     def _worker(paper_id):
         with _rr_lock:
             client = clients[next(_rr_counter) % num_instances]
-        if reprocess:
+        if reprocess or review:
             result = _process_paper_reprocess(
                 client, paper_id, paper_nuggets[paper_id],
                 paper_chunks[paper_id], model, qcfg, acfg, ucfg,
@@ -585,13 +631,69 @@ def run_unified(config_path="config.yaml", reprocess=False):
     )
 
 
+def _select_oldest(unified_dir, chunk_dir, n):
+    """Return the N paper IDs with the oldest unified output (by file mtime)."""
+    entries = []
+    for fname in os.listdir(unified_dir):
+        if not fname.endswith(".json"):
+            continue
+        paper_id = fname.replace(".json", "")
+        # Only consider papers that have chunks (still in corpus)
+        if not os.path.exists(os.path.join(chunk_dir, fname)):
+            continue
+        path = os.path.join(unified_dir, fname)
+        try:
+            mtime = os.path.getmtime(path)
+            entries.append((mtime, paper_id))
+        except OSError:
+            continue
+    entries.sort()  # oldest first
+    selected = [pid for _, pid in entries[:n]]
+    if selected:
+        from datetime import datetime
+        oldest_ts = entries[0][0] if entries else 0
+        newest_ts = entries[min(n, len(entries)) - 1][0] if entries else 0
+        print(f"[unified] Selected {len(selected)} oldest papers "
+              f"(generated {datetime.fromtimestamp(oldest_ts):%Y-%m-%d %H:%M} "
+              f"to {datetime.fromtimestamp(newest_ts):%Y-%m-%d %H:%M})")
+    return set(selected)
+
+
 def main():
     ap = argparse.ArgumentParser(description="Unified nugget pipeline (extract+quality+augment)")
     ap.add_argument("-c", "--config", default="config.yaml")
     ap.add_argument("--reprocess", action="store_true",
-                    help="Skip extraction; run quality+augment on existing nuggets")
+                    help="Skip extraction; run quality+augment on existing nuggets from nugget_dir")
+    ap.add_argument("--regenerate", action="store_true",
+                    help="Force re-extraction with current prompt, even if unified output exists")
+    ap.add_argument("--review", action="store_true",
+                    help="Review existing unified nuggets: score, improve weak, remove bad, gap-fill")
+    ap.add_argument("--paper-ids", type=str, default=None,
+                    help="Comma-separated paper IDs to process (default: all)")
+    ap.add_argument("--paper-ids-file", type=str, default=None,
+                    help="File with one paper ID per line to process")
+    ap.add_argument("--oldest", type=int, default=None, metavar="N",
+                    help="Select the N papers with the oldest unified output for regeneration")
     args = ap.parse_args()
-    run_unified(args.config, reprocess=args.reprocess)
+
+    paper_ids = None
+    if args.oldest:
+        if not args.regenerate and not args.review:
+            args.review = True
+            print("[unified] --oldest implies --review (use --regenerate to force re-extraction)")
+        cfg = load_config(args.config)
+        chunk_dir = cfg["paths"]["chunk_dir"]
+        unified_dir = cfg["paths"].get("unified_dir", "corpus/nuggets_unified")
+        paper_ids = _select_oldest(unified_dir, chunk_dir, args.oldest)
+    elif args.paper_ids:
+        paper_ids = set(p.strip() for p in args.paper_ids.split(",") if p.strip())
+    elif args.paper_ids_file:
+        with open(args.paper_ids_file) as f:
+            paper_ids = set(line.strip() for line in f if line.strip() and not line.startswith("#"))
+    if paper_ids:
+        print(f"[unified] Filtering to {len(paper_ids)} paper(s)")
+
+    run_unified(args.config, reprocess=args.reprocess, regenerate=args.regenerate, review=args.review, paper_ids=paper_ids)
 
 
 if __name__ == "__main__":

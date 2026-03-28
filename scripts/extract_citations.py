@@ -5,10 +5,8 @@ import csv
 import os
 import re
 import sys
-from collections import defaultdict
 from pathlib import Path
 
-import fitz  # PyMuPDF
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -287,7 +285,7 @@ def main():
     for pdf_path in tqdm(pdfs, desc="Extracting references"):
         try:
             text = extract_references_text(str(pdf_path))
-        except Exception as e:
+        except Exception:
             stats["errors"] += 1
             continue
 
@@ -305,7 +303,7 @@ def main():
             all_entries.append(parsed)
             stats["total_refs"] += 1
 
-    print(f"\nExtraction complete:")
+    print("\nExtraction complete:")
     print(f"  PDFs processed:  {stats['processed']}")
     print(f"  No refs section: {stats['no_refs']}")
     print(f"  Errors:          {stats['errors']}")

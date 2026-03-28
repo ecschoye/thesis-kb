@@ -1,5 +1,10 @@
 """Fetch missing papers from ArXiv/S2 based on Zotero export."""
-import os, time, re, argparse, hashlib, urllib.request
+import os
+import time
+import re
+import argparse
+import hashlib
+import urllib.request
 from difflib import SequenceMatcher
 from pathlib import Path
 from src.utils import load_config, load_json, save_json
@@ -19,7 +24,7 @@ def download_pdf(url, dest_path, timeout=30):
             os.remove(dest_path)
             return False
         return True
-    except Exception as e:
+    except Exception:
         if os.path.exists(dest_path):
             os.remove(dest_path)
         return False

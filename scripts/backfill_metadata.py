@@ -1,6 +1,10 @@
 """Backfill manifest metadata by recovering arXiv IDs from paper_ids
 and extracting titles from PDF text, then re-enriching via S2."""
-import json, os, re, sys, time
+import json
+import os
+import re
+import sys
+import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.acquire.enrich import enrich_via_s2
 
@@ -22,7 +26,7 @@ def extract_title_from_text(paper_id):
             return None
         text = pages[0].get("text", "")
         # Take non-empty lines from the first page, skip very short ones
-        lines = [l.strip() for l in text.split("\n") if l.strip()]
+        lines = [line.strip() for line in text.split("\n") if line.strip()]
         # Skip common preamble lines
         skip = {"abstract", "arxiv", "proceedings", "conference", "journal",
                 "please do not remove this page", "preprint"}

@@ -1,49 +1,80 @@
 """LLM-based nugget extraction via vLLM OpenAI-compatible API."""
-import os, json, re, sys, time, argparse, threading
-from collections import defaultdict
+import os
+import json
+import re
+import sys
+import time
+import argparse
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from src.utils import load_config, load_json, save_json, make_llm_client
 
 
-SYSTEM_PROMPT = """You are a research knowledge extractor for a thesis on RGB-Event camera fusion for object detection on resource-constrained autonomous platforms. The thesis covers: spiking neural networks (SNNs), event camera processing, RGB-Event fusion, optical flow estimation, motion compensation, object detection, short-term trajectory prediction, neuromorphic/energy-efficient hardware, and low-latency inference.
+SYSTEM_PROMPT = """You are a research knowledge extractor for a master's thesis on enhancing autonomous vehicle perception through RGB-Event camera fusion with spiking neural networks.
+
+THESIS CONTEXT — the proposed system has four pillars:
+1. Spiking Motion Compensation Module (SMCM): SNN-based optical flow (ST-FlowNet) warps asynchronous events to RGB frame timestamps for temporal alignment, replacing CNN optical flow for energy efficiency.
+2. Cross-modal Mamba Module (CMM): intermediate fusion at CSPDarkNet layers 3-5 using state-space models (Mamba) to compute adaptive modality importance weights, inspired by MCFNet.
+3. Object Detection Head: FPN-based detection on fused features, evaluated via mAP@50 on DSEC and Gen1 benchmarks.
+4. Short-Term Trajectory Prediction (STTP): integrated prediction head outputting per-object direction heading from detection features + optical flow, avoiding separate tracking pipelines.
+
+The thesis answers five research questions about: (1) STTP latency impact on hazard detection, (2) latency vs. computational cost trade-offs, (3) SNN readout strategies for dense optical flow, (4) SNN vs. CNN motion compensation efficiency, (5) SMCM temporal resolution robustness in HDR/high-speed scenes.
 
 Given a chunk of an academic paper, extract the important factual claims as atomic question-answer nuggets.
 
+PRIORITY TOPICS — extract at maximum depth:
+- Event camera representations: voxel grids, time surfaces, spike tensors, polarity images, event volumes
+- Event-to-frame temporal/spatial alignment: warping, motion compensation, optical flow estimation
+- RGB-Event fusion architectures: attention mechanisms, gating, cross-modal modules, feature calibration, Mamba/SSM-based fusion
+- SNN architectures: LIF neurons, membrane dynamics, surrogate gradients, readout strategies, spike-driven attention
+- SNN training: ANN-to-SNN conversion, hybrid SNN-ANN, direct training with STBP/BPTT
+- Optical flow: dense estimation (FlowNet, PWC-Net, RAFT), event-based flow (Spike-FlowNet, ST-FlowNet, SFformerFlow)
+- Detection architectures: YOLO variants, DETR, anchor-free detectors, detection on event data
+- Energy/efficiency metrics: synaptic operations, spike rates, mJ/inference, FLOPs, MACs, latency, FPS on edge hardware (Jetson, neuromorphic chips, FPGAs)
+- Trajectory prediction and tracking: ADE/FDE, time-to-collision, motion forecasting
+- Benchmark results on: DSEC, Gen1, COCO, KITTI, N-Caltech101, PKU-DVS-Gesture, MVSEC
+
+STANDARD TOPICS — extract key contributions at a higher level:
+- General computer vision, transformers, attention not specific to events/fusion
+- Pure RGB object detection improvements
+- Autonomous driving components unrelated to perception (planning, control)
+
 Rules:
-- Extract ALL substantive contributions of the paper (methods, results, comparisons, limitations, key claims)
-- Give EXTRA DEPTH to thesis-relevant topics: extract fine-grained details about spike encoding, membrane potentials, event representations (voxel grids, time surfaces, spike tensors), motion compensation, temporal processing, fusion architectures, energy/latency/FPS metrics on embedded hardware, neuromorphic chip results, DVS/DAVIS sensor specifics, optical flow, SNN architectures, trajectory prediction
-- For non-thesis topics in the paper, still extract key contributions but at a higher level (fewer nuggets, less granular)
-- Skip trivial metadata: affiliations, section headings, acknowledgments
-- Skip generic background that any textbook covers — only extract background claims specific to this work
-- NEVER repeat information. If a fact was likely covered in a previous chunk (e.g. the paper's main contribution, what the method does at a high level), do NOT extract it again. Each nugget must add NEW information not already captured. When in doubt, skip it.
-- Each nugget must be self-contained (understandable without the source text)
-- COMBINE related facts into single nuggets rather than splitting them (e.g. one nugget for "FPGA resource usage" covering FFs, LUTs, and BRAM together)
-- Include specific numbers: accuracies, FPS, energy, parameters, latency, FLOPs
+- Extract ALL substantive contributions (methods, results, comparisons, limitations, motivations)
+- Each nugget must be SELF-CONTAINED — understandable without the source text
+- COMBINE related facts into single nuggets rather than splitting (e.g. one nugget covering all resource usage metrics together)
+- Include SPECIFIC NUMBERS: accuracies, FPS, energy, parameters, latency, FLOPs, dataset sizes
 - Answers should be DETAILED with exact values when available
 - Classify type: method, result, claim, limitation, comparison, background
-- Skip content that is purely transitional or structural ("The paper is organized as follows...")
-- For RESULTS and COMPARISONS: always include the dataset/benchmark name, the specific baseline methods compared against, and the metric used (e.g. "mAP@50 on DSEC" not just "mAP")
-- Extract MOTIVATION nuggets: why the authors propose their approach — what gap or limitation of prior work they address. Classify these as "claim"
-- For METHOD nuggets: include training details when present (optimizer, learning rate schedule, batch size, epochs, GPU type, training time) — these are needed for reproducibility discussion
-- Extract ABLATION results: when authors remove or vary a component and report the effect, capture both what was changed and the resulting delta (e.g. "Removing temporal attention drops mAP by 3.2% on Gen1"). Classify these as "result"
-- When the paper title or author names appear in the chunk, weave them into the answer naturally (e.g. "Wang et al. propose..." or "In EV-FlowNet, ..."). This makes nuggets directly citable without metadata lookup
-- If the chunk contains the paper title, author list, year, or venue: emit ONE "background" nugget with Q: "What is the title and who are the authors of this paper?" and A containing the full title, all author names, year, and venue/conference. Only emit this ONCE per paper — if the chunk looks like a later section (methods, experiments, conclusion), skip this nugget.
-- Do NOT extract nuggets that admit missing information (e.g. "specific details are not provided in this text"). If the chunk doesn't have the details, skip the nugget entirely.
-- Do NOT extract nuggets about cited/referenced works from the bibliography section. Only extract knowledge about the paper itself — not what other papers it cites.
-- Aim for 3-8 nuggets per chunk. Fewer, higher-quality nuggets are always better than exhaustive coverage. A chunk with only 2-3 strong nuggets is fine.
+- Skip trivial metadata (affiliations, section headings, acknowledgments) and generic textbook background
+- NEVER repeat information likely covered in a previous chunk. Each nugget must add NEW information. When in doubt, skip it
+- For RESULTS and COMPARISONS: always include dataset/benchmark name, baseline methods compared against, and the specific metric (e.g. "mAP@50 on DSEC" not just "mAP")
+- For METHOD nuggets: include training details when present (optimizer, LR schedule, batch size, epochs, GPU type, training time)
+- Extract ABLATION results: what component was changed/removed and the resulting metric delta
+- Extract MOTIVATION: why the authors propose their approach — what gap or limitation of prior work they address. Classify as "claim"
+- When the paper title or author names appear, weave them into the answer naturally for citability
+- If the chunk contains the paper title, author list, year, or venue: emit ONE "background" nugget with Q: "What is the title and who are the authors of this paper?" Only emit this for the first chunk (introduction/abstract), not later sections
+- Do NOT extract nuggets that admit missing information ("specific details are not provided")
+- Do NOT extract nuggets about cited/referenced works from bibliography sections. Only extract knowledge about the paper itself
+- Aim for 3-8 nuggets per chunk. Fewer, higher-quality nuggets are always better than exhaustive coverage
 - Output ONLY valid JSON array, no markdown fences, no preamble
 
 Output format:
 [
   {
-    "question": "What neuron model is used in the SNN and what are its parameters?",
-    "answer": "Leaky integrate-and-fire (LIF) neuron with learnable membrane time constant tau_m initialized to 2.0, threshold voltage V_th=1.0, and soft reset mechanism.",
+    "question": "How does ST-FlowNet estimate optical flow from events and what neuron model does it use?",
+    "answer": "ST-FlowNet uses a hybrid SNN encoder with LIF neurons (learnable membrane time constant tau_m=2.0, threshold V_th=1.0, soft reset) that processes voxel grid event representations, paired with an ANN decoder for dense flow prediction. It combines STBP training, ANN-to-SNN weight transfer, and BiSNN bridging with ConvGRU temporal recurrence to achieve stable training at scale.",
     "type": "method"
   },
   {
-    "question": "How does the proposed method compare to prior SNN methods on PKU-DVS-Gesture?",
-    "answer": "The method achieves 97.2% mAP on PKU-DVS-Gesture, outperforming the previous best SNN-based method (94.8%) by 2.4 percentage points.",
-    "type": "result"
+    "question": "How does MCFNet's cross-modal Mamba module fuse RGB and event features?",
+    "answer": "MCFNet applies a Cross-modal Mamba Module (CMM) at CSPDarkNet layers 3, 4, and 5. RGB features F_r and event features F_e are concatenated and processed through a state-space model (Mamba) that computes global context and modality importance weights. The weight map adaptively emphasizes the more informative modality at each spatial location, with residual connections preserving the original features.",
+    "type": "method"
+  },
+  {
+    "question": "What detection accuracy does the RGB-Event fusion model achieve compared to single-modality baselines on DSEC?",
+    "answer": "The fusion model achieves 52.1% mAP@50 on DSEC, outperforming the RGB-only baseline (45.3% mAP@50) by 6.8 percentage points and the event-only baseline (38.7% mAP@50) by 13.4 percentage points, with the largest gains in nighttime and high-speed driving sequences.",
+    "type": "comparison"
   }
 ]"""
 
@@ -121,27 +152,40 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
         return [], str(e)
 
 
+_SKIP_SECTIONS = {"references", "acknowledgments", "acknowledgements",
+                   "bibliography", "appendix", "appendices"}
+
 def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay, paper_id, extra_body=None, prior_questions=None, max_model_len=4096):
     """Process a single chunk — designed for use in a thread pool."""
     text = chunk["text"]
     if len(text.strip()) < 50:
         return []
+    # Skip sections that never produce useful nuggets (saves API calls)
+    section = chunk.get("section", "").lower().strip()
+    if section in _SKIP_SECTIONS:
+        return []
+
+    # Build model list: primary + fallbacks (if configured on client)
+    models_to_try = [model] + getattr(client, "_fallback_models", [])
 
     cur_prior = prior_questions
-    for attempt in range(max_retries):
-        nuggets, raw = extract_nuggets_from_chunk(client, text, model, temp, max_tok, extra_body=extra_body, prior_questions=cur_prior, max_model_len=max_model_len)
-        if nuggets:
-            break
-        raw_str = str(raw).lower()
-        if "rate" in raw_str:
-            time.sleep(retry_delay * (2 ** attempt))
-        elif "too long" in raw_str or "maximum context" in raw_str or "400" in raw_str or "max_model_len" in raw_str or "prompt is too long" in raw_str:
-            # Token overflow — drop prior_questions and retry
-            if cur_prior:
-                cur_prior = cur_prior[-10:] if len(cur_prior) > 10 else None
+    nuggets = []
+    for cur_model in models_to_try:
+        for attempt in range(max_retries):
+            nuggets, raw = extract_nuggets_from_chunk(client, text, cur_model, temp, max_tok, extra_body=extra_body, prior_questions=cur_prior, max_model_len=max_model_len)
+            if nuggets:
+                break
+            raw_str = str(raw).lower()
+            if "rate" in raw_str:
+                time.sleep(retry_delay * (2 ** attempt))
+            elif "too long" in raw_str or "maximum context" in raw_str or "400" in raw_str or "max_model_len" in raw_str or "prompt is too long" in raw_str:
+                if cur_prior:
+                    cur_prior = cur_prior[-10:] if len(cur_prior) > 10 else None
+                else:
+                    break
             else:
                 break
-        else:
+        if nuggets:
             break
 
     for n in nuggets:
@@ -177,6 +221,7 @@ def run_extraction(config_path="config.yaml"):
     cfg = load_config(config_path)
     chunk_dir = cfg["paths"]["chunk_dir"]
     nugget_dir = cfg["paths"]["nugget_dir"]
+    unified_dir = cfg["paths"].get("unified_dir", "corpus/nuggets_unified")
     ncfg = cfg.get("nuggets", {})
     ext_cfg = ncfg.get("extraction", {})
     max_workers = ext_cfg.get("max_workers", 8)
@@ -189,16 +234,23 @@ def run_extraction(config_path="config.yaml"):
     extra_body = {"chat_template_kwargs": {"enable_thinking": False}} if backend == "vllm" else None
 
     def _nugget_done(paper_id):
-        """Check if a paper has already been successfully extracted."""
-        path = os.path.join(nugget_dir, f"{paper_id}.json")
-        if not os.path.exists(path):
-            return False
-        try:
-            with open(path) as f:
-                data = json.load(f)
-            return data.get("num_nuggets", 0) > 0
-        except (json.JSONDecodeError, OSError):
-            return False
+        """Check if a paper has already been successfully extracted.
+
+        Checks both nugget_dir (raw) and unified_dir to avoid
+        re-extracting papers that already went through the unified pipeline.
+        """
+        for d in (nugget_dir, unified_dir):
+            path = os.path.join(d, f"{paper_id}.json")
+            if not os.path.exists(path):
+                continue
+            try:
+                with open(path) as f:
+                    data = json.load(f)
+                if data.get("num_nuggets", 0) > 0:
+                    return True
+            except (json.JSONDecodeError, OSError):
+                continue
+        return False
 
     chunk_files = sorted(f for f in os.listdir(chunk_dir) if f.endswith(".json"))
     to_process = []
@@ -235,8 +287,10 @@ def run_extraction(config_path="config.yaml"):
                 paper_chunks[paper_id] = chunks
             else:
                 # No valid chunks — write empty result
-                save_json({"paper_id": paper_id, "num_nuggets": 0, "nuggets": []},
-                          os.path.join(nugget_dir, f"{paper_id}.json"))
+                save_json({"paper_id": paper_id, "num_nuggets": 0, "num_removed": 0,
+                           "num_improved": 0, "num_gap_filled": 0,
+                           "quality_summary": {}, "nuggets": [], "removed": []},
+                          os.path.join(unified_dir, f"{paper_id}.json"))
                 success += 1
         except Exception as e:
             print(f"  ERROR loading chunks for {paper_id}: {e}")
@@ -300,9 +354,14 @@ def run_extraction(config_path="config.yaml"):
         output = {
             "paper_id": paper_id,
             "num_nuggets": len(deduped),
+            "num_removed": 0,
+            "num_improved": 0,
+            "num_gap_filled": 0,
+            "quality_summary": {},
             "nuggets": deduped,
+            "removed": [],
         }
-        save_json(output, os.path.join(nugget_dir, f"{paper_id}.json"))
+        save_json(output, os.path.join(unified_dir, f"{paper_id}.json"))
 
         with print_lock:
             # total_nuggets already incremented per-chunk; adjust for dedup

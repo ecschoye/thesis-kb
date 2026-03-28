@@ -5,7 +5,6 @@ import csv
 import json
 import os
 import re
-import sys
 import time
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -267,7 +266,7 @@ def retry_failed(args):
     with open(log_path, "w") as f:
         json.dump(new_log, f, indent=2)
 
-    print(f"\nRetry results:")
+    print("\nRetry results:")
     print(f"  Downloaded (original URL): {stats['downloaded']}")
     print(f"  Downloaded (arXiv):        {stats['arxiv_fallback']}")
     print(f"  Still failed:              {stats['still_failed']}")
@@ -371,7 +370,7 @@ def main():
             stats["failed"] += 1
             log.append({"title": title, "status": "download_failed", "url": result["url"]})
 
-    print(f"\nResults:")
+    print("\nResults:")
     print(f"  Found:       {stats['found']}")
     print(f"  Downloaded:  {stats['downloaded']}")
     print(f"  Not found:   {stats['not_found']}")

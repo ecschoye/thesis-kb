@@ -35,7 +35,10 @@ chunk:
 nuggets:
     backend: openrouter
     openrouter:
-        model: deepseek/deepseek-v3.2
+        model: minimax/minimax-m2.5:free
+        fallback_models:
+            - nvidia/nemotron-3-super-120b-a12b:free
+            - deepseek/deepseek-v3.2
         base_url: https://openrouter.ai/api/v1
         api_key_env: OPENROUTER_API_KEY
     extraction:
@@ -47,6 +50,28 @@ nuggets:
         retry_base_delay: 2.0
         nugget_types:
             [method, result, claim, limitation, comparison, background]
+    quality:
+        batch_size: 20
+        max_workers: 16
+        max_tokens: 2000
+        temperature: 0.0
+        max_retries: 3
+        retry_base_delay: 2.0
+        flag_threshold: 2
+    augmentation:
+        max_workers: 16
+        max_tokens: 2000
+        temperature: 0.1
+        max_retries: 3
+        retry_base_delay: 2.0
+        improve_threshold: 2
+        gap_max_nuggets: 2
+        gap_min_tokens: 100
+        gap_skip_sections: [references, acknowledgments, bibliography]
+    unified:
+        max_workers: 16
+        flag_threshold: 2
+        improve_threshold: 2
 
 embed:
     backend: openrouter
@@ -59,7 +84,6 @@ embed:
         query_instruction: "Given an academic research claim about event cameras, RGB-Event fusion, spiking neural networks, or object detection for autonomous platforms, retrieve related findings and evidence"
         doc_instruction: "Represent this academic research finding for retrieval: a nugget containing methods, results, or claims about event cameras, RGB-Event fusion, spiking neural networks, or object detection"
         instruction: "Given an academic research claim about event cameras, RGB-Event fusion, spiking neural networks, or object detection for autonomous platforms, retrieve related findings and evidence"
-        # dimensions: 4096
 
 store:
     chromadb:

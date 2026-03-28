@@ -1,42 +1,35 @@
 #!/bin/bash
-#SBATCH --job-name=kb-full
+#SBATCH --job-name=kb-review
 #SBATCH --account=share-ie-idi
 #SBATCH --partition=GPUQ
 #SBATCH --gres=gpu:4
 #SBATCH --constraint="gpu80g"
-#SBATCH --time=0-02:00:00
+#SBATCH --time=0-08:00:00
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=8
-#SBATCH --output=logs/full_%j.out
-#SBATCH --error=logs/full_%j.err
+#SBATCH --output=logs/review_%j.out
+#SBATCH --error=logs/review_%j.err
 
-# Full pipeline: extract → chunk → unified nuggets → embed → store.
-# Single job, handles model swaps between GPU phases.
+# Review existing unified nuggets: score, improve weak, remove bad, gap-fill.
+# Unlike --regenerate (which re-extracts from scratch), --review reads the
+# current unified nuggets and refines them in-place.
 #
 # Usage:
-#   sbatch slurm/full_pipeline.slurm                          # normal incremental run
-#   sbatch slurm/full_pipeline.slurm --regenerate --oldest 500 # regenerate 500 oldest
-#   sbatch slurm/full_pipeline.slurm --regenerate              # regenerate ALL papers
-#   sbatch slurm/full_pipeline.slurm --regenerate --paper-ids 2401_17151,2301_00456
+#   sbatch slurm/review_nuggets.slurm                          # review ALL papers
+#   sbatch slurm/review_nuggets.slurm --oldest 500             # review 500 oldest
+#   sbatch slurm/review_nuggets.slurm --paper-ids 2401_17151   # review specific papers
 #
-# Extra args are passed to `python -m src.nuggets.unified`.
-# For regeneration jobs, increase --time (e.g. 0-12:00:00 for all 1553 papers).
+# Extra args are passed to `python -m src.nuggets.unified --review`.
+# After review, re-embeds and rebuilds the KB.
 #
-# Multi-instance scaling (recommended for >=4 GPUs):
-#   With N GPUs, launches N/2 independent TP=2 vLLM instances.
-#   Each instance gets its own GPU pair and port.
-#   Python workers round-robin requests across all instances.
-#   Near-linear throughput scaling vs single-instance tensor parallelism.
-#
-# Examples:
+# Multi-instance scaling (same as full_pipeline.slurm):
 #   --gres=gpu:2  → 1 instance  (TP=2, baseline)
 #   --gres=gpu:4  → 2 instances (TP=2 each, ~2x throughput)
-#   --gres=gpu:6  → 3 instances (TP=2 each, ~3x throughput)
 
 set -euo pipefail
 
 module purge
-module load Python/3.12.3-GCCcore-13.3.0 CUDA/12.6.0 tesseract/5.5.0-GCCcore-13.3.0
+module load Python/3.12.3-GCCcore-13.3.0 CUDA/12.6.0
 source .venv/bin/activate
 
 export HF_HOME=/cluster/work/ecschoye/huggingface
@@ -46,12 +39,10 @@ export TIKTOKEN_CACHE_DIR=/cluster/work/ecschoye/thesis-kb/.cache/tiktoken
 export PYTHONUNBUFFERED=1
 mkdir -p logs
 
-# Extra args passed to the unified nugget pipeline (e.g. --regenerate --oldest 500)
 EXTRA_ARGS="${@}"
 echo "Extra args: ${EXTRA_ARGS:-none}"
 
 # ── GPU topology ────────────────────────────────────────────────────
-# Split GPUs into TP=2 pairs for multi-instance serving
 if [ -z "${CUDA_VISIBLE_DEVICES:-}" ]; then
     echo "ERROR: CUDA_VISIBLE_DEVICES not set"; exit 1
 fi
@@ -69,8 +60,6 @@ fi
 SEQS_PER_INSTANCE=128
 export MAX_NUM_SEQS=$((SEQS_PER_INSTANCE * NUM_INSTANCES))
 
-# Build port list and CUDA_VISIBLE_DEVICES per instance
-# Use high port range (10000-19999) to avoid collisions with common services
 BASE_PORT=$((10000 + SLURM_JOB_ID % 10000))
 VLLM_PORTS=""
 for i in $(seq 0 $((NUM_INSTANCES - 1))); do
@@ -82,7 +71,7 @@ for i in $(seq 0 $((NUM_INSTANCES - 1))); do
     fi
 done
 export VLLM_PORTS
-export VLLM_PORT=$BASE_PORT  # backwards compat for single-instance code paths
+export VLLM_PORT=$BASE_PORT
 
 echo "GPUs: $GPU_COUNT | instances: $NUM_INSTANCES (TP=$TP_SIZE each)"
 echo "Ports: $VLLM_PORTS | max-num-seqs/instance: $SEQS_PER_INSTANCE | total workers: $MAX_NUM_SEQS"
@@ -121,32 +110,14 @@ stop_vllm() {
     sleep 3
 }
 
-# ── Phase 1: CPU stages ──────────────────────────────────────────────
+# ── Phase 1: Review nuggets (Qwen3.5-27B) ────────────────────────────
 
 echo ""
 echo "=========================================="
-echo "  Phase 1: Extract + Chunk (CPU)"
-echo "=========================================="
-
-echo "=== Extract text from PDFs ==="
-python -m src.extract -c config.yaml
-
-echo "=== Chunk texts ==="
-python -m src.chunk -c config.yaml
-
-echo "=== Extract code chunks (AST) ==="
-python -m src.code_extract -c config.yaml
-
-# ── Phase 2: Unified nuggets (Qwen3.5-27B) ───────────────────────────
-
-echo ""
-echo "=========================================="
-echo "  Phase 2: Unified Nuggets (Qwen3.5-27B)"
+echo "  Phase 1: Review Nuggets (Qwen3.5-27B)"
 echo "  $NUM_INSTANCES instance(s), TP=$TP_SIZE each"
 echo "=========================================="
 
-# Launch instances sequentially to avoid NCCL port collisions
-# (vLLM auto-picks internal ports near the serving port; concurrent launches race)
 for i in $(seq 0 $((NUM_INSTANCES - 1))); do
     PORT=$((BASE_PORT + i * 10))
     GPU_START=$((i * TP_SIZE))
@@ -170,19 +141,16 @@ for i in $(seq 0 $((NUM_INSTANCES - 1))); do
     wait_for_vllm $PORT ${VLLM_PIDS[$i]}
 done
 
-echo "=== Unified nugget pipeline ==="
-python -m src.nuggets.unified -c config.yaml $EXTRA_ARGS
-
-echo "=== Code nugget extraction ==="
-python -m src.code_extract.nuggets -c config.yaml
+echo "=== Review unified nuggets ==="
+python -m src.nuggets.unified -c config.yaml --review $EXTRA_ARGS
 
 stop_vllm
 
-# ── Phase 3: Embed + Store (Qwen3-Embedding-8B) ──────────────────────
+# ── Phase 2: Embed + Store (Qwen3-Embedding-8B) ──────────────────────
 
 echo ""
 echo "=========================================="
-echo "  Phase 3: Embed + Store (Qwen3-Embed-8B)"
+echo "  Phase 2: Embed + Store (Qwen3-Embed-8B)"
 echo "  $NUM_INSTANCES instance(s), TP=$TP_SIZE each"
 echo "=========================================="
 
@@ -216,5 +184,5 @@ stop_vllm
 
 echo ""
 echo "=========================================="
-echo "  Pipeline complete"
+echo "  Review pipeline complete"
 echo "=========================================="

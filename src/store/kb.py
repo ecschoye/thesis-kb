@@ -1,5 +1,8 @@
 """Build ChromaDB + SQLite knowledge base from embedded nuggets."""
-import os, json, sqlite3, argparse
+import os
+import json
+import sqlite3
+import argparse
 import numpy as np
 import chromadb
 from src.utils import load_config, load_json

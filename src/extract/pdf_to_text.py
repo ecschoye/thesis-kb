@@ -1,7 +1,9 @@
 """Extract text from PDFs using PyMuPDF with section detection."""
-import os, re, argparse, json, logging
+import os
+import re
+import argparse
+import logging
 import fitz  # PyMuPDF
-from pathlib import Path
 from src.utils import load_config, load_json, save_json, already_processed
 
 log = logging.getLogger(__name__)
@@ -93,7 +95,7 @@ def detect_section(text_block, page=None):
     """
     lines = text_block.strip().split("\n")
     # Take first 8 non-empty lines
-    candidate_lines = [l for l in lines if l.strip()][:8]
+    candidate_lines = [line for line in lines if line.strip()][:8]
 
     # 1. Try standard patterns on first 8 lines
     result = _detect_section_from_lines(candidate_lines)
@@ -181,9 +183,6 @@ def _reorder_blocks_reading_order(page):
 
     if is_two_column:
         # Find the split point: largest gap in the center region
-        center_region_edges = sorted(set(
-            b[0] for b in body_blocks
-        ))
         # Also consider right edges for gap detection
         all_edges = []
         for b in body_blocks:

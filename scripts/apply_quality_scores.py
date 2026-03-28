@@ -70,7 +70,6 @@ def apply_scores(config_path="config.yaml", dry_run=False):
     batch = [(tr, nid) for nid, tr in scores.items()]
     c.executemany("UPDATE nuggets SET thesis_relevance=? WHERE nugget_id=?", batch)
     conn.commit()
-    updated_sql = c.rowcount
     conn.close()
     print(f"SQLite: updated {len(batch)} nuggets")
 

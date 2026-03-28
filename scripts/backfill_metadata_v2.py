@@ -1,5 +1,8 @@
 """Backfill remaining metadata: LLM title extraction + S2 re-enrichment."""
-import json, os, re, sys, time, traceback
+import json
+import os
+import sys
+import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.acquire.enrich import enrich_via_arxiv_id, _s2_headers, _title_similarity, _extract_result, S2_API, S2_FIELDS
 from openai import OpenAI
@@ -37,7 +40,7 @@ def s2_search_relaxed(title, min_sim=MIN_SIM, max_retries=2):
             if best_p and best_sim >= min_sim:
                 return _extract_result(best_p)
             return None
-        except Exception as e:
+        except Exception:
             if attempt < max_retries - 1:
                 time.sleep(1)
                 continue
@@ -124,7 +127,7 @@ def main():
     # Save LLM titles checkpoint
     with open(MANIFEST, "w") as f:
         json.dump(manifest, f, indent=2)
-    print(f"  Checkpoint saved")
+    print("  Checkpoint saved")
 
     # Phase 2: S2 enrichment using LLM titles (with relaxed threshold)
     print(f"[2/2] Re-enriching {len(missing)} papers via S2 (threshold={MIN_SIM})...")

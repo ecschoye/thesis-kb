@@ -1,4 +1,6 @@
-import json, yaml, os
+import json
+import yaml
+import os
 from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -44,8 +46,11 @@ def make_llm_client(cfg):
         or_cfg = ncfg.get("openrouter", {})
         base_url = or_cfg.get("base_url", "https://openrouter.ai/api/v1")
         model = or_cfg.get("model", "qwen/qwen3.5-32b")
+        fallback_models = or_cfg.get("fallback_models", [])
         api_key = os.environ.get(or_cfg.get("api_key_env", "OPENROUTER_API_KEY"), "")
         client = OpenAI(base_url=base_url, api_key=api_key)
+        if fallback_models:
+            client._fallback_models = fallback_models
     else:
         vllm_cfg = ncfg.get("vllm", {})
         port = int(os.environ.get("VLLM_PORT", vllm_cfg.get("port", 8000)))

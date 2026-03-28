@@ -1,5 +1,8 @@
 """Add FTS5 full-text search index to existing nuggets.db."""
-import sqlite3, argparse, sys, os
+import sqlite3
+import argparse
+import sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.utils import load_config
 

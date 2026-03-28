@@ -24,6 +24,8 @@ source .venv/bin/activate
 
 export HF_HOME=/cluster/work/ecschoye/huggingface
 export HF_HUB_ENABLE_HF_TRANSFER=0
+export HF_HUB_OFFLINE=1
+export TIKTOKEN_CACHE_DIR=/cluster/work/ecschoye/thesis-kb/.cache/tiktoken
 export PYTHONUNBUFFERED=1
 mkdir -p logs
 
@@ -45,9 +47,9 @@ trap cleanup EXIT
 
 echo "=== Starting vLLM (Qwen3-Embedding-8B) ==="
 vllm serve Qwen/Qwen3-Embedding-8B \
-    --task embed \
+    --convert embed \
     --port $VLLM_PORT \
-    --max-model-len 1024 \
+    --max-model-len 2048 \
     --gpu-memory-utilization 0.92 \
     --dtype bfloat16 \
     --tensor-parallel-size $GPU_COUNT &
@@ -61,7 +63,10 @@ for i in $(seq 1 60); do
     sleep 10
 done
 
-echo "=== Embed nuggets ==="
+echo "=== Embed paper nuggets ==="
 python -m src.embed -c config.yaml
+
+echo "=== Embed code nuggets + merge + build KB ==="
+python -m src.code_extract.embed_and_merge -c config.yaml
 
 echo "=== Done ==="

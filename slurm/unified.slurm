@@ -28,6 +28,8 @@ source .venv/bin/activate
 
 export HF_HOME=/cluster/work/ecschoye/huggingface
 export HF_HUB_ENABLE_HF_TRANSFER=0
+export HF_HUB_OFFLINE=1
+export TIKTOKEN_CACHE_DIR=/cluster/work/ecschoye/thesis-kb/.cache/tiktoken
 export PYTHONUNBUFFERED=1
 mkdir -p logs
 
@@ -54,7 +56,7 @@ trap cleanup EXIT
 echo "=== Starting vLLM (Qwen3.5-27B) ==="
 vllm serve Qwen/Qwen3.5-27B \
     --port $VLLM_PORT \
-    --max-model-len 4096 \
+    --max-model-len 8192 \
     --gpu-memory-utilization 0.92 \
     --dtype bfloat16 \
     --enable-chunked-prefill \

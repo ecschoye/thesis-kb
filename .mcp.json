@@ -1,10 +1,11 @@
 {
   "mcpServers": {
     "thesis-kb": {
-      "command": "python",
-      "args": ["src/mcp_server.py"],
+      "command": "/cluster/work/ecschoye/thesis-kb/venv/bin/python",
+      "args": ["/cluster/work/ecschoye/thesis-kb/src/mcp_server.py"],
       "env": {
-        "THESIS_KB_CONFIG": "config-ollama.yaml"
+        "THESIS_KB_CONFIG": "/cluster/work/ecschoye/thesis-kb/config.yaml",
+        "VLLM_PORT": "8000"
       }
     }
   }

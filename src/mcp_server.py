@@ -9,7 +9,6 @@ quality auditing, gap analysis, formatting compliance, and language checks.
 """
 import os
 import re
-import json
 import sqlite3
 from pathlib import Path
 
@@ -61,7 +60,7 @@ if EMB_BACKEND == "ollama":
     EMBED_MODEL = ollama_cfg.get("model", "qwen3-embedding:8b")
 else:
     vllm_cfg = EMB_CFG.get("vllm", {})
-    port = int(os.environ.get("VLLM_PORT", vllm_cfg.get("port", 8000)))
+    port = int(os.environ.get("VLLM_PORT") or vllm_cfg.get("port", 8000))
     EMBED_BASE_URL = f"http://localhost:{port}/v1"
     EMBED_MODEL = vllm_cfg.get("model", "Qwen/Qwen3-Embedding-8B")
 
@@ -286,16 +285,20 @@ def semantic_search(
 
     results = collection.query(**kwargs)
 
-    enriched = []
-    for i in range(len(results["ids"][0])):
-        nugget_id = results["ids"][0][i]
-        meta = results["metadatas"][0][i]
-        distance = results["distances"][0][i]
-        doc = results["documents"][0][i]
+    ids = results.get("ids") or [[]]
+    metadatas = results.get("metadatas") or [[]]
+    distances = results.get("distances") or [[]]
 
-        paper_id = meta.get("paper_id", "")
+    enriched = []
+    for i in range(len(ids[0])):
+        nugget_id = ids[0][i]
+        meta = metadatas[0][i]
+        distance = distances[0][i]
+
+        paper_id = str(meta.get("paper_id", ""))
         paper = _get_paper(paper_id)
-        year = paper.get("year") if paper else None
+        raw_year = paper.get("year") if paper else None
+        year = int(raw_year) if raw_year is not None else None
 
         if year_min and (not year or year < year_min):
             continue

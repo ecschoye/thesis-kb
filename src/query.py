@@ -1,10 +1,23 @@
 """Query interface for the thesis knowledge base."""
-import os, sys, argparse, sqlite3, json, re
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sqlite3
+import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    pass
 import chromadb
-from src.utils import load_config
-from src.embed.embedder import make_embed_client, format_nugget_text
+
+from src.embed.embedder import format_nugget_text, make_embed_client
 from src.log import get_logger
+from src.utils import load_config
 
 log = get_logger("query", "query.log")
 
@@ -20,8 +33,6 @@ class ThesisKB:
         chroma_cfg = store_cfg.get("chromadb", {})
         sqlite_cfg = store_cfg.get("sqlite", {})
         emb_cfg = cfg.get("embed", {}).get("embedding", {})
-
-        self.db = None  # ensure attribute exists for close()
 
         # Embedding client for query-time embedding
         self.embed_client, self.embed_model = make_embed_client(cfg)
@@ -102,11 +113,15 @@ class ThesisKB:
 
     def _ensure_quality_columns(self):
         """Add quality score columns if missing (self-migrating)."""
-        if not self.db:
+        if not getattr(self, "db", None):
             return
-        cols = {row[1] for row in self.db.execute("PRAGMA table_info(nuggets)").fetchall()}
+        cols = {
+            row[1] for row in self.db.execute("PRAGMA table_info(nuggets)").fetchall()
+        }
         if "overall_score" not in cols:
-            self.db.execute("ALTER TABLE nuggets ADD COLUMN overall_score REAL DEFAULT NULL")
+            self.db.execute(
+                "ALTER TABLE nuggets ADD COLUMN overall_score REAL DEFAULT NULL"
+            )
             log.info("Migrated: added overall_score column")
         if "flagged" not in cols:
             self.db.execute("ALTER TABLE nuggets ADD COLUMN flagged INTEGER DEFAULT 0")
@@ -115,11 +130,14 @@ class ThesisKB:
 
     def _ensure_indexes(self):
         """Create missing indexes (self-migrating)."""
-        if not self.db:
+        if not getattr(self, "db", None):
             return
-        existing = {row[1] for row in self.db.execute(
-            "SELECT * FROM sqlite_master WHERE type='index'"
-        ).fetchall()}
+        existing = {
+            row[1]
+            for row in self.db.execute(
+                "SELECT * FROM sqlite_master WHERE type='index'"
+            ).fetchall()
+        }
         indexes = {
             "idx_nuggets_relevance": "CREATE INDEX idx_nuggets_relevance ON nuggets(thesis_relevance)",
             "idx_nuggets_section": "CREATE INDEX idx_nuggets_section ON nuggets(section)",
@@ -175,16 +193,18 @@ class ThesisKB:
     def load_chunk(self, paper_id, chunk_id):
         """Load a specific chunk's text from disk."""
         import re as _re
-        if not _re.match(r'^[a-zA-Z0-9_.\-]+$', str(paper_id)):
+
+        if not _re.match(r"^[a-zA-Z0-9_.\-]+$", str(paper_id)):
             log.warning("Invalid paper_id rejected: %r", paper_id)
             return None
-        cfg = load_config(self._config_path) if hasattr(self, '_config_path') else None
+        cfg = load_config(self._config_path) if hasattr(self, "_config_path") else None
         chunk_dir = cfg["paths"]["chunk_dir"] if cfg else "corpus/chunks"
         chunk_path = Path(chunk_dir) / f"{paper_id}.json"
         if not chunk_path.exists():
             return None
         try:
             import json as _json
+
             data = _json.loads(chunk_path.read_text())
             for chunk in data.get("chunks", []):
                 if chunk.get("chunk_id") == chunk_id:
@@ -197,7 +217,9 @@ class ThesisKB:
         """Embed a query string using the configured embedding backend."""
         if not self.embed_client:
             raise RuntimeError("Embedding client not initialized — check embed config")
-        formatted = format_nugget_text({"question": text, "answer": ""}, self.embed_instruction)
+        formatted = format_nugget_text(
+            {"question": text, "answer": ""}, self.embed_instruction
+        )
         kwargs = {"model": self.embed_model, "input": [formatted]}
         if self.embed_dimensions:
             kwargs["dimensions"] = self.embed_dimensions
@@ -206,8 +228,16 @@ class ThesisKB:
             raise RuntimeError("Embedding API returned empty response")
         return resp.data[0].embedding
 
-    def query(self, text, n_results=10, type_filter=None, section_filter=None,
-              types=None, year_min=None, year_max=None):
+    def query(
+        self,
+        text,
+        n_results=10,
+        type_filter=None,
+        section_filter=None,
+        types=None,
+        year_min=None,
+        year_max=None,
+    ):
         """Query the KB with natural language text.
 
         Args:
@@ -253,12 +283,19 @@ class ThesisKB:
         results = self.collection.query(**kwargs)
 
         # Enrich with paper metadata and apply year filter
+        ids = results["ids"]
+        metadatas = results["metadatas"]
+        distances = results["distances"]
+        documents = results["documents"]
+        if not ids or not metadatas or not distances or not documents:
+            return []
+
         enriched = []
-        for i in range(len(results["ids"][0])):
-            nugget_id = results["ids"][0][i]
-            meta = results["metadatas"][0][i]
-            distance = results["distances"][0][i]
-            doc = results["documents"][0][i]
+        for i in range(len(ids[0])):
+            nugget_id = ids[0][i]
+            meta = metadatas[0][i]
+            distance = distances[0][i]
+            doc = documents[0][i]
 
             paper_id = meta.get("paper_id", "")
             paper = self._get_paper(paper_id)
@@ -270,19 +307,21 @@ class ThesisKB:
             if year_max and (not year or year > year_max):
                 continue
 
-            enriched.append({
-                "nugget_id": nugget_id,
-                "distance": round(distance, 4),
-                "type": meta.get("type", ""),
-                "confidence": meta.get("confidence", ""),
-                "section": meta.get("section", ""),
-                "document": doc,
-                "paper_id": paper_id,
-                "paper_title": paper.get("title", "") if paper else "",
-                "paper_year": year,
-                "paper_authors": paper.get("authors", "") if paper else "",
-                "arxiv_id": paper.get("arxiv_id", "") if paper else "",
-            })
+            enriched.append(
+                {
+                    "nugget_id": nugget_id,
+                    "distance": round(distance, 4),
+                    "type": meta.get("type", ""),
+                    "confidence": meta.get("confidence", ""),
+                    "section": meta.get("section", ""),
+                    "document": doc,
+                    "paper_id": paper_id,
+                    "paper_title": paper.get("title", "") if paper else "",
+                    "paper_year": year,
+                    "paper_authors": paper.get("authors", "") if paper else "",
+                    "arxiv_id": paper.get("arxiv_id", "") if paper else "",
+                }
+            )
             if len(enriched) >= n_results:
                 break
 
@@ -292,7 +331,9 @@ class ThesisKB:
         """Run multiple queries and return deduplicated results."""
         seen = set()
         all_results = []
-        per_query = max(5, -(-n_results // len(queries)) + 3)  # ceil division + overlap buffer
+        per_query = max(
+            5, -(-n_results // len(queries)) + 3
+        )  # ceil division + overlap buffer
         for q in queries:
             results = self.query(q, n_results=per_query, **kwargs)
             for r in results:
@@ -329,8 +370,7 @@ class ThesisKB:
             return []
         where = " AND ".join(conditions)
         rows = self.db.execute(
-            f"SELECT * FROM papers WHERE {where} LIMIT ?",
-            params + [limit]
+            f"SELECT * FROM papers WHERE {where} LIMIT ?", params + [limit]
         ).fetchall()
         return [dict(r) for r in rows]
 
@@ -367,8 +407,9 @@ class ThesisKB:
         }
 
     def close(self):
-        if self.db is not None:
-            self.db.close()
+        db = getattr(self, "db", None)
+        if db is not None:
+            db.close()
 
     def __enter__(self):
         return self
@@ -383,38 +424,67 @@ def main():
     ap.add_argument("query", nargs="?", help="Query text")
     ap.add_argument("-n", "--num", type=int, default=10, help="Number of results")
     ap.add_argument("-t", "--type", help="Filter by nugget type (single)")
-    ap.add_argument("--types", help="Filter by nugget types (comma-separated, e.g. method,result)")
+    ap.add_argument(
+        "--types", help="Filter by nugget types (comma-separated, e.g. method,result)"
+    )
     ap.add_argument("-s", "--section", help="Filter by section")
     ap.add_argument("--year-min", type=int, help="Minimum paper year (inclusive)")
     ap.add_argument("--year-max", type=int, help="Maximum paper year (inclusive)")
-    ap.add_argument("--queries", nargs="+", help="Multiple queries (deduplicated union)")
+    ap.add_argument(
+        "--queries", nargs="+", help="Multiple queries (deduplicated union)"
+    )
     ap.add_argument("--json", action="store_true", help="Output as JSON")
     ap.add_argument("--stats", action="store_true", help="Show KB stats")
-    ap.add_argument("--find-author", help="Find papers by author name (SQLite, no embedding server)")
-    ap.add_argument("--find-title", help="Find papers by title substring (SQLite, no embedding server)")
-    ap.add_argument("--find-year", type=int, help="Find papers by year (use with --find-author/--find-title)")
-    ap.add_argument("--paper-nuggets", help="Get all nuggets for a paper_id (SQLite, no embedding server)")
-    ap.add_argument("--api", action="store_true",
-                    help="Route queries through the API's full retrieval pipeline (requires running server)")
-    ap.add_argument("--api-url", default="http://127.0.0.1:8001",
-                    help="API server URL (default: http://127.0.0.1:8001)")
-    ap.add_argument("--mode", default="survey",
-                    help="Retrieval mode when using --api (background, draft, survey, etc.)")
+    ap.add_argument(
+        "--find-author", help="Find papers by author name (SQLite, no embedding server)"
+    )
+    ap.add_argument(
+        "--find-title",
+        help="Find papers by title substring (SQLite, no embedding server)",
+    )
+    ap.add_argument(
+        "--find-year",
+        type=int,
+        help="Find papers by year (use with --find-author/--find-title)",
+    )
+    ap.add_argument(
+        "--paper-nuggets",
+        help="Get all nuggets for a paper_id (SQLite, no embedding server)",
+    )
+    ap.add_argument(
+        "--api",
+        action="store_true",
+        help="Route queries through the API's full retrieval pipeline (requires running server)",
+    )
+    ap.add_argument(
+        "--api-url",
+        default="http://127.0.0.1:8001",
+        help="API server URL (default: http://127.0.0.1:8001)",
+    )
+    ap.add_argument(
+        "--mode",
+        default="survey",
+        help="Retrieval mode when using --api (background, draft, survey, etc.)",
+    )
     ap.add_argument("-c", "--config", default="config.yaml")
     args = ap.parse_args()
 
     # API-routed retrieval (full pipeline: expansion, RRF, reranking, diversity caps)
     if args.api:
-        import urllib.request, urllib.error
+        import urllib.error
+        import urllib.request
+
         query_text = " ".join(args.queries) if args.queries else (args.query or "")
         if not query_text:
             print("Error: --api requires a query", file=sys.stderr)
             sys.exit(1)
-        payload = json.dumps({
-            "query": query_text,
-            "mode": args.mode,
-            "n_context": args.num,
-        }).encode()
+        payload = json.dumps(
+            {
+                "query": query_text,
+                "mode": args.mode,
+                "n_context": args.num,
+            }
+        ).encode()
         req = urllib.request.Request(
             f"{args.api_url}/retrieve",
             data=payload,
@@ -426,7 +496,9 @@ def main():
                 data = json.loads(resp.read())
         except urllib.error.URLError as e:
             print(f"Error: Cannot reach API at {args.api_url} — {e}", file=sys.stderr)
-            print("Start the server first: bash scripts/start_local.sh", file=sys.stderr)
+            print(
+                "Start the server first: bash scripts/start_local.sh", file=sys.stderr
+            )
             sys.exit(1)
 
         results = data.get("results", [])
@@ -435,8 +507,12 @@ def main():
         else:
             for i, r in enumerate(results):
                 arxiv = f" arXiv:{r['arxiv_id']}" if r.get("arxiv_id") else ""
-                print(f"\n--- [{i+1}] score={r.get('rrf_score', 0):.4f} type={r['type']} [{r.get('section', '')}] ---")
-                print(f"Paper: {r.get('paper_title', '')} ({r.get('paper_year', '')}){arxiv}")
+                print(
+                    f"\n--- [{i + 1}] score={r.get('rrf_score', 0):.4f} type={r['type']} [{r.get('section', '')}] ---"
+                )
+                print(
+                    f"Paper: {r.get('paper_title', '')} ({r.get('paper_year', '')}){arxiv}"
+                )
                 print(f"Bibtex: {r.get('bibtex_key', '')}")
                 print(f"{r['document']}")
         return
@@ -512,7 +588,7 @@ def main():
     elif args.query:
         results = kb.query(args.query, **query_kwargs)
     else:
-        print("Usage: python -m src.query \"your question\" [-n 10] [-t method] [--json]")
+        print('Usage: python -m src.query "your question" [-n 10] [-t method] [--json]')
         kb.close()
         return
 
@@ -521,7 +597,9 @@ def main():
     else:
         for i, r in enumerate(results):
             arxiv = f" arXiv:{r['arxiv_id']}" if r.get("arxiv_id") else ""
-            print(f"\n--- [{i+1}] dist={r['distance']} type={r['type']} [{r['section']}] ---")
+            print(
+                f"\n--- [{i + 1}] dist={r['distance']} type={r['type']} [{r['section']}] ---"
+            )
             print(f"Paper: {r['paper_title']} ({r['paper_year']}){arxiv}")
             print(f"{r['document']}")
 

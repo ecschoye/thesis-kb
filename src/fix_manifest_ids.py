@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Look up missing arxiv_id and doi via Semantic Scholar API."""
-import json, urllib.request, urllib.parse, time, sys
+import json
+import urllib.request
+import urllib.parse
+import time
+import sys
 
 sys.stdout.reconfigure(line_buffering=True)
 

@@ -1,5 +1,7 @@
 """Token-based chunking with section awareness and sentence-boundary flex."""
-import os, re, argparse
+import os
+import re
+import argparse
 import tiktoken
 from src.utils import load_config, load_json, save_json, already_processed
 

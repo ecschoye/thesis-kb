@@ -1,5 +1,7 @@
 """Enrich nugget files with paper metadata (title, authors, year) from manifest."""
-import os, json, argparse
+import os
+import json
+import argparse
 from src.utils import load_config, load_json, save_json
 
 

@@ -1,5 +1,11 @@
 """FastAPI backend for thesis-kb web chat interface."""
-import os, json, asyncio, re, time, math, threading
+import os
+import json
+import asyncio
+import re
+import time
+import math
+import threading
 import httpx
 from collections import defaultdict
 from contextlib import asynccontextmanager
@@ -10,6 +16,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, field_validator
+from functools import lru_cache
 from openai import OpenAI
 
 from src.utils import load_config
@@ -106,8 +113,6 @@ def _load_retrieval_config(cfg: dict) -> dict:
         base.update(mode_cfg)
         MODE_ROUTING[mode_name] = base
     return ret
-
-from functools import lru_cache
 
 # Query embedding cache — mutable wrapper so maxsize can be set at init
 _embed_cache_size = 256
@@ -703,7 +708,7 @@ async def _run_retrieval(
         # Strip markdown code fences if present
         if text.startswith("```"):
             lines = text.split("\n")
-            lines = [l for l in lines if not l.startswith("```")]
+            lines = [line for line in lines if not line.startswith("```")]
             text = "\n".join(lines).strip()
         return json.loads(text)
 
@@ -1406,7 +1411,8 @@ def set_config(path: str):
 
 
 if __name__ == "__main__":
-    import argparse, uvicorn
+    import argparse
+    import uvicorn
 
     ap = argparse.ArgumentParser()
     ap.add_argument("-c", "--config", default="config.yaml")

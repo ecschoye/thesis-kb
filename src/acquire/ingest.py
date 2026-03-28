@@ -1,5 +1,7 @@
 """Main ingestion: local PDFs + Zotero + S2 enrichment."""
-import os, argparse, hashlib
+import os
+import argparse
+import hashlib
 from pathlib import Path
 from src.utils import load_config, load_json, save_json
 from src.acquire.parse_filenames import scan_pdf_directory

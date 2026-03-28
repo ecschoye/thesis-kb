@@ -1,7 +1,10 @@
 """LLM-based nugget quality checking via vLLM OpenAI-compatible API."""
-import os, json, time, argparse, threading
-from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
+import json
+import time
+import argparse
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from src.utils import load_config, load_json, save_json, make_llm_client
 
 
@@ -68,72 +71,91 @@ def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg, max_mode
     max_retries = cfg.get("max_retries", 3)
     retry_delay = cfg.get("retry_base_delay", 2.0)
 
-    for attempt in range(max_retries):
-        try:
-            resp = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": QUALITY_SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=temperature,
-                max_tokens=max_tokens,
-                response_format={
-                    "type": "json_schema",
-                    "json_schema": {
-                        "name": "nugget_ratings",
-                        "schema": QUALITY_SCHEMA,
-                        "strict": False,
-                    },
-                },
-                extra_body={
-                    "chat_template_kwargs": {"enable_thinking": False},
-                },
-            )
-            raw = resp.choices[0].message.content
-            scores = json.loads(raw)
+    # Build model list: primary + fallbacks (if configured on client)
+    models_to_try = [model] + getattr(client, "_fallback_models", [])
 
-            # Validate we got the right number of results
-            if not isinstance(scores, list):
-                return None, f"Expected array, got {type(scores).__name__}"
+    # Only use structured output and vLLM extras for vLLM backend
+    is_vllm = not any(m.count("/") >= 1 for m in models_to_try)
 
-            # Map scores back to nugget_ids
-            results = []
-            for i, n in enumerate(batch):
-                if i < len(scores):
-                    s = scores[i]
-                    results.append({
-                        "nugget_id": n.get("nugget_id", f"unknown_{i}"),
-                        "relevance": s.get("relevance", 0),
-                        "specificity": s.get("specificity", 0),
-                        "self_contained": s.get("self_contained", 0),
-                        "type_accuracy": s.get("type_accuracy", 0),
-                        "coherence": s.get("coherence", 0),
-                        "thesis_relevance": s.get("thesis_relevance", 0),
-                        "overall": s.get("overall", 0),
-                        "flags": s.get("flags", []),
-                    })
+    for cur_model in models_to_try:
+        for attempt in range(max_retries):
+            try:
+                kwargs = dict(
+                    model=cur_model,
+                    messages=[
+                        {"role": "system", "content": QUALITY_SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt + "\n\nRespond with ONLY a valid JSON array, no markdown fences."},
+                    ],
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
+                if is_vllm:
+                    kwargs["response_format"] = {
+                        "type": "json_schema",
+                        "json_schema": {
+                            "name": "nugget_ratings",
+                            "schema": QUALITY_SCHEMA,
+                            "strict": False,
+                        },
+                    }
+                    kwargs["extra_body"] = {
+                        "chat_template_kwargs": {"enable_thinking": False},
+                    }
+                resp = client.chat.completions.create(**kwargs)
+                raw = resp.choices[0].message.content
+                if raw is None:
+                    raise ValueError("Empty response from model")
+
+                # Strip markdown fences if present
+                import re
+                raw = re.sub(r"^```(?:json)?\s*", "", raw.strip())
+                raw = re.sub(r"\s*```$", "", raw.strip())
+                scores = json.loads(raw)
+
+                # Validate we got the right number of results
+                if not isinstance(scores, list):
+                    return None, f"Expected array, got {type(scores).__name__}"
+
+                # Map scores back to nugget_ids
+                results = []
+                for i, n in enumerate(batch):
+                    if i < len(scores):
+                        s = scores[i]
+                        results.append({
+                            "nugget_id": n.get("nugget_id", f"unknown_{i}"),
+                            "relevance": s.get("relevance", 0),
+                            "specificity": s.get("specificity", 0),
+                            "self_contained": s.get("self_contained", 0),
+                            "type_accuracy": s.get("type_accuracy", 0),
+                            "coherence": s.get("coherence", 0),
+                            "thesis_relevance": s.get("thesis_relevance", 0),
+                            "overall": s.get("overall", 0),
+                            "flags": s.get("flags", []),
+                        })
+                    else:
+                        # LLM returned fewer results than expected
+                        results.append({
+                            "nugget_id": n.get("nugget_id", f"unknown_{i}"),
+                            "relevance": 0, "specificity": 0, "self_contained": 0,
+                            "type_accuracy": 0, "coherence": 0, "thesis_relevance": 0,
+                            "overall": 0, "flags": ["rating_missing"],
+                        })
+                return results, None
+
+            except Exception as e:
+                err_str = str(e)
+                print(f"  RETRY {paper_id} batch attempt {attempt+1}/{max_retries}: {err_str[:200]}", flush=True)
+                if "rate" in err_str.lower() and attempt < max_retries - 1:
+                    time.sleep(retry_delay * (2 ** attempt))
+                elif attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                elif cur_model != models_to_try[-1]:
+                    print(f"  Falling back from {cur_model} to next model", flush=True)
+                    break  # try next model
                 else:
-                    # LLM returned fewer results than expected
-                    results.append({
-                        "nugget_id": n.get("nugget_id", f"unknown_{i}"),
-                        "relevance": 0, "specificity": 0, "self_contained": 0,
-                        "type_accuracy": 0, "coherence": 0, "thesis_relevance": 0,
-                        "overall": 0, "flags": ["rating_missing"],
-                    })
-            return results, None
+                    return None, err_str
 
-        except Exception as e:
-            err_str = str(e)
-            print(f"  RETRY {paper_id} batch attempt {attempt+1}/{max_retries}: {err_str[:200]}", flush=True)
-            if "rate" in err_str.lower() and attempt < max_retries - 1:
-                time.sleep(retry_delay * (2 ** attempt))
-            elif attempt < max_retries - 1:
-                time.sleep(retry_delay)
-            else:
-                return None, err_str
-
-    return None, "max retries exceeded"
+    return None, "all models exhausted"
 
 
 def _process_paper(client, paper_id, nuggets, model, paper_title, cfg):

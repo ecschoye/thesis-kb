@@ -127,7 +127,7 @@ def lookup_papers_by_title(db, slug_words):
     words = [w for w in slug_words.split() if len(w) > 2][:3]
     if not words:
         return []
-    conditions = [f"title LIKE ?" for _ in words]
+    conditions = ["title LIKE ?" for _ in words]
     params = [f"%{w}%" for w in words]
     query = f"SELECT * FROM papers WHERE {' AND '.join(conditions)} LIMIT 10"
     rows = db.execute(query, params).fetchall()

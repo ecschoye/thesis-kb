@@ -1,10 +1,16 @@
 """LLM-based nugget augmentation: improve weak nuggets and fill coverage gaps."""
-import os, json, re, time, argparse, threading
+
+import argparse
+import json
+import os
+import re
+import threading
+import time
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from src.utils import load_config, load_json, save_json, make_llm_client
-from src.nuggets.extract import repair_json
 
+from src.nuggets.extract import repair_json
+from src.utils import load_config, load_json, make_llm_client, save_json
 
 IMPROVE_SYSTEM_PROMPT = """You are a research knowledge refinement specialist. You will receive:
 1. A weak nugget (question-answer pair) extracted from an academic paper
@@ -68,7 +74,7 @@ def _is_reference_chunk(text):
     lines = text.strip().split("\n")
     if not lines:
         return True
-    ref_lines = sum(1 for l in lines if re.match(r"^\s*\[?\d+\]?\s", l))
+    ref_lines = sum(1 for line in lines if re.match(r"^\s*\[?\d+\]?\s", line))
     return ref_lines / len(lines) > 0.4
 
 
@@ -126,7 +132,7 @@ def improve_nugget(client, nugget, scores, chunk_text, model, cfg):
                     }
         except Exception as e:
             if "rate" in str(e).lower() and attempt < max_retries - 1:
-                time.sleep(retry_delay * (2 ** attempt))
+                time.sleep(retry_delay * (2**attempt))
                 continue
         break
 
@@ -149,9 +155,7 @@ def gapfill_chunk(client, chunk_text, existing_nuggets, model, cfg):
 
     nugget_lines = []
     for i, n in enumerate(existing_nuggets):
-        nugget_lines.append(
-            f"[{i + 1}] Q: {n['question']}\n    A: {n['answer']}"
-        )
+        nugget_lines.append(f"[{i + 1}] Q: {n['question']}\n    A: {n['answer']}")
     existing_str = "\n".join(nugget_lines) if nugget_lines else "(none)"
 
     user_msg = (
@@ -183,15 +187,17 @@ def gapfill_chunk(client, chunk_text, existing_nuggets, model, cfg):
             valid = []
             for n in parsed:
                 if isinstance(n, dict) and "question" in n and "answer" in n:
-                    valid.append({
-                        "question": str(n["question"]),
-                        "answer": str(n["answer"]),
-                        "type": str(n.get("type", "background")),
-                    })
+                    valid.append(
+                        {
+                            "question": str(n["question"]),
+                            "answer": str(n["answer"]),
+                            "type": str(n.get("type", "background")),
+                        }
+                    )
             return valid
         except Exception as e:
             if "rate" in str(e).lower() and attempt < max_retries - 1:
-                time.sleep(retry_delay * (2 ** attempt))
+                time.sleep(retry_delay * (2**attempt))
                 continue
             break
 
@@ -225,7 +231,9 @@ def _process_paper(client, paper_id, nuggets, quality_data, chunks_data, model, 
     improve_threshold = cfg.get("improve_threshold", 2)
     gap_max_nuggets = cfg.get("gap_max_nuggets", 2)
     gap_min_tokens = cfg.get("gap_min_tokens", 100)
-    gap_skip_sections = set(cfg.get("gap_skip_sections", ["references", "acknowledgments", "bibliography"]))
+    gap_skip_sections = set(
+        cfg.get("gap_skip_sections", ["references", "acknowledgments", "bibliography"])
+    )
 
     # Build lookups
     quality_by_id = {}
@@ -341,7 +349,9 @@ def run_augmentation(config_path="config.yaml"):
         to_process.append(paper_id)
 
     total_papers = len(to_process)
-    print(f"[augment] Processing {total_papers} papers ({skipped} skipped, {missing} missing deps) via {model}, workers={max_workers}")
+    print(
+        f"[augment] Processing {total_papers} papers ({skipped} skipped, {missing} missing deps) via {model}, workers={max_workers}"
+    )
 
     if not to_process:
         return
@@ -385,15 +395,15 @@ def run_augmentation(config_path="config.yaml"):
 
             fut = executor.submit(
                 _process_paper,
-                client, paper_id,
+                client,
+                paper_id,
                 nuggets_data.get("nuggets", []),
                 quality_data,
                 chunks_data,
-                model, acfg,
+                model,
+                acfg,
             )
-            fut.add_done_callback(
-                lambda f, pid=paper_id: _on_done(f, pid)
-            )
+            fut.add_done_callback(lambda f, pid=paper_id: _on_done(f, pid))
 
     print(
         f"\nDone: {success} papers, {total_improved} improved, "
