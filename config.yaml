@@ -109,70 +109,73 @@ retrieval:
     depth_fraction_weight: 0.3   # weight of hit-fraction in depth-of-coverage
     depth_abs_divisor: 5         # divisor for log2(hits) absolute boost
     depth_abs_max: 0.3           # max absolute depth boost
-    rerank_top_n: 60             # candidates to send to cross-encoder
+    type_match_boost: 1.2        # multiplier for nuggets matching a variant's target_type
+    hyde_enabled: true            # generate a hypothetical answer passage before embedding
+    hyde_weight: 1.0              # RRF weight for the HyDE variant (1.0 = equal to other variants)
+    rerank_top_n: 150             # candidates to send to cross-encoder
     rerank_weight: 0.6           # blend weight (0=RRF only, 1=reranker only)
     rerank_timeout: 10           # seconds before falling back to RRF-only
     max_workers: 8               # ThreadPoolExecutor workers
     embed_cache_size: 256        # LRU cache entries for query embeddings
     modes:
         background:
-            n_retrieve: 25
+            n_retrieve: 60
             allowed_types: [background, method]
             preferred_sections: [abstract, introduction, background, related work]
             authority_boost: 1.5
             review_boost: 0.3
             max_per_paper: 2
         draft:
-            n_retrieve: 25
+            n_retrieve: 60
             authority_boost: 1.0
             review_boost: 0.0
             max_per_paper: 3
         check:
-            n_retrieve: 30
+            n_retrieve: 60
             preferred_sections: [results, experiments, methods, discussion]
             authority_boost: 1.2
             review_boost: 0.0
             max_per_paper: 4
         review:
-            n_retrieve: 30
+            n_retrieve: 60
             preferred_sections: [results, experiments, methods, discussion]
             authority_boost: 1.2
             review_boost: 0.0
             max_per_paper: 4
         compare:
-            n_retrieve: 25
+            n_retrieve: 60
             preferred_sections: [results, experiments, discussion, abstract]
             authority_boost: 1.0
             review_boost: 0.0
             max_per_paper: 3
         gaps:
-            n_retrieve: 30
+            n_retrieve: 60
             preferred_sections: [discussion, conclusion, limitations, future work]
             authority_boost: 0.8
             review_boost: 0.2
             max_per_paper: 2
         outline:
-            n_retrieve: 30
+            n_retrieve: 60
             authority_boost: 1.0
             review_boost: 0.1
             max_per_paper: 2
         # Code-aware retrieval modes
         implementation:
-            n_retrieve: 25
+            n_retrieve: 60
             allowed_types: [implementation, config, method]
             preferred_sections: [methods, code]
             authority_boost: 0.5     # prioritise code over papers
             review_boost: 0.0
             max_per_paper: 5
         architecture:
-            n_retrieve: 30
+            n_retrieve: 60
             allowed_types: [implementation, method, comparison]
             preferred_sections: [methods, code, abstract]
             authority_boost: 1.0
             review_boost: 0.0
             max_per_paper: 3
         experiments:
-            n_retrieve: 30
+            n_retrieve: 60
             allowed_types: [config, experiment, result, comparison]
             preferred_sections: [experiments, results, code]
             authority_boost: 0.8

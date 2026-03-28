@@ -47,7 +47,7 @@ _feedback_lock = threading.Lock()  # serialize feedback DB writes
 # Default mode routing (overridden by config.yaml retrieval.modes)
 _DEFAULT_MODE_ROUTING = {
     "background": {
-        "n_retrieve": 25,
+        "n_retrieve": 60,
         "allowed_types": {"background", "method"},
         "preferred_sections": {"abstract", "introduction", "background", "related work"},
         "authority_boost": 1.5,
@@ -55,41 +55,41 @@ _DEFAULT_MODE_ROUTING = {
         "max_per_paper": 2,
     },
     "draft": {
-        "n_retrieve": 25,
+        "n_retrieve": 60,
         "authority_boost": 1.0,
         "review_boost": 0.0,
         "max_per_paper": 3,
     },
     "check": {
-        "n_retrieve": 30,
+        "n_retrieve": 60,
         "preferred_sections": {"results", "experiments", "methods", "discussion"},
         "authority_boost": 1.2,
         "review_boost": 0.0,
         "max_per_paper": 4,
     },
     "review": {
-        "n_retrieve": 30,
+        "n_retrieve": 60,
         "preferred_sections": {"results", "experiments", "methods", "discussion"},
         "authority_boost": 1.2,
         "review_boost": 0.0,
         "max_per_paper": 4,
     },
     "compare": {
-        "n_retrieve": 25,
+        "n_retrieve": 60,
         "preferred_sections": {"results", "experiments", "discussion", "abstract"},
         "authority_boost": 1.0,
         "review_boost": 0.0,
         "max_per_paper": 3,
     },
     "gaps": {
-        "n_retrieve": 30,
+        "n_retrieve": 60,
         "preferred_sections": {"discussion", "conclusion", "limitations", "future work"},
         "authority_boost": 0.8,
         "review_boost": 0.2,
         "max_per_paper": 2,
     },
     "outline": {
-        "n_retrieve": 30,
+        "n_retrieve": 60,
         "authority_boost": 1.0,
         "review_boost": 0.1,
         "max_per_paper": 2,
@@ -375,7 +375,7 @@ class ChatRequest(BaseModel):
     messages: list[ChatMessage]
     mode: str = "survey"
     n_variants: int = 6
-    n_retrieve: int = 20
+    n_retrieve: int = 60
     n_context: int = 16
     model: str = "minimax/minimax-m2.5"
     latex_mode: bool = False
@@ -387,13 +387,13 @@ class ChatRequest(BaseModel):
     pinned_papers: list[str] = []
     max_per_paper: int = 3
     rerank: bool = True
-    rerank_top_n: int = 60
+    rerank_top_n: int = 150
     rerank_weight: float = 0.6
 
     @field_validator("rerank_top_n")
     @classmethod
     def clamp_rerank_top_n(cls, v):
-        return max(1, min(v, 200))
+        return max(1, min(v, 300))
 
     @field_validator("rerank_weight")
     @classmethod
@@ -405,20 +405,20 @@ class RetrieveRequest(BaseModel):
     mode: str = "background"
     n_context: int = 16
     n_variants: int = 6
-    n_retrieve: int = 20
+    n_retrieve: int = 60
     model: str = "minimax/minimax-m2.5"
     year_min: int | None = None
     year_max: int | None = None
     type_filter: list[str] = []
     max_per_paper: int = 3
     rerank: bool = True
-    rerank_top_n: int = 60
+    rerank_top_n: int = 150
     rerank_weight: float = 0.6
 
     @field_validator("rerank_top_n")
     @classmethod
     def clamp_rerank_top_n(cls, v):
-        return max(1, min(v, 200))
+        return max(1, min(v, 300))
 
     @field_validator("rerank_weight")
     @classmethod
@@ -742,6 +742,36 @@ async def _run_retrieval(
 
     log.debug("Expanded to %d variants: %s", len(variants), variants)
 
+    # --- Step 1b: HyDE — generate a hypothetical nugget passage ---
+    hyde_enabled = _retrieval_cfg.get("hyde_enabled", True)
+
+    if hyde_enabled:
+        def _generate_hyde():
+            try:
+                # Domain-specific prompt — update if KB scope expands beyond thesis topics
+                resp = expand_client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": (
+                            "You are an academic research assistant. Given a query about "
+                            "event cameras, RGB-Event fusion, spiking neural networks, or "
+                            "autonomous driving, write a short hypothetical answer as if it "
+                            "were extracted from a research paper. Write 2-4 sentences of "
+                            "factual, specific academic content. Do not hedge or disclaim."
+                        )},
+                        {"role": "user", "content": last_msg},
+                    ],
+                    temperature=0.4,
+                    max_tokens=200,
+                )
+                answer = resp.choices[0].message.content.strip()
+                return f"Q: {last_msg}\nA: {answer}"
+            except Exception as e:
+                log.warning("HyDE generation failed: %s", e)
+                return None
+
+        hyde_task = loop.run_in_executor(_executor, _generate_hyde)
+
     # --- Step 2: Embed each variant (with LRU cache) ---
     def _embed_one(text):
         return _cached_embed(text)
@@ -750,6 +780,17 @@ async def _run_retrieval(
     embed_tasks = [
         loop.run_in_executor(_executor, _embed_one, v) for v in variants
     ]
+
+    # Await HyDE result and embed it in parallel with variant embeddings
+    hyde_passage = None
+    if hyde_enabled:
+        hyde_passage = await hyde_task
+        if hyde_passage:
+            variants.append(hyde_passage)
+            variant_types.append(None)  # no type filter for HyDE
+            embed_tasks.append(loop.run_in_executor(_executor, _embed_one, hyde_passage))
+            log.debug("HyDE passage: %s", hyde_passage[:120])
+
     embeddings = await asyncio.gather(*embed_tasks)
     log.info("Embedded %d variants in %.0fms", len(variants), (time.time() - t_embed) * 1000)
 
@@ -764,8 +805,8 @@ async def _run_retrieval(
                 kwargs["where"] = {"type": type_filter[0]}
             else:
                 kwargs["where"] = {"type": {"$in": type_filter}}
-        elif target_type:
-            kwargs["where"] = {"type": target_type}
+        # target_type is no longer used as a hard filter —
+        # type preference is applied as an RRF boost instead
         return _collection.query(**kwargs)
 
     retrieve_tasks = [
@@ -774,9 +815,12 @@ async def _run_retrieval(
     ]
 
     # BM25 retrieval (parallel with vector retrieval)
+    # Exclude HyDE passage from BM25 — its value is in the vector space, not keywords
+    bm25_variants = variants[:-1] if hyde_passage else variants
+
     def _bm25_search():
         bm25_results = []
-        for v in variants:
+        for v in bm25_variants:
             bm25_results.extend(_kb.bm25_search(v, n_results=effective_n_retrieve))
         return bm25_results
 
@@ -793,15 +837,19 @@ async def _run_retrieval(
     matched_queries: dict[str, list[int]] = {}
     nugget_data: dict[str, dict] = {}
 
+    hyde_weight = _retrieval_cfg.get("hyde_weight", 1.0)
+    hyde_qi = len(variants) - 1 if hyde_passage else -1  # index of HyDE variant
+
     for qi, result_set in enumerate(all_results):
         ids = result_set["ids"][0]
         metas = result_set["metadatas"][0]
         docs = result_set["documents"][0]
         dists = result_set["distances"][0]
+        rrf_w = hyde_weight if qi == hyde_qi else 1.0
         for rank, (nid, meta, doc, dist) in enumerate(
             zip(ids, metas, docs, dists)
         ):
-            rrf_scores[nid] = rrf_scores.get(nid, 0) + 1 / (rank + rrf_k)
+            rrf_scores[nid] = rrf_scores.get(nid, 0) + rrf_w / (rank + rrf_k)
             overlap_count[nid] = overlap_count.get(nid, 0) + 1
             matched_queries.setdefault(nid, []).append(qi)
             if nid not in nugget_data:
@@ -822,7 +870,7 @@ async def _run_retrieval(
         if nid not in bm25_seen or score > bm25_seen[nid]:
             bm25_seen[nid] = score
     bm25_ranked = sorted(bm25_seen.keys(), key=lambda x: bm25_seen[x], reverse=True)
-    for rank, nid in enumerate(bm25_ranked[:effective_n_retrieve]):
+    for rank, nid in enumerate(bm25_ranked):
         rrf_scores[nid] = rrf_scores.get(nid, 0) + 1 / (rank + rrf_k)
         overlap_count[nid] = overlap_count.get(nid, 0) + 1
         matched_queries.setdefault(nid, []).append(len(variants))
@@ -863,6 +911,16 @@ async def _run_retrieval(
             section = nugget_data[nid].get("section", "").lower()
             if any(ps in section for ps in preferred_sections):
                 rrf_scores[nid] *= section_boost
+
+    # Type-match boosting: reward nuggets whose type matches a variant's target_type
+    type_match_boost = _retrieval_cfg.get("type_match_boost", 1.2)
+    if type_match_boost > 1.0:
+        # Build set of target types requested by the expanded variants
+        target_type_set = {t for t in variant_types if t}
+        if target_type_set:
+            for nid in rrf_scores:
+                if nugget_data[nid].get("type", "") in target_type_set:
+                    rrf_scores[nid] *= type_match_boost
 
     # Feedback boosting (from user's prior ratings)
     if _feedback_db:
