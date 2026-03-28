@@ -95,6 +95,9 @@ store:
 retrieval:
     rrf_k: 30
     section_boost: 1.15
+    type_match_boost: 1.2
+    hyde_enabled: true
+    hyde_weight: 1.0
     feedback_positive: 1.3
     feedback_negative: 0.5
     paper_feedback_step: 0.05
@@ -102,14 +105,14 @@ retrieval:
     depth_fraction_weight: 0.3
     depth_abs_divisor: 5
     depth_abs_max: 0.3
-    rerank_top_n: 60
+    rerank_top_n: 150
     rerank_weight: 0.6
     rerank_timeout: 10
     max_workers: 8
     embed_cache_size: 256
     modes:
         background:
-            n_retrieve: 25
+            n_retrieve: 60
             allowed_types: [background, method]
             preferred_sections:
                 [abstract, introduction, background, related work]
@@ -117,37 +120,37 @@ retrieval:
             review_boost: 0.3
             max_per_paper: 2
         draft:
-            n_retrieve: 25
+            n_retrieve: 60
             authority_boost: 1.0
             review_boost: 0.0
             max_per_paper: 3
         check:
-            n_retrieve: 30
+            n_retrieve: 60
             preferred_sections: [results, experiments, methods, discussion]
             authority_boost: 1.2
             review_boost: 0.0
             max_per_paper: 4
         review:
-            n_retrieve: 30
+            n_retrieve: 60
             preferred_sections: [results, experiments, methods, discussion]
             authority_boost: 1.2
             review_boost: 0.0
             max_per_paper: 4
         compare:
-            n_retrieve: 25
+            n_retrieve: 60
             preferred_sections: [results, experiments, discussion, abstract]
             authority_boost: 1.0
             review_boost: 0.0
             max_per_paper: 3
         gaps:
-            n_retrieve: 30
+            n_retrieve: 60
             preferred_sections:
                 [discussion, conclusion, limitations, future work]
             authority_boost: 0.8
             review_boost: 0.2
             max_per_paper: 2
         outline:
-            n_retrieve: 30
+            n_retrieve: 60
             authority_boost: 1.0
             review_boost: 0.1
             max_per_paper: 2
