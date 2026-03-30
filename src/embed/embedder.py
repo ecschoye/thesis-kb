@@ -258,11 +258,23 @@ def run_embedding(config_path="config.yaml"):
     # Results indexed by batch order to maintain alignment
     results_by_idx = [None] * total_batches
 
+    max_retries = emb_cfg.get("max_retries", 3)
+
     def _embed_one_batch(idx, start, end):
         client = clients[idx % num_instances]
-        embs = embed_batch(client, texts[start:end], model, dimensions)
-        return idx, embs
+        for attempt in range(max_retries):
+            try:
+                embs = embed_batch(client, texts[start:end], model, dimensions)
+                return idx, embs
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    import time
+                    time.sleep(2 ** attempt)
+                    print(f"  RETRY batch {idx} attempt {attempt+1}/{max_retries}: {e}")
+                else:
+                    raise
 
+    failed_batches = []
     with ThreadPoolExecutor(max_workers=embed_workers) as pool:
         futures = {
             pool.submit(_embed_one_batch, i, s, e): i
@@ -270,11 +282,23 @@ def run_embedding(config_path="config.yaml"):
         }
         done = 0
         for fut in as_completed(futures):
-            idx, embs = fut.result()
-            results_by_idx[idx] = embs
+            batch_idx = futures[fut]
+            try:
+                idx, embs = fut.result()
+                results_by_idx[idx] = embs
+            except Exception as e:
+                print(f"  ERROR batch {batch_idx}: {e}")
+                failed_batches.append(batch_idx)
             done += 1
             if done % 10 == 0 or done == total_batches:
                 print(f"  {done}/{total_batches} batches embedded")
+
+    if failed_batches:
+        raise RuntimeError(
+            f"{len(failed_batches)} of {total_batches} embedding batches failed "
+            f"(batch indices: {failed_batches[:20]}). "
+            f"No partial output saved to avoid misaligned embeddings."
+        )
 
     all_embeddings = []
     for embs in results_by_idx:

@@ -175,7 +175,7 @@ def _reorder_blocks_reading_order(page):
     # Count blocks clearly on each side (with 15% margin from center)
     margin = page_width * 0.15
     left_count = sum(1 for x in left_edges if x < mid_x - margin)
-    right_count = sum(1 for x in left_edges if x > mid_x - margin)
+    right_count = sum(1 for x in left_edges if x > mid_x + margin)
 
     # Check for a gap in x-positions near the page center
     # Two-column layout: most blocks start either left of center or right of center

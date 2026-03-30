@@ -47,7 +47,7 @@ trap cleanup EXIT
 echo "=== Starting vLLM (Qwen3.5-27B) ==="
 vllm serve Qwen/Qwen3.5-27B \
     --port $VLLM_PORT \
-    --max-model-len 4096 \
+    --max-model-len 8192 \
     --gpu-memory-utilization 0.92 \
     --dtype bfloat16 \
     --enable-chunked-prefill \

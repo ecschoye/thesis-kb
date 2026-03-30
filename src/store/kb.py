@@ -189,7 +189,7 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
         # Prefer inlined quality (from unified pipeline)
         if "quality" in n and isinstance(n["quality"], dict):
             overall_score = n["quality"].get("overall")
-            flagged = 1 if (overall_score or 5) <= flag_threshold else 0
+            flagged = 1 if (overall_score if overall_score is not None else 5) <= flag_threshold else 0
         else:
             qs = quality_scores.get(nid, {})
             overall_score = qs.get("overall_score")

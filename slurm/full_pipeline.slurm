@@ -4,23 +4,31 @@
 #SBATCH --partition=GPUQ
 #SBATCH --gres=gpu:4
 #SBATCH --constraint="gpu80g"
-#SBATCH --time=0-02:00:00
+#SBATCH --time=1-00:00:00
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=8
 #SBATCH --output=logs/full_%j.out
 #SBATCH --error=logs/full_%j.err
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=ecschoye@stud.ntnu.no
 
-# Full pipeline: extract → chunk → unified nuggets → embed → store.
-# Single job, handles model swaps between GPU phases.
+# GPU pipeline: unified nuggets → embed → store.
+# Run CPU stages first (slurm/cpu_stages.slurm) or inline with --cpu flag.
 #
 # Usage:
-#   sbatch slurm/full_pipeline.slurm                          # normal incremental run
-#   sbatch slurm/full_pipeline.slurm --regenerate --oldest 500 # regenerate 500 oldest
-#   sbatch slurm/full_pipeline.slurm --regenerate              # regenerate ALL papers
+#   # CPU stages first, then GPU:
+#   CPU_JOB=$(sbatch --parsable slurm/cpu_stages.slurm)
+#   sbatch --dependency=afterok:$CPU_JOB --time=1-00:00:00 slurm/full_pipeline.slurm
+#
+#   # Or all-in-one (includes CPU stages):
+#   sbatch --time=1-00:00:00 slurm/full_pipeline.slurm --cpu
+#
+#   # With extra args for unified pipeline:
+#   sbatch slurm/full_pipeline.slurm --regenerate --oldest 500
+#   sbatch slurm/full_pipeline.slurm --regenerate
 #   sbatch slurm/full_pipeline.slurm --regenerate --paper-ids 2401_17151,2301_00456
 #
-# Extra args are passed to `python -m src.nuggets.unified`.
-# For regeneration jobs, increase --time (e.g. 0-12:00:00 for all 1553 papers).
+# Extra args (except --cpu) are passed to `python -m src.nuggets.unified`.
 #
 # Multi-instance scaling (recommended for >=4 GPUs):
 #   With N GPUs, launches N/2 independent TP=2 vLLM instances.
@@ -46,9 +54,18 @@ export TIKTOKEN_CACHE_DIR=/cluster/work/ecschoye/thesis-kb/.cache/tiktoken
 export PYTHONUNBUFFERED=1
 mkdir -p logs
 
-# Extra args passed to the unified nugget pipeline (e.g. --regenerate --oldest 500)
-EXTRA_ARGS="${@}"
-echo "Extra args: ${EXTRA_ARGS:-none}"
+# Parse --cpu flag (run CPU stages inline) and pass rest to unified pipeline
+RUN_CPU=false
+EXTRA_ARGS=""
+for arg in "$@"; do
+    if [ "$arg" = "--cpu" ]; then
+        RUN_CPU=true
+    else
+        EXTRA_ARGS="$EXTRA_ARGS $arg"
+    fi
+done
+EXTRA_ARGS="${EXTRA_ARGS# }"  # trim leading space
+echo "Extra args: ${EXTRA_ARGS:-none} (cpu=$RUN_CPU)"
 
 # ── GPU topology ────────────────────────────────────────────────────
 # Split GPUs into TP=2 pairs for multi-instance serving
@@ -66,7 +83,7 @@ if [ $((GPU_COUNT % TP_SIZE)) -ne 0 ]; then
     echo "WARNING: $GPU_COUNT GPUs not evenly divisible by TP=$TP_SIZE, using $((NUM_INSTANCES * TP_SIZE))/$GPU_COUNT GPUs"
 fi
 
-SEQS_PER_INSTANCE=128
+SEQS_PER_INSTANCE=256
 export MAX_NUM_SEQS=$((SEQS_PER_INSTANCE * NUM_INSTANCES))
 
 # Build port list and CUDA_VISIBLE_DEVICES per instance
@@ -121,21 +138,25 @@ stop_vllm() {
     sleep 3
 }
 
-# ── Phase 1: CPU stages ──────────────────────────────────────────────
+# ── Phase 1 (optional): CPU stages ───────────────────────────────────
 
-echo ""
-echo "=========================================="
-echo "  Phase 1: Extract + Chunk (CPU)"
-echo "=========================================="
+if [ "$RUN_CPU" = true ]; then
+    echo ""
+    echo "=========================================="
+    echo "  Phase 1: Extract + Chunk (CPU)"
+    echo "=========================================="
 
-echo "=== Extract text from PDFs ==="
-python -m src.extract -c config.yaml
+    echo "=== Extract text from PDFs ==="
+    python -m src.extract -c config.yaml
 
-echo "=== Chunk texts ==="
-python -m src.chunk -c config.yaml
+    echo "=== Chunk texts ==="
+    python -m src.chunk -c config.yaml
 
-echo "=== Extract code chunks (AST) ==="
-python -m src.code_extract -c config.yaml
+    echo "=== Extract code chunks (AST) ==="
+    python -m src.code_extract -c config.yaml
+else
+    echo "Skipping CPU stages (run slurm/cpu_stages.slurm first, or pass --cpu)"
+fi
 
 # ── Phase 2: Unified nuggets (Qwen3.5-27B) ───────────────────────────
 
@@ -172,6 +193,12 @@ done
 
 echo "=== Unified nugget pipeline ==="
 python -m src.nuggets.unified -c config.yaml $EXTRA_ARGS
+
+# If not already reviewing/regenerating, also review existing nuggets
+if [[ ! "$EXTRA_ARGS" =~ --review ]] && [[ ! "$EXTRA_ARGS" =~ --regenerate ]]; then
+    echo "=== Review existing nuggets ==="
+    python -m src.nuggets.unified -c config.yaml --review
+fi
 
 echo "=== Code nugget extraction ==="
 python -m src.code_extract.nuggets -c config.yaml

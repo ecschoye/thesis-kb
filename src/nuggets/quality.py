@@ -15,7 +15,7 @@ QUALITY_SYSTEM_PROMPT = """You are a research nugget quality auditor. You will r
 3. self_contained: Can a reader understand this nugget without reading the source paper? Score 1 if it relies on undefined references like "the proposed method" or "Table 3" without context.
 4. type_accuracy: Does the assigned type label (method/result/claim/limitation/comparison/background) correctly describe this nugget? Score 1 if clearly wrong.
 5. coherence: Is the question well-formed and does the answer directly address it? Score 1 if the Q&A is malformed, circular, or contradictory.
-6. thesis_relevance: How relevant is this nugget to a thesis on RGB-Event camera fusion for object detection on resource-constrained platforms? Score 5 for core topics (SNNs, event cameras, RGB-Event fusion, motion compensation, optical flow, neuromorphic hardware, low-latency object detection, trajectory prediction, spike encoding, energy-efficient inference). Score 3 for related but peripheral topics (general object detection, CNN architectures used as baselines, standard datasets). Score 1 for unrelated content (NLP methods, medical imaging, etc.).
+6. thesis_relevance: How relevant is this nugget to a master's thesis on RGB-Event camera fusion for object detection on resource-constrained platforms? Score 5 for core technical topics (SNNs, event cameras, RGB-Event fusion, motion compensation, optical flow, neuromorphic hardware, low-latency object detection, trajectory prediction, spike encoding, energy-efficient inference). Score 4 for thesis-general topics that support writing a strong master's thesis (research methodology, experimental design, evaluation protocols, ablation study design, benchmarking best practices, academic writing and argumentation, literature review methodology, statistical testing, reproducibility). Score 3 for related but peripheral topics (general object detection, CNN architectures used as baselines, standard datasets). Score 1 for unrelated content (NLP methods, medical imaging, etc.).
 
 Also provide:
 - overall: the minimum of dimensions 1-5 (NOT including thesis_relevance)
@@ -59,7 +59,7 @@ def build_quality_prompt(batch, paper_title, paper_id):
     return "\n".join(lines)
 
 
-def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg, max_model_len=4096):
+def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg, max_model_len=8192, extra_body=None):
     """Send a batch of nuggets to the LLM for quality rating."""
     prompt = build_quality_prompt(batch, paper_title, paper_id)
     max_tokens = cfg.get("max_tokens", 800)
@@ -74,8 +74,8 @@ def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg, max_mode
     # Build model list: primary + fallbacks (if configured on client)
     models_to_try = [model] + getattr(client, "_fallback_models", [])
 
-    # Only use structured output and vLLM extras for vLLM backend
-    is_vllm = not any(m.count("/") >= 1 for m in models_to_try)
+    # Use structured output and vLLM extras when extra_body is provided (vLLM backend)
+    is_vllm = extra_body is not None
 
     for cur_model in models_to_try:
         for attempt in range(max_retries):
@@ -98,9 +98,7 @@ def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg, max_mode
                             "strict": False,
                         },
                     }
-                    kwargs["extra_body"] = {
-                        "chat_template_kwargs": {"enable_thinking": False},
-                    }
+                    kwargs["extra_body"] = extra_body
                 resp = client.chat.completions.create(**kwargs)
                 raw = resp.choices[0].message.content
                 if raw is None:
@@ -158,7 +156,7 @@ def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg, max_mode
     return None, "all models exhausted"
 
 
-def _process_paper(client, paper_id, nuggets, model, paper_title, cfg):
+def _process_paper(client, paper_id, nuggets, model, paper_title, cfg, extra_body=None):
     """Rate all nuggets for a single paper in sequential batches."""
     batch_size = cfg.get("batch_size", 10)
     all_scores = []
@@ -167,7 +165,8 @@ def _process_paper(client, paper_id, nuggets, model, paper_title, cfg):
     for i in range(0, len(nuggets), batch_size):
         batch = nuggets[i : i + batch_size]
         results, err = rate_nugget_batch(
-            client, batch, model, paper_title, paper_id, cfg
+            client, batch, model, paper_title, paper_id, cfg,
+            extra_body=extra_body,
         )
         if results:
             all_scores.extend(results)
@@ -197,6 +196,10 @@ def run_quality_check(config_path="config.yaml"):
     os.makedirs(quality_dir, exist_ok=True)
 
     client, model = make_llm_client(cfg)
+
+    # Determine backend for extra_body
+    backend = ncfg.get("backend", "vllm")
+    extra_body = {"chat_template_kwargs": {"enable_thinking": False}} if backend == "vllm" else None
 
     # Find papers to process
     def _quality_done(paper_id):
@@ -295,6 +298,7 @@ def run_quality_check(config_path="config.yaml"):
             fut = executor.submit(
                 _process_paper,
                 client, paper_id, pdata["nuggets"], model, pdata["paper_title"], qcfg,
+                extra_body=extra_body,
             )
             fut.add_done_callback(
                 lambda f, pid=paper_id: _on_paper_done(f, pid)

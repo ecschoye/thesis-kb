@@ -46,7 +46,7 @@ def _get_paper_title(nuggets, paper_id):
 def _process_paper_unified(
     client, paper_id, chunks, model, ext_cfg, qcfg, acfg, ucfg,
     extra_body=None, worker_id=0, print_lock=None, counters=None,
-    max_model_len=4096,
+    max_model_len=8192,
 ):
     """Full extract→quality→augment pipeline for one paper, all in memory.
 
@@ -118,7 +118,7 @@ def _process_paper_unified(
         batch = deduped[i:i + batch_size]
         results, err = rate_nugget_batch(
             client, batch, model, paper_title, paper_id, qcfg,
-            max_model_len=max_model_len,
+            max_model_len=max_model_len, extra_body=extra_body,
         )
         if results:
             for r in results:
@@ -148,6 +148,23 @@ def _process_paper_unified(
             "flags": q.get("flags", []),
         }
 
+    # ── Step 3b: Bail out if scoring failed entirely ──────────────────────
+    all_scores = [n["quality"]["overall"] for n in deduped]
+    if all_scores and all(s == 0 for s in all_scores):
+        _log(f"{short_id}: scoring failed for all nuggets — keeping extracted nuggets as-is")
+        for i, n in enumerate(deduped):
+            n["nugget_id"] = f"{paper_id}_{i}"
+        return {
+            "paper_id": paper_id,
+            "num_nuggets": len(deduped),
+            "num_removed": 0,
+            "num_improved": 0,
+            "num_gap_filled": 0,
+            "quality_summary": {"scoring_failed": True},
+            "nuggets": deduped,
+            "removed": [],
+        }
+
     # ── Step 4: Improve weak nuggets ─────────────────────────────────────
     improved_count = 0
     removed = []
@@ -165,6 +182,7 @@ def _process_paper_unified(
             if chunk:
                 result = improve_nugget(
                     client, n, n["quality"], chunk["text"], model, acfg,
+                    extra_body=extra_body,
                 )
                 if result.get("improved"):
                     n["question"] = result["question"]
@@ -208,7 +226,8 @@ def _process_paper_unified(
         if len(existing) > gap_max_nuggets:
             continue
 
-        new_nuggets = gapfill_chunk(client, chunk["text"], existing, model, acfg)
+        new_nuggets = gapfill_chunk(client, chunk["text"], existing, model, acfg,
+                                    extra_body=extra_body)
         for gn in new_nuggets:
             gn["source_chunk"] = chunk_id
             gn["section"] = section
@@ -240,7 +259,7 @@ def _process_paper_unified(
         n["nugget_id"] = f"{paper_id}_{i}"
 
     # ── Step 7: Build output ─────────────────────────────────────────────
-    valid_scores = [n["quality"]["overall"] for n in deduped if n["quality"]["overall"] > 0]
+    valid_scores = [n["quality"]["overall"] for n in final if n["quality"]["overall"] > 0]
     score_dist = defaultdict(int)
     for s in valid_scores:
         score_dist[str(s)] += 1
@@ -264,7 +283,7 @@ def _process_paper_unified(
 def _process_paper_reprocess(
     client, paper_id, nuggets, chunks, model, qcfg, acfg, ucfg,
     extra_body=None, print_lock=None, counters=None,
-    max_model_len=4096,
+    max_model_len=8192,
 ):
     """Quality + augment on existing nuggets (skip extraction)."""
     flag_threshold = ucfg.get("flag_threshold", 2)
@@ -307,7 +326,7 @@ def _process_paper_reprocess(
         batch = nuggets[i:i + batch_size]
         results, err = rate_nugget_batch(
             client, batch, model, paper_title, paper_id, qcfg,
-            max_model_len=max_model_len,
+            max_model_len=max_model_len, extra_body=extra_body,
         )
         if results:
             for r in results:
@@ -365,6 +384,7 @@ def _process_paper_reprocess(
             if chunk:
                 result = improve_nugget(
                     client, n, n["quality"], chunk["text"], model, acfg,
+                    extra_body=extra_body,
                 )
                 if result.get("improved"):
                     n["question"] = result["question"]
@@ -402,7 +422,8 @@ def _process_paper_reprocess(
         existing = nuggets_by_chunk.get(chunk_id, [])
         if len(existing) > gap_max_nuggets:
             continue
-        new_nuggets = gapfill_chunk(client, chunk["text"], existing, model, acfg)
+        new_nuggets = gapfill_chunk(client, chunk["text"], existing, model, acfg,
+                                    extra_body=extra_body)
         for gn in new_nuggets:
             gn["source_chunk"] = chunk_id
             gn["section"] = section
@@ -425,7 +446,7 @@ def _process_paper_reprocess(
     for i, n in enumerate(final):
         n["nugget_id"] = f"{paper_id}_{i}"
 
-    valid_scores = [n["quality"]["overall"] for n in nuggets if n["quality"]["overall"] > 0]
+    valid_scores = [n["quality"]["overall"] for n in final if n["quality"]["overall"] > 0]
     score_dist = defaultdict(int)
     for s in valid_scores:
         score_dist[str(s)] += 1
@@ -448,7 +469,8 @@ def _process_paper_reprocess(
     }
 
 
-def run_unified(config_path="config.yaml", reprocess=False, regenerate=False, review=False, paper_ids=None):
+def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
+                review=False, paper_ids=None, dry_run=False, limit=None):
     """Run the unified nugget pipeline.
 
     Args:
@@ -461,6 +483,8 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False, re
                 removes bad ones, gap-fills sparse chunks. Like reprocess but
                 operates on unified output instead of raw extractions.
         paper_ids: Optional set of paper IDs to process. If None, process all.
+        dry_run: If True, show what would be processed without actually running.
+        limit: If set, process at most this many papers.
     """
     cfg = load_config(config_path)
     chunk_dir = cfg["paths"]["chunk_dir"]
@@ -472,7 +496,7 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False, re
     acfg = ncfg.get("augmentation", {})
     ucfg = ncfg.get("unified", {})
     max_workers = int(os.environ.get("MAX_NUM_SEQS", ucfg.get("max_workers", ext_cfg.get("max_workers", 8))))
-    max_model_len = ncfg.get("vllm", {}).get("max_model_len", 4096)
+    max_model_len = ncfg.get("vllm", {}).get("max_model_len", 8192)
     os.makedirs(unified_dir, exist_ok=True)
 
     clients, model = make_llm_clients(cfg)
@@ -489,7 +513,8 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False, re
         if not os.path.exists(path):
             return False
         try:
-            data = json.loads(open(path).read())
+            with open(path) as f:
+                data = json.load(f)
             return data.get("num_nuggets", 0) > 0 or len(data.get("removed", [])) > 0
         except (json.JSONDecodeError, OSError):
             return False
@@ -525,7 +550,35 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False, re
         mode_label = "reprocess (quality+augment)"
     else:
         mode_label = "full (extract+quality+augment)"
+    if limit and len(to_process) > limit:
+        to_process = to_process[:limit]
+        print(f"[unified] --limit {limit}: truncated to {len(to_process)} papers")
+
     print(f"[unified] {mode_label}: {len(to_process)} papers ({skipped} skipped) via {model}, workers={max_workers}")
+
+    if dry_run:
+        print(f"\n[unified] DRY RUN — would process {len(to_process)} papers:")
+        for pid in to_process:
+            chunk_path = os.path.join(chunk_dir, f"{pid}.json")
+            n_chunks = 0
+            try:
+                data = load_json(chunk_path)
+                n_chunks = len([c for c in data.get("chunks", []) if len(c.get("text", "").strip()) >= 50])
+            except Exception:
+                pass
+            src = "chunks"
+            if reprocess or review:
+                src_dir = unified_dir if review else nugget_dir
+                nug_path = os.path.join(src_dir, f"{pid}.json")
+                try:
+                    ndata = load_json(nug_path)
+                    n_nugs = len(ndata.get("nuggets", []))
+                    src = f"{n_nugs} existing nuggets"
+                except Exception:
+                    src = "nuggets (missing)"
+            print(f"  {pid}: {n_chunks} chunks, source={src}")
+        print(f"\n[unified] DRY RUN complete. Use without --dry-run to execute.")
+        return
 
     if not to_process:
         print("[unified] Nothing to process.")
@@ -674,6 +727,10 @@ def main():
                     help="File with one paper ID per line to process")
     ap.add_argument("--oldest", type=int, default=None, metavar="N",
                     help="Select the N papers with the oldest unified output for regeneration")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="Show what would be processed without actually running")
+    ap.add_argument("--limit", type=int, default=None, metavar="N",
+                    help="Process at most N papers (useful for testing)")
     args = ap.parse_args()
 
     paper_ids = None
@@ -693,7 +750,9 @@ def main():
     if paper_ids:
         print(f"[unified] Filtering to {len(paper_ids)} paper(s)")
 
-    run_unified(args.config, reprocess=args.reprocess, regenerate=args.regenerate, review=args.review, paper_ids=paper_ids)
+    run_unified(args.config, reprocess=args.reprocess, regenerate=args.regenerate,
+                review=args.review, paper_ids=paper_ids,
+                dry_run=args.dry_run, limit=args.limit)
 
 
 if __name__ == "__main__":

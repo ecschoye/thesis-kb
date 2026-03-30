@@ -13,19 +13,18 @@
 set -euo pipefail
 cd /cluster/work/ecschoye/thesis-kb
 
-N_PAPERS="${1:-30}"
 CONFIG="config-openrouter-free.yaml"
 LOG="logs/nightly_review_$(date +%Y%m%d_%H%M%S).log"
 
 mkdir -p logs
 
-echo "=== Nightly review: $N_PAPERS papers @ $(date) ===" | tee "$LOG"
+echo "=== Nightly review @ $(date) ===" | tee "$LOG"
 
 module purge
 module load Python/3.12.3-GCCcore-13.3.0 CUDA/12.6.0
 source .venv/bin/activate
 
-python -m src.nuggets.unified -c "$CONFIG" --review --oldest "$N_PAPERS" >> "$LOG" 2>&1
+python -m src.nuggets.unified -c "$CONFIG" --review >> "$LOG" 2>&1
 EXIT_CODE=$?
 
 # Clean up old logs (keep last 30 days)

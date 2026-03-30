@@ -34,6 +34,12 @@ PRIORITY TOPICS — extract at maximum depth:
 - Trajectory prediction and tracking: ADE/FDE, time-to-collision, motion forecasting
 - Benchmark results on: DSEC, Gen1, COCO, KITTI, N-Caltech101, PKU-DVS-Gesture, MVSEC
 
+THESIS-GENERAL TOPICS — extract with care, these support thesis writing even if off-topic technically:
+- Research methodology: experimental design, evaluation protocols, ablation study design, statistical significance testing, reproducibility practices
+- Academic writing guidance: thesis/paper structure, argumentation, literature review methodology, how to frame contributions, writing style
+- Benchmarking practices: how to compare methods fairly, dataset splits, metric selection, baseline selection
+- General deep learning foundations: training techniques, regularization, optimization, loss functions — when they provide transferable insight
+
 STANDARD TOPICS — extract key contributions at a higher level:
 - General computer vision, transformers, attention not specific to events/fusion
 - Pure RGB object detection improvements
@@ -101,7 +107,7 @@ def repair_json(text):
     return None
 
 
-def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_tokens=3000, extra_body=None, prior_questions=None, max_model_len=4096):
+def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_tokens=3000, extra_body=None, prior_questions=None, max_model_len=8192):
     """Send a chunk to the LLM and parse nuggets."""
     try:
         user_content = "Extract the key knowledge nuggets from this academic text:\n\n" + chunk_text
@@ -131,6 +137,8 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
             kwargs["extra_body"] = extra_body
         resp = client.chat.completions.create(**kwargs)
         raw = resp.choices[0].message.content
+        if raw is None:
+            return [], "Empty response from model"
         nuggets = repair_json(raw)
         if nuggets is None:
             return [], raw
@@ -155,7 +163,7 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
 _SKIP_SECTIONS = {"references", "acknowledgments", "acknowledgements",
                    "bibliography", "appendix", "appendices"}
 
-def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay, paper_id, extra_body=None, prior_questions=None, max_model_len=4096):
+def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay, paper_id, extra_body=None, prior_questions=None, max_model_len=8192):
     """Process a single chunk — designed for use in a thread pool."""
     text = chunk["text"]
     if len(text.strip()) < 50:
@@ -179,8 +187,10 @@ def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay
             if "rate" in raw_str:
                 time.sleep(retry_delay * (2 ** attempt))
             elif "too long" in raw_str or "maximum context" in raw_str or "400" in raw_str or "max_model_len" in raw_str or "prompt is too long" in raw_str:
-                if cur_prior:
-                    cur_prior = cur_prior[-10:] if len(cur_prior) > 10 else None
+                if cur_prior and len(cur_prior) > 10:
+                    cur_prior = cur_prior[-10:]
+                elif cur_prior:
+                    cur_prior = []  # drop all prior context but keep as list (not None)
                 else:
                     break
             else:
@@ -287,10 +297,8 @@ def run_extraction(config_path="config.yaml"):
                 paper_chunks[paper_id] = chunks
             else:
                 # No valid chunks — write empty result
-                save_json({"paper_id": paper_id, "num_nuggets": 0, "num_removed": 0,
-                           "num_improved": 0, "num_gap_filled": 0,
-                           "quality_summary": {}, "nuggets": [], "removed": []},
-                          os.path.join(unified_dir, f"{paper_id}.json"))
+                save_json({"paper_id": paper_id, "num_nuggets": 0, "nuggets": []},
+                          os.path.join(nugget_dir, f"{paper_id}.json"))
                 success += 1
         except Exception as e:
             print(f"  ERROR loading chunks for {paper_id}: {e}")
@@ -361,7 +369,7 @@ def run_extraction(config_path="config.yaml"):
             "nuggets": deduped,
             "removed": [],
         }
-        save_json(output, os.path.join(unified_dir, f"{paper_id}.json"))
+        save_json(output, os.path.join(nugget_dir, f"{paper_id}.json"))
 
         with print_lock:
             # total_nuggets already incremented per-chunk; adjust for dedup

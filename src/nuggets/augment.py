@@ -51,6 +51,7 @@ Rules:
 - Only extract NEW information not already covered by existing nuggets
 - Focus on SUBSTANTIVE content: methods, results, comparisons, limitations, specific numbers
 - Prioritize thesis-relevant gaps: spike encoding details, event representations, fusion mechanisms, SNN parameters, energy/latency metrics, motion compensation techniques, optical flow, neuromorphic hardware results, trajectory prediction
+- Also extract thesis-general gaps: research methodology, experimental design, evaluation protocols, benchmarking practices, academic writing guidance — these support thesis writing even if not technically on-topic
 - Each nugget must be self-contained (understandable without the source text)
 - Include specific numbers: accuracies, FPS, energy, parameters, latency, FLOPs
 - Classify type: method, result, claim, limitation, comparison, background
@@ -78,7 +79,7 @@ def _is_reference_chunk(text):
     return ref_lines / len(lines) > 0.4
 
 
-def improve_nugget(client, nugget, scores, chunk_text, model, cfg):
+def improve_nugget(client, nugget, scores, chunk_text, model, cfg, extra_body=None):
     """Send a weak nugget + quality feedback + source to the LLM for improvement."""
     temperature = cfg.get("temperature", 0.1)
     max_tokens = cfg.get("max_tokens", 2000)
@@ -97,18 +98,21 @@ def improve_nugget(client, nugget, scores, chunk_text, model, cfg):
         f"Source text from the paper:\n{chunk_text}"
     )
 
+    kwargs = dict(
+        model=model,
+        messages=[
+            {"role": "system", "content": IMPROVE_SYSTEM_PROMPT},
+            {"role": "user", "content": user_msg},
+        ],
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+    if extra_body:
+        kwargs["extra_body"] = extra_body
+
     for attempt in range(max_retries):
         try:
-            resp = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": IMPROVE_SYSTEM_PROMPT},
-                    {"role": "user", "content": user_msg},
-                ],
-                temperature=temperature,
-                max_tokens=max_tokens,
-                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
-            )
+            resp = client.chat.completions.create(**kwargs)
             raw = resp.choices[0].message.content
             parsed = repair_json(raw)
             if parsed and isinstance(parsed, dict) and "question" in parsed:
@@ -146,7 +150,7 @@ def improve_nugget(client, nugget, scores, chunk_text, model, cfg):
     }
 
 
-def gapfill_chunk(client, chunk_text, existing_nuggets, model, cfg):
+def gapfill_chunk(client, chunk_text, existing_nuggets, model, cfg, extra_body=None):
     """Ask the LLM to find missed content from a chunk given existing nuggets."""
     temperature = cfg.get("temperature", 0.1)
     max_tokens = cfg.get("max_tokens", 2000)
@@ -164,18 +168,21 @@ def gapfill_chunk(client, chunk_text, existing_nuggets, model, cfg):
         f"Extract any important information that was MISSED by the existing nuggets."
     )
 
+    kwargs = dict(
+        model=model,
+        messages=[
+            {"role": "system", "content": GAPFILL_SYSTEM_PROMPT},
+            {"role": "user", "content": user_msg},
+        ],
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+    if extra_body:
+        kwargs["extra_body"] = extra_body
+
     for attempt in range(max_retries):
         try:
-            resp = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": GAPFILL_SYSTEM_PROMPT},
-                    {"role": "user", "content": user_msg},
-                ],
-                temperature=temperature,
-                max_tokens=max_tokens,
-                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
-            )
+            resp = client.chat.completions.create(**kwargs)
             raw = resp.choices[0].message.content
             parsed = repair_json(raw)
             if parsed is None:
@@ -226,7 +233,7 @@ def _dedup_against_existing(new_nuggets, existing_nuggets, threshold=0.75):
     return kept
 
 
-def _process_paper(client, paper_id, nuggets, quality_data, chunks_data, model, cfg):
+def _process_paper(client, paper_id, nuggets, quality_data, chunks_data, model, cfg, extra_body=None):
     """Run both augmentation passes for a single paper."""
     improve_threshold = cfg.get("improve_threshold", 2)
     gap_max_nuggets = cfg.get("gap_max_nuggets", 2)
@@ -259,7 +266,7 @@ def _process_paper(client, paper_id, nuggets, quality_data, chunks_data, model, 
         if not chunk:
             continue
 
-        result = improve_nugget(client, n, scores, chunk["text"], model, cfg)
+        result = improve_nugget(client, n, scores, chunk["text"], model, cfg, extra_body=extra_body)
         if result.get("improved"):
             result["original_nugget_id"] = nid
             result["source_chunk"] = n.get("source_chunk")
@@ -282,7 +289,7 @@ def _process_paper(client, paper_id, nuggets, quality_data, chunks_data, model, 
         if len(existing) > gap_max_nuggets:
             continue
 
-        new_nuggets = gapfill_chunk(client, chunk["text"], existing, model, cfg)
+        new_nuggets = gapfill_chunk(client, chunk["text"], existing, model, cfg, extra_body=extra_body)
         for gn in new_nuggets:
             gn["source_chunk"] = chunk_id
             gn["section"] = section
@@ -318,6 +325,10 @@ def run_augmentation(config_path="config.yaml"):
     os.makedirs(augmented_dir, exist_ok=True)
 
     client, model = make_llm_client(cfg)
+
+    # Determine backend for extra_body
+    backend = ncfg.get("backend", "vllm")
+    extra_body = {"chat_template_kwargs": {"enable_thinking": False}} if backend == "vllm" else None
 
     # Find papers to process (need nuggets + quality + chunks)
     def _done(paper_id):
@@ -402,6 +413,7 @@ def run_augmentation(config_path="config.yaml"):
                 chunks_data,
                 model,
                 acfg,
+                extra_body=extra_body,
             )
             fut.add_done_callback(lambda f, pid=paper_id: _on_done(f, pid))
 
