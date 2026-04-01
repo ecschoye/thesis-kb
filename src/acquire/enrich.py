@@ -58,11 +58,40 @@ def enrich_via_arxiv_id(arxiv_id, max_retries=2):
     return None
 
 
-def enrich_via_s2(title, arxiv_id=None, max_retries=2):
-    """Enrich via S2 title search, falling back to arXiv ID direct lookup."""
+def enrich_via_doi(doi, max_retries=2):
+    """Look up a paper directly by its DOI via S2."""
+    url = f"{S2_API}/paper/DOI:{doi}"
+    params = {"fields": S2_FIELDS}
+    for attempt in range(max_retries):
+        try:
+            resp = requests.get(url, params=params, headers=_s2_headers(), timeout=15)
+            if resp.status_code == 429:
+                time.sleep(2 ** (attempt + 1))
+                continue
+            if resp.status_code == 404:
+                return None
+            resp.raise_for_status()
+            return _extract_result(resp.json())
+        except Exception as e:
+            if attempt < max_retries - 1:
+                time.sleep(1)
+                continue
+            print(f"    S2 DOI lookup failed for {doi}: {e}")
+            return None
+    return None
+
+
+def enrich_via_s2(title, arxiv_id=None, doi=None, max_retries=2):
+    """Enrich via S2 direct ID lookup (arXiv, DOI), falling back to title search."""
     # Try direct arXiv ID lookup first (most reliable)
     if arxiv_id:
         result = enrich_via_arxiv_id(arxiv_id, max_retries)
+        if result:
+            return result
+
+    # Try DOI lookup
+    if doi:
+        result = enrich_via_doi(doi, max_retries)
         if result:
             return result
 
@@ -128,7 +157,8 @@ def batch_enrich(papers, delay=1.0):
 
         title = paper.get("title", "")
         arxiv_id = paper.get("arxiv_id")
-        result = enrich_via_s2(title, arxiv_id=arxiv_id)
+        doi = paper.get("doi")
+        result = enrich_via_s2(title, arxiv_id=arxiv_id, doi=doi)
         if result:
             if result.get("s2_title") and (not title or len(title) < 20):
                 paper["title"] = result["s2_title"]
