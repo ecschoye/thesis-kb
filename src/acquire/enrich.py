@@ -115,7 +115,10 @@ def batch_enrich(papers, delay=1.0):
     authority_enriched = 0
     for i, paper in enumerate(papers):
         has_year = paper.get("year") is not None
-        has_authors = bool(paper.get("authors"))
+        authors = paper.get("authors") or []
+        has_authors = bool(authors) and not (
+            len(authors) == 1 and " " not in authors[0]
+        )
         has_abstract = bool(paper.get("abstract"))
         has_authority = "citation_count" in paper
 
@@ -135,9 +138,12 @@ def batch_enrich(papers, delay=1.0):
                 paper["doi"] = result.get("doi")
             if not paper.get("abstract"):
                 paper["abstract"] = result.get("abstract", "")
-            if not paper.get("authors") or not paper["authors"]:
-                paper["authors"] = result.get("authors", [])
-                paper["authors_str"] = ", ".join(result.get("authors", []))
+            existing = paper.get("authors") or []
+            s2_authors = result.get("authors", [])
+            # Override if missing, single-word (likely parsed from title), or S2 has more detail
+            if not existing or (len(existing) == 1 and " " not in existing[0] and s2_authors):
+                paper["authors"] = s2_authors
+                paper["authors_str"] = ", ".join(s2_authors)
             if not paper.get("year"):
                 paper["year"] = result.get("year")
             # Authority metadata (always update — may be newly available)

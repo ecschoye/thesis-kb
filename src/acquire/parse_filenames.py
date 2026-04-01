@@ -12,7 +12,7 @@ def parse_pdf_filename(filename):
         result["year"] = int(m.group(2))
         result["title"] = m.group(3).strip()
         return result
-    m = re.match(r"^(.+?)\s*-\s*([A-Z].{10,})$", stem)
+    m = re.match(r"^(.+?)\s+-\s+([A-Z].{10,})$", stem)
     if m:
         result["authors_str"] = m.group(1).strip()
         result["title"] = m.group(2).strip()
