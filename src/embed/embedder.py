@@ -175,9 +175,12 @@ def make_embed_clients(cfg):
 
     If VLLM_PORTS env var is set, returns one client per port.
     Otherwise falls back to a single client.
+    Multi-instance mode returns a HealthAwareClients wrapper that skips dead instances.
 
     Returns (clients_list, model) tuple.
     """
+    from src.utils import HealthAwareClients
+
     ports_env = os.environ.get("VLLM_PORTS", "")
     if not ports_env:
         client, model = make_embed_client(cfg)
@@ -190,7 +193,7 @@ def make_embed_clients(cfg):
     clients = [
         OpenAI(base_url=f"http://localhost:{p}/v1", api_key="none") for p in ports
     ]
-    return clients, model
+    return HealthAwareClients(clients, ports), model
 
 
 def run_embedding(config_path="config.yaml"):

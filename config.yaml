@@ -39,27 +39,27 @@ nuggets:
     vllm:
         model: Qwen/Qwen3.5-27B
         port: 8000
-        max_model_len: 8192
+        max_model_len: 16384
         gpu_memory_utilization: 0.90
         dtype: bfloat16
     extraction:
-        max_workers: 256         # match vLLM --max-num-seqs for full GPU saturation
+        max_workers: 192         # slightly above max-num-seqs (160) for pipelining
         max_retries: 3
-        max_tokens: 1500
+        max_tokens: 3000
         temperature: 0.1
         retry_base_delay: 2.0
         nugget_types:
             [method, result, claim, limitation, comparison, background]
     quality:
-        batch_size: 30           # larger batches = fewer round-trips to vLLM (fits in 8192 context at p95)
-        max_workers: 256
+        batch_size: 20           # fits in 8192 context with headroom; 30 caused truncation
+        max_workers: 192
         max_tokens: 2000
         temperature: 0.0
         max_retries: 3
         retry_base_delay: 2.0
         flag_threshold: 2
     augmentation:
-        max_workers: 256
+        max_workers: 192
         max_tokens: 2000
         temperature: 0.1
         max_retries: 3
@@ -69,7 +69,7 @@ nuggets:
         gap_min_tokens: 100 # skip very short chunks
         gap_skip_sections: [references, acknowledgments, bibliography]
     unified:
-        max_workers: 256
+        max_workers: 192
         flag_threshold: 2       # overall <= this -> removed from final output
         improve_threshold: 2    # overall <= this -> attempt improvement before removal
 

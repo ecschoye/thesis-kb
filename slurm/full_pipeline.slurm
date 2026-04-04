@@ -83,7 +83,7 @@ if [ $((GPU_COUNT % TP_SIZE)) -ne 0 ]; then
     echo "WARNING: $GPU_COUNT GPUs not evenly divisible by TP=$TP_SIZE, using $((NUM_INSTANCES * TP_SIZE))/$GPU_COUNT GPUs"
 fi
 
-SEQS_PER_INSTANCE=256
+SEQS_PER_INSTANCE=96
 export MAX_NUM_SEQS=$((SEQS_PER_INSTANCE * NUM_INSTANCES))
 
 # Build port list and CUDA_VISIBLE_DEVICES per instance
@@ -105,8 +105,15 @@ echo "GPUs: $GPU_COUNT | instances: $NUM_INSTANCES (TP=$TP_SIZE each)"
 echo "Ports: $VLLM_PORTS | max-num-seqs/instance: $SEQS_PER_INSTANCE | total workers: $MAX_NUM_SEQS"
 
 VLLM_PIDS=()
+WATCHDOG_PID=""
+
+# Per-instance GPU assignments (indexed by instance number)
+declare -a INSTANCE_GPU_MAP
+declare -a INSTANCE_PORT_MAP
 
 cleanup() {
+    [ -n "$WATCHDOG_PID" ] && kill "$WATCHDOG_PID" 2>/dev/null && wait "$WATCHDOG_PID" 2>/dev/null || true
+    WATCHDOG_PID=""
     for pid in "${VLLM_PIDS[@]}"; do
         if kill -0 "$pid" 2>/dev/null; then
             kill "$pid"; wait "$pid" 2>/dev/null || true
@@ -120,14 +127,87 @@ wait_for_vllm() {
     local port=$1 pid=$2
     echo "Waiting for vLLM on port $port..."
     for i in $(seq 1 200); do
-        kill -0 "$pid" 2>/dev/null || { echo "ERROR: vLLM (port $port) died"; exit 1; }
+        kill -0 "$pid" 2>/dev/null || { echo "ERROR: vLLM (port $port) died during startup"; return 1; }
         curl -s "http://localhost:$port/health" >/dev/null 2>&1 && { echo "Ready port $port ($((i*3))s)"; return 0; }
-        [ "$i" -eq 200 ] && { echo "ERROR: vLLM timeout (port $port)"; exit 1; }
+        [ "$i" -eq 200 ] && { echo "ERROR: vLLM timeout (port $port)"; return 1; }
         sleep 3
     done
 }
 
+# Launch a single vLLM instance (used for initial start and restarts)
+# Args: instance_index model [extra_args...]
+launch_vllm_instance() {
+    local idx=$1 model=$2
+    shift 2
+    local port=${INSTANCE_PORT_MAP[$idx]}
+    local gpus=${INSTANCE_GPU_MAP[$idx]}
+    echo "Launching vLLM instance $idx on GPUs $gpus, port $port (model=$model)"
+    (
+        export CUDA_VISIBLE_DEVICES=$gpus
+        exec vllm serve "$model" --port $port "$@"
+    ) &
+    VLLM_PIDS[$idx]=$!
+    wait_for_vllm $port ${VLLM_PIDS[$idx]}
+}
+
+# Background watchdog: checks health every 30s, restarts dead instances
+# Args: model [extra_vllm_args...]
+# Runs in a subshell — snapshots INSTANCE_PORT_MAP/INSTANCE_GPU_MAP at fork time
+# and launches replacement vLLM processes directly.
+start_watchdog() {
+    local model=$1
+    shift
+    local extra_args=("$@")
+    # Snapshot maps for the subshell (arrays don't survive naively)
+    local _ports="${INSTANCE_PORT_MAP[*]}"
+    local _gpus="${INSTANCE_GPU_MAP[*]}"
+    local _tp=$TP_SIZE
+    local _n=$NUM_INSTANCES
+    local _seqs=$SEQS_PER_INSTANCE
+    (
+        read -ra PORTS <<< "$_ports"
+        read -ra GPUS <<< "$_gpus"
+        sleep 60  # initial grace period
+        while true; do
+            for idx in $(seq 0 $((_n - 1))); do
+                port=${PORTS[$idx]}
+                gpus=${GPUS[$idx]}
+                if ! curl -s --max-time 5 "http://localhost:$port/health" >/dev/null 2>&1; then
+                    echo "WATCHDOG: instance $idx (port $port) is down, restarting..."
+                    # Kill anything still bound to that port
+                    lsof -ti ":$port" 2>/dev/null | xargs -r kill 2>/dev/null || true
+                    sleep 5  # let GPU memory free
+                    echo "WATCHDOG: launching vLLM on GPUs $gpus, port $port"
+                    CUDA_VISIBLE_DEVICES=$gpus vllm serve "$model" --port $port "${extra_args[@]}" &
+                    new_pid=$!
+                    # Wait for it to become healthy
+                    for attempt in $(seq 1 200); do
+                        kill -0 "$new_pid" 2>/dev/null || { echo "WATCHDOG: restart died for instance $idx"; break; }
+                        curl -s "http://localhost:$port/health" >/dev/null 2>&1 && {
+                            echo "WATCHDOG: instance $idx back up ($((attempt*3))s)"
+                            break
+                        }
+                        sleep 3
+                    done
+                fi
+            done
+            sleep 30
+        done
+    ) &
+    WATCHDOG_PID=$!
+    echo "Watchdog started (pid=$WATCHDOG_PID, interval=30s)"
+}
+
+stop_watchdog() {
+    if [ -n "$WATCHDOG_PID" ]; then
+        kill "$WATCHDOG_PID" 2>/dev/null; wait "$WATCHDOG_PID" 2>/dev/null || true
+        WATCHDOG_PID=""
+        echo "Watchdog stopped"
+    fi
+}
+
 stop_vllm() {
+    stop_watchdog
     for pid in "${VLLM_PIDS[@]}"; do
         if kill -0 "$pid" 2>/dev/null; then
             kill "$pid"; wait "$pid" 2>/dev/null || true
@@ -166,30 +246,31 @@ echo "  Phase 2: Unified Nuggets (Qwen3.5-27B)"
 echo "  $NUM_INSTANCES instance(s), TP=$TP_SIZE each"
 echo "=========================================="
 
-# Launch instances sequentially to avoid NCCL port collisions
-# (vLLM auto-picks internal ports near the serving port; concurrent launches race)
+# Build per-instance GPU and port maps
 for i in $(seq 0 $((NUM_INSTANCES - 1))); do
-    PORT=$((BASE_PORT + i * 10))
+    INSTANCE_PORT_MAP[$i]=$((BASE_PORT + i * 10))
     GPU_START=$((i * TP_SIZE))
-    INSTANCE_GPUS=$(echo "${GPU_IDS[@]:$GPU_START:$TP_SIZE}" | tr ' ' ',')
-
-    echo "Launching vLLM instance $i on GPUs $INSTANCE_GPUS, port $PORT"
-    (
-        export CUDA_VISIBLE_DEVICES=$INSTANCE_GPUS
-        exec vllm serve Qwen/Qwen3.5-27B \
-            --port $PORT \
-            --max-model-len 8192 \
-            --gpu-memory-utilization 0.92 \
-            --dtype bfloat16 \
-            --enable-chunked-prefill \
-            --enable-prefix-caching \
-            --max-num-seqs $SEQS_PER_INSTANCE \
-            --tensor-parallel-size $TP_SIZE \
-            --trust-remote-code
-    ) &
-    VLLM_PIDS+=($!)
-    wait_for_vllm $PORT ${VLLM_PIDS[$i]}
+    INSTANCE_GPU_MAP[$i]=$(echo "${GPU_IDS[@]:$GPU_START:$TP_SIZE}" | tr ' ' ',')
 done
+
+NUGGET_VLLM_ARGS=(
+    --max-model-len 16384
+    --gpu-memory-utilization 0.92
+    --dtype bfloat16
+    --enable-chunked-prefill
+    --enable-prefix-caching
+    --max-num-seqs $SEQS_PER_INSTANCE
+    --tensor-parallel-size $TP_SIZE
+    --trust-remote-code
+)
+
+# Launch instances sequentially to avoid NCCL port collisions
+for i in $(seq 0 $((NUM_INSTANCES - 1))); do
+    launch_vllm_instance "$i" "Qwen/Qwen3.5-27B" "${NUGGET_VLLM_ARGS[@]}"
+done
+
+# Start watchdog to auto-restart crashed instances
+start_watchdog "Qwen/Qwen3.5-27B" "${NUGGET_VLLM_ARGS[@]}"
 
 echo "=== Unified nugget pipeline ==="
 python -m src.nuggets.unified -c config.yaml $EXTRA_ARGS
@@ -213,25 +294,19 @@ echo "  Phase 3: Embed + Store (Qwen3-Embed-8B)"
 echo "  $NUM_INSTANCES instance(s), TP=$TP_SIZE each"
 echo "=========================================="
 
-for i in $(seq 0 $((NUM_INSTANCES - 1))); do
-    PORT=$((BASE_PORT + i * 10))
-    GPU_START=$((i * TP_SIZE))
-    INSTANCE_GPUS=$(echo "${GPU_IDS[@]:$GPU_START:$TP_SIZE}" | tr ' ' ',')
+EMBED_VLLM_ARGS=(
+    --convert embed
+    --max-model-len 2048
+    --gpu-memory-utilization 0.92
+    --dtype bfloat16
+    --tensor-parallel-size $TP_SIZE
+)
 
-    echo "Launching embed instance $i on GPUs $INSTANCE_GPUS, port $PORT"
-    (
-        export CUDA_VISIBLE_DEVICES=$INSTANCE_GPUS
-        exec vllm serve Qwen/Qwen3-Embedding-8B \
-            --convert embed \
-            --port $PORT \
-            --max-model-len 2048 \
-            --gpu-memory-utilization 0.92 \
-            --dtype bfloat16 \
-            --tensor-parallel-size $TP_SIZE
-    ) &
-    VLLM_PIDS+=($!)
-    wait_for_vllm $PORT ${VLLM_PIDS[$i]}
+for i in $(seq 0 $((NUM_INSTANCES - 1))); do
+    launch_vllm_instance "$i" "Qwen/Qwen3-Embedding-8B" "${EMBED_VLLM_ARGS[@]}"
 done
+
+start_watchdog "Qwen/Qwen3-Embedding-8B" "${EMBED_VLLM_ARGS[@]}"
 
 echo "=== Embed paper nuggets ==="
 python -m src.embed -c config.yaml

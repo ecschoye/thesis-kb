@@ -1,6 +1,9 @@
 import json
 import yaml
 import os
+import time
+import threading
+import urllib.request
 from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -59,11 +62,75 @@ def make_llm_client(cfg):
     return client, model
 
 
+class HealthAwareClients:
+    """List-like wrapper that skips unhealthy vLLM instances.
+
+    Periodically checks /health on each port. Round-robin indexing
+    transparently skips dead instances so requests only go to live ones.
+    If a dead instance comes back (watchdog restarted it), it's re-included.
+    """
+
+    def __init__(self, clients, ports, check_interval=15):
+        self._clients = clients
+        self._ports = ports
+        self._healthy = [True] * len(clients)
+        self._lock = threading.Lock()
+        self._check_interval = check_interval
+        self._stop = threading.Event()
+        if len(clients) > 1:
+            self._thread = threading.Thread(target=self._monitor, daemon=True)
+            self._thread.start()
+
+    def _monitor(self):
+        while not self._stop.wait(self._check_interval):
+            for i, port in enumerate(self._ports):
+                try:
+                    req = urllib.request.Request(
+                        f"http://localhost:{port}/health", method="GET"
+                    )
+                    urllib.request.urlopen(req, timeout=3)
+                    alive = True
+                except Exception:
+                    alive = False
+                with self._lock:
+                    if self._healthy[i] != alive:
+                        import sys
+                        status = "UP" if alive else "DOWN"
+                        sys.stderr.write(
+                            f"\r\033[K  [health] instance {i} port {port}: {status}\n"
+                        )
+                        sys.stderr.flush()
+                    self._healthy[i] = alive
+
+    def get_healthy_client(self, idx):
+        """Return a healthy client, preferring the one at idx but falling back."""
+        with self._lock:
+            n = len(self._clients)
+            # Try the preferred index first, then cycle through others
+            for offset in range(n):
+                i = (idx + offset) % n
+                if self._healthy[i]:
+                    return self._clients[i]
+            # All down — return preferred and let it fail with a normal error
+            return self._clients[idx % n]
+
+    def __getitem__(self, idx):
+        return self.get_healthy_client(idx)
+
+    def __len__(self):
+        with self._lock:
+            return max(1, sum(self._healthy))
+
+    def stop(self):
+        self._stop.set()
+
+
 def make_llm_clients(cfg):
     """Create multiple OpenAI-compatible clients for multi-instance vLLM.
 
     If VLLM_PORTS env var is set (comma-separated), returns one client per port.
     Otherwise falls back to a single client via make_llm_client.
+    Multi-instance mode returns a HealthAwareClients wrapper that skips dead instances.
 
     Returns (clients_list, model) tuple.
     """
@@ -77,7 +144,7 @@ def make_llm_clients(cfg):
     model = vllm_cfg.get("model", "Qwen/Qwen3.5-27B")
     ports = [int(p.strip()) for p in ports_env.split(",") if p.strip()]
     clients = [OpenAI(base_url=f"http://localhost:{p}/v1", api_key="none") for p in ports]
-    return clients, model
+    return HealthAwareClients(clients, ports), model
 
 
 def already_processed(paper_id, output_dir, ext=".json"):
