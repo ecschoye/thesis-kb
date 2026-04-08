@@ -97,6 +97,70 @@ _DEFAULT_MODE_ROUTING = {
 }
 MODE_ROUTING = dict(_DEFAULT_MODE_ROUTING)
 
+# HyDE prompt templates keyed by section category
+_HYDE_PROMPTS = {
+    "background": (
+        "You are an academic research assistant. Given a query about "
+        "event cameras, RGB-Event fusion, spiking neural networks, or "
+        "autonomous driving, write a textbook-style explanation as if from "
+        "a survey paper's background or related work section. Write 2-4 "
+        "sentences of clear, foundational academic content. Do not hedge or disclaim."
+    ),
+    "results": (
+        "You are an academic research assistant. Given a query about "
+        "event cameras, RGB-Event fusion, spiking neural networks, or "
+        "autonomous driving, write a findings paragraph as if from a results "
+        "or experiments section. Include specific metrics, dataset names, and "
+        "quantitative comparisons. Write 2-4 sentences. Do not hedge or disclaim."
+    ),
+    "limitations": (
+        "You are an academic research assistant. Given a query about "
+        "event cameras, RGB-Event fusion, spiking neural networks, or "
+        "autonomous driving, write about limitations, open challenges, and "
+        "future work directions as if from a discussion or conclusion section. "
+        "Write 2-4 sentences. Do not hedge or disclaim."
+    ),
+    "generic": (
+        "You are an academic research assistant. Given a query about "
+        "event cameras, RGB-Event fusion, spiking neural networks, or "
+        "autonomous driving, write a short hypothetical answer as if it "
+        "were extracted from a research paper. Write 2-4 sentences of "
+        "factual, specific academic content. Do not hedge or disclaim."
+    ),
+}
+
+# Section-to-category mapping for HyDE prompt selection
+_SECTION_CATEGORIES = {
+    "abstract": "background", "introduction": "background",
+    "background": "background", "related work": "background",
+    "results": "results", "experiments": "results", "methods": "results",
+    "discussion": "limitations", "conclusion": "limitations",
+    "limitations": "limitations", "future work": "limitations",
+}
+
+
+def _select_hyde_prompt(preferred_sections: set | None) -> str:
+    """Select a HyDE prompt template based on preferred sections.
+
+    Picks the category with the most section matches (plurality).
+    Tie-breaks to 'generic'.
+    """
+    if not preferred_sections:
+        return _HYDE_PROMPTS["generic"]
+    counts: dict[str, int] = {}
+    for sec in preferred_sections:
+        cat = _SECTION_CATEGORIES.get(sec)
+        if cat:
+            counts[cat] = counts.get(cat, 0) + 1
+    if not counts:
+        return _HYDE_PROMPTS["generic"]
+    best = max(counts, key=counts.get)
+    # Tie-break: if multiple categories have same count, use generic
+    max_count = counts[best]
+    if sum(1 for c in counts.values() if c == max_count) > 1:
+        return _HYDE_PROMPTS["generic"]
+    return _HYDE_PROMPTS[best]
+
 
 def _load_retrieval_config(cfg: dict) -> dict:
     """Load retrieval parameters from config, return the retrieval section."""
@@ -118,7 +182,12 @@ def _load_retrieval_config(cfg: dict) -> dict:
 _embed_cache_size = 256
 
 def _cached_embed(text: str) -> list[float]:
-    """Embed a query string with LRU caching."""
+    """Embed a query string with LRU caching.
+
+    Text is wrapped in Q:/A: format with the query instruction prefix.
+    For pre-formatted text (e.g. HyDE passages already in Q:/A: format),
+    use _cached_embed_raw instead to avoid double-wrapping.
+    """
     return _cached_embed_inner(text)
 
 @lru_cache(maxsize=256)
@@ -126,6 +195,18 @@ def _cached_embed_inner(text: str) -> list[float]:
     formatted = format_nugget_text(
         {"question": text, "answer": ""}, _embed_instruction
     )
+    return _embed_text(formatted)
+
+def _cached_embed_raw(text: str) -> list[float]:
+    """Embed pre-formatted text (already in Q:/A: format) with instruction prefix only."""
+    return _cached_embed_raw_inner(text)
+
+@lru_cache(maxsize=256)
+def _cached_embed_raw_inner(text: str) -> list[float]:
+    formatted = f"Instruct: {_embed_instruction}\nQuery: {text}" if _embed_instruction else text
+    return _embed_text(formatted)
+
+def _embed_text(formatted: str) -> list[float]:
     kwargs = {"model": _embed_model, "input": [formatted]}
     emb_cfg = _cfg.get("embed", {}).get("embedding", {})
     dims = emb_cfg.get("dimensions")
@@ -148,6 +229,186 @@ MODE_FILES = {
     "outline": "outline.md",
     "background": "background.md",
 }
+
+
+import re as _re
+
+# Patterns for query-type routing (compiled once)
+_COMPARE_PATTERNS = _re.compile(
+    r'\b(compar|vs\.?|versus|differ|trade.?offs?|advantage|disadvantage|better|worse|'
+    r'outperform|benchmark|against|relative to|between .+ and)\b', _re.IGNORECASE)
+_DEFINITIONAL_PATTERNS = _re.compile(
+    r'\b(what is|what are|define|definition|explain|concept|principle|'
+    r'how does .* work|overview|introduction|fundamentals)\b', _re.IGNORECASE)
+
+# KB-derived entity set, populated at startup from nugget corpus
+_kb_entities: set[str] = set()
+
+# Common words/abbreviations that match entity patterns but aren't model/dataset names
+_ENTITY_STOPWORDS = frozenset({
+    # Common English that appear uppercase
+    'THE', 'AND', 'FOR', 'WITH', 'FROM', 'THIS', 'THAT', 'ARE', 'NOT',
+    'IS', 'IT', 'OR', 'AN', 'AS', 'AT', 'BY', 'IF', 'IN', 'NO', 'OF',
+    'ON', 'SO', 'TO', 'UP', 'WE', 'DO', 'BE', 'HE', 'ME',
+    # Venues/journals
+    'IEEE', 'CVPR', 'ICCV', 'ECCV', 'AAAI', 'NIPS', 'ICML', 'ACCV',
+    # Metrics/units (useful for retrieval but not entity-specific)
+    'MSE', 'MAE', 'RMSE', 'EPE', 'AP', 'FPS', 'AUC', 'ACC',
+    # Hardware/generic tech
+    'GPU', 'CPU', 'CMOS', 'DRAM', 'RAM', 'USB', 'PCB',
+    # Misc
+    'NOS', 'JSO', 'APR2021', 'AB', 'AA', 'AD', 'ADS', 'EV',
+})
+
+
+def _build_entity_set(db_path: str, min_count: int = 10):
+    """Build entity set from KB nuggets (acronyms + CamelCase terms).
+
+    Runs once at startup. Extracts terms that look like proper names:
+    - Pure acronyms: 2+ uppercase letters (SNN, DSEC, LIF)
+    - CamelCase: mixed-case with internal capitals (FlowNet, SpikingJelly)
+    - Hyphenated names: ST-FlowNet, Spike-FlowNet, EV-FlowNet
+
+    Filters out common English words and venue/metric names.
+    """
+    import sqlite3
+    from collections import Counter
+    conn = sqlite3.connect(db_path)
+    rows = conn.execute('SELECT question, answer FROM nuggets').fetchall()
+    conn.close()
+
+    # CamelCase: FlowNet, SpikingJelly (lower after first cap, then internal cap)
+    camel_re = _re.compile(r'\b([A-Z][a-z]+(?:[A-Z][a-z0-9]+)+(?:[-][A-Za-z0-9]+)*)\b')
+    # AcronymWord: MCFNet, ResNet, YOLOv5 (2+ uppercase then lowercase)
+    acroword_re = _re.compile(r'\b([A-Z]{2,}[a-z][A-Za-z0-9]*)\b')
+    # Hyphenated names: ST-FlowNet, Spike-FlowNet, EV-FlowNet
+    hyphen_re = _re.compile(r'\b([A-Z][A-Za-z0-9]*[-][A-Z][A-Za-z0-9]+(?:[-][A-Za-z0-9]+)*)\b')
+    # Pure acronyms: 3+ uppercase (SNN, LIF, DSEC)
+    acronym_re = _re.compile(r'\b([A-Z]{3,}[0-9]*(?:[-][A-Z0-9]+)*)\b')
+
+    counts: Counter = Counter()
+    for q, a in rows:
+        for text in (q, a):
+            for m in camel_re.findall(text):
+                counts[m] += 1
+            for m in acroword_re.findall(text):
+                counts[m] += 1
+            for m in hyphen_re.findall(text):
+                counts[m] += 1
+            for m in acronym_re.findall(text):
+                counts[m] += 1
+
+    entities = set()
+    for term, count in counts.items():
+        if count >= min_count and term not in _ENTITY_STOPWORDS:
+            entities.add(term)
+            entities.add(term.lower())
+    return entities
+
+
+def _classify_query(query: str) -> dict:
+    """Classify query and return a routing delta dict.
+
+    The delta layers on top of MODE_ROUTING to produce an effective config.
+    Keys set to None mean "defer to mode config / global default".
+
+    Returns dict with keys:
+        bm25_weight (float): BM25 multiplier for RRF fusion [0.5, 2.0]
+        hyde_enabled (bool|None): override HyDE on/off, None = defer
+        n_retrieve_scale (float|None): multiplier for mode's n_retrieve
+        blend_weight (float|None): cross-encoder blend weight override
+        section_prefs (set|None): override mode's preferred_sections
+        authority_boost_scale (float|None): multiplier for mode's authority_boost
+    """
+    is_comparison = bool(_COMPARE_PATTERNS.search(query))
+    is_definitional = bool(_DEFINITIONAL_PATTERNS.search(query))
+
+    # Count KB entities in the query
+    entity_hits = sum(1 for word in _re.findall(r'\b[\w-]+\b', query)
+                      if word in _kb_entities or word.upper() in _kb_entities)
+
+    # --- BM25 weight (same logic as before) ---
+    bm25_score = 0.0
+    if is_comparison:
+        bm25_score += 0.5
+    if entity_hits >= 2:
+        bm25_score += 0.5
+    elif entity_hits == 1:
+        bm25_score += 0.25
+    if is_definitional:
+        bm25_score -= 0.3
+    bm25_weight = max(0.5, min(2.0, 1.0 + bm25_score))
+
+    # --- HyDE gating ---
+    query_tokens = len(query.split())
+    hyde_enabled = None  # defer to global config by default
+    hyde_reason = "deferred to config"
+
+    if is_comparison:
+        hyde_enabled = True
+        hyde_reason = "comparison query (bridging vocabulary)"
+    elif entity_hits >= 2:
+        hyde_enabled = False
+        hyde_reason = f"{entity_hits} KB entities, no comparison"
+    elif query_tokens < 8 and entity_hits >= 1:
+        hyde_enabled = False
+        hyde_reason = f"short query ({query_tokens} tokens) with entity"
+    elif is_definitional and entity_hits == 0:
+        hyde_enabled = True
+        hyde_reason = "definitional query, no entities"
+
+    log.debug("Query classification: bm25=%.2f hyde=%s (%s) entities=%d query=%s",
+              bm25_weight, hyde_enabled, hyde_reason, entity_hits, query[:60])
+
+    return {
+        "bm25_weight": bm25_weight,
+        "hyde_enabled": hyde_enabled,
+        "hyde_reason": hyde_reason,
+        "entity_hits": entity_hits,
+        "is_comparison": is_comparison,
+        "n_retrieve_scale": None,
+        "blend_weight": None,
+        "section_prefs": None,
+        "authority_boost_scale": None,
+    }
+
+
+def _build_effective_config(mode: str, query_delta: dict, n_retrieve_default: int = 60) -> dict:
+    """Layer query classification delta on top of mode config.
+
+    Precedence: query_delta > mode config > global defaults.
+    Multiplicative fields (n_retrieve_scale, authority_boost_scale) multiply
+    the mode's absolute value. Clamped to safe ranges.
+    """
+    base = dict(MODE_ROUTING.get(mode, {}))
+
+    # Direct overrides
+    base["bm25_weight"] = query_delta["bm25_weight"]
+
+    if query_delta.get("hyde_enabled") is not None:
+        base["hyde_enabled"] = query_delta["hyde_enabled"]
+    else:
+        base.setdefault("hyde_enabled", _retrieval_cfg.get("hyde_enabled", True))
+
+    base["hyde_reason"] = query_delta.get("hyde_reason", "")
+
+    if query_delta.get("blend_weight") is not None:
+        base["blend_weight"] = query_delta["blend_weight"]
+
+    if query_delta.get("section_prefs") is not None:
+        base["preferred_sections"] = query_delta["section_prefs"]
+
+    # Multiplicative scales
+    if query_delta.get("n_retrieve_scale") is not None:
+        scale = max(0.3, min(3.0, query_delta["n_retrieve_scale"]))
+        base_n = base.get("n_retrieve", n_retrieve_default)
+        base["n_retrieve"] = round(base_n * scale)
+
+    if query_delta.get("authority_boost_scale") is not None:
+        scale = max(0.3, min(3.0, query_delta["authority_boost_scale"]))
+        base["authority_boost"] = base.get("authority_boost", 1.0) * scale
+
+    return base
 
 
 def _parse_bib_file(bib_path: str) -> dict[str, str]:
@@ -215,6 +476,163 @@ def _extract_cite_keys(text: str) -> list[str]:
             if k:
                 keys.append(k)
     return list(dict.fromkeys(keys))  # deduplicate, preserve order
+
+
+# arXiv ID: YYMM.NNNNN with plausible year prefix (10xx-24xx)
+_ARXIV_RE = re.compile(r'\b((?:1[0-9]|2[0-4])\d{2}\.\d{4,5})\b')
+# paper_id: YYMM_NNNNN (underscore variant)
+_PAPER_ID_RE = re.compile(r'\b(\d{4}_\d{4,5})\b')
+
+
+def _extract_paper_refs(text: str) -> list[tuple[str, str]]:
+    r"""Extract paper references from text in three forms.
+
+    Returns list of (ref_string, ref_type) tuples where ref_type is
+    'cite', 'arxiv', or 'paper_id'.
+    """
+    refs = []
+    seen = set()
+    # \cite{} keys first
+    for key in _extract_cite_keys(text):
+        if key not in seen:
+            refs.append((key, "cite"))
+            seen.add(key)
+    # Bare arXiv IDs
+    for m in _ARXIV_RE.finditer(text):
+        aid = m.group(1)
+        if aid not in seen:
+            refs.append((aid, "arxiv"))
+            seen.add(aid)
+    # paper_id patterns
+    for m in _PAPER_ID_RE.finditer(text):
+        pid = m.group(1)
+        # Convert to arXiv form to dedup with arXiv matches
+        arxiv_form = pid.replace("_", ".")
+        if pid not in seen and arxiv_form not in seen:
+            refs.append((pid, "paper_id"))
+            seen.add(pid)
+    return refs
+
+
+def _resolve_paper_ref(ref: str, ref_type: str) -> str | None:
+    """Resolve a single paper reference to a paper_id.
+
+    Returns paper_id string or None if not found.
+    """
+    if not _kb:
+        return None
+    if ref_type == "cite":
+        return _resolve_cite_to_paper_id(ref)
+    elif ref_type == "arxiv":
+        # Try direct paper_id lookup (arXiv 2401.17151 -> paper_id 2401_17151)
+        pid = ref.replace(".", "_")
+        row = _kb.db.execute(
+            "SELECT paper_id FROM papers WHERE paper_id = ?", (pid,)
+        ).fetchone()
+        if row:
+            return row[0]
+        # Try arxiv_id field
+        row = _kb.db.execute(
+            "SELECT paper_id FROM papers WHERE arxiv_id = ?", (ref,)
+        ).fetchone()
+        return row[0] if row else None
+    elif ref_type == "paper_id":
+        row = _kb.db.execute(
+            "SELECT paper_id FROM papers WHERE paper_id = ?", (ref,)
+        ).fetchone()
+        return row[0] if row else None
+    return None
+
+
+def _short_circuit_retrieve(paper_id: str, mode: str) -> list[dict]:
+    """Fetch and enrich nuggets directly from SQLite for a single paper.
+
+    Returns enriched nugget dicts matching _run_retrieval output format.
+    """
+    routing = MODE_ROUTING.get(mode, {})
+    allowed_types = routing.get("allowed_types")
+    preferred_sections = routing.get("preferred_sections")
+    max_per_paper = routing.get("max_per_paper", 20)
+
+    # Fetch nuggets from SQLite
+    rows = _kb.get_paper_nuggets(paper_id)
+    if not rows:
+        return []
+
+    # Filter by allowed_types (hard filter, matching normal pipeline)
+    if allowed_types:
+        rows = [r for r in rows if r.get("type", "") in allowed_types]
+
+    # Sort: preferred section match first, then thesis_relevance, then overall_score
+    def _sort_key(r):
+        sec_match = 1 if preferred_sections and r.get("section", "") in preferred_sections else 0
+        rel = r.get("thesis_relevance", 0) or 0
+        score = r.get("overall_score") if r.get("overall_score") is not None else -1
+        return (sec_match, rel, score)
+
+    rows.sort(key=_sort_key, reverse=True)
+    rows = rows[:max_per_paper]
+
+    # Get paper metadata
+    paper = _kb._get_paper(paper_id)
+    if not paper:
+        return []
+
+    p_title = paper.get("title", "")
+    p_year = paper.get("year")
+    p_authors = paper.get("authors", "[]")
+    p_arxiv = paper.get("arxiv_id", "")
+    p_doi = paper.get("doi", "")
+
+    # Resolve bibtex key
+    real_key = _resolve_bibtex_key(p_arxiv, p_doi, p_title)
+
+    nuggets = []
+    for r in rows:
+        nid = r["nugget_id"]
+        doc = f"Q: {r.get('question', '')}\nA: {r.get('answer', '')}"
+
+        # Generate bibtex key if no real one found
+        if real_key:
+            bib_key = real_key
+            bib_status = "real"
+        else:
+            # Simple fallback key generation for short-circuit path
+            if p_arxiv:
+                bib_key = f"arXiv_{p_arxiv.replace('.', '_')}"
+            elif p_authors and p_authors not in ("[]", ""):
+                surname = p_authors.split(",")[0].strip().split()[-1] if p_authors.split(",")[0].strip().split() else "Unknown"
+                surname = "".join(c for c in surname if c.isalpha()) or "Unknown"
+                yr = str(p_year) if p_year else "XXXX"
+                bib_key = f"{surname}_{yr}"
+            else:
+                bib_key = f"paper_{paper_id}"
+            bib_status = "generated"
+
+        nuggets.append({
+            "nugget_id": nid,
+            "paper_id": paper_id,
+            "paper_title": p_title,
+            "paper_year": p_year,
+            "paper_authors": p_authors,
+            "arxiv_id": p_arxiv,
+            "doi": p_doi,
+            "type": r.get("type", ""),
+            "confidence": r.get("confidence", ""),
+            "section": r.get("section", ""),
+            "document": doc,
+            "distance": 0.0,
+            "thesis_relevance": r.get("thesis_relevance", 0),
+            "rrf_score": 1.0,
+            "overlap_count": 0,
+            "matched_queries": [],
+            "bibtex_key": bib_key,
+            "bib_status": bib_status,
+            "pinned": False,
+            "source_chunk": r.get("source_chunk"),
+            "retrieval_mode": "short-circuit",
+        })
+    return nuggets
 
 
 def _resolve_cite_to_paper_id(key: str) -> str | None:
@@ -329,9 +747,13 @@ def _init(config_path: str):
     bib_path = _cfg.get("paths", {}).get("bib_file", "")
     _bib_lookup = _parse_bib_file(bib_path) if bib_path else {}
     _init_feedback_db(_cfg["paths"]["kb_dir"])
+    global _kb_entities
+    db_path = os.path.join(_cfg["paths"]["kb_dir"], "nuggets.db")
+    _kb_entities = _build_entity_set(db_path)
     stats = _kb.stats()
-    log.info("KB loaded: %d papers, %d nuggets, %d bib keys",
-             stats["total_papers"], stats["total_nuggets"], len(_bib_lookup))
+    log.info("KB loaded: %d papers, %d nuggets, %d bib keys, %d entities",
+             stats["total_papers"], stats["total_nuggets"], len(_bib_lookup),
+             len(_kb_entities) // 2)  # //2 because both cases stored
 
 
 def _shutdown():
@@ -608,6 +1030,12 @@ async def _run_retrieval(
     loop = asyncio.get_running_loop()
     last_msg = query
 
+    # --- Step 0: Classify query and build effective routing config ---
+    query_delta = _classify_query(last_msg)
+    effective = _build_effective_config(mode, query_delta, n_retrieve_default=n_retrieve)
+    log.debug("Effective routing config: mode=%s %s", mode,
+              {k: v for k, v in effective.items() if k not in ("hyde_reason",)})
+
     expand_client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=api_key,
@@ -743,22 +1171,20 @@ async def _run_retrieval(
     log.debug("Expanded to %d variants: %s", len(variants), variants)
 
     # --- Step 1b: HyDE — generate a hypothetical nugget passage ---
-    hyde_enabled = _retrieval_cfg.get("hyde_enabled", True)
+    hyde_enabled = effective.get("hyde_enabled", True)
+    log.debug("HyDE %s: %s", "enabled" if hyde_enabled else "disabled",
+              effective.get("hyde_reason", ""))
 
     if hyde_enabled:
+        # Select mode-aware HyDE prompt based on effective preferred_sections
+        hyde_system_prompt = _select_hyde_prompt(effective.get("preferred_sections"))
+
         def _generate_hyde():
             try:
-                # Domain-specific prompt — update if KB scope expands beyond thesis topics
                 resp = expand_client.chat.completions.create(
                     model=model,
                     messages=[
-                        {"role": "system", "content": (
-                            "You are an academic research assistant. Given a query about "
-                            "event cameras, RGB-Event fusion, spiking neural networks, or "
-                            "autonomous driving, write a short hypothetical answer as if it "
-                            "were extracted from a research paper. Write 2-4 sentences of "
-                            "factual, specific academic content. Do not hedge or disclaim."
-                        )},
+                        {"role": "system", "content": hyde_system_prompt},
                         {"role": "user", "content": last_msg},
                     ],
                     temperature=0.4,
@@ -781,22 +1207,23 @@ async def _run_retrieval(
         loop.run_in_executor(_executor, _embed_one, v) for v in variants
     ]
 
-    # Await HyDE result and embed it in parallel with variant embeddings
+    # Await HyDE result and embed it (pre-formatted, skip Q:/A: wrapping)
     hyde_passage = None
     if hyde_enabled:
         hyde_passage = await hyde_task
         if hyde_passage:
             variants.append(hyde_passage)
             variant_types.append(None)  # no type filter for HyDE
-            embed_tasks.append(loop.run_in_executor(_executor, _embed_one, hyde_passage))
+            embed_tasks.append(loop.run_in_executor(
+                _executor, _cached_embed_raw, hyde_passage))
             log.debug("HyDE passage: %s", hyde_passage[:120])
 
     embeddings = await asyncio.gather(*embed_tasks)
     log.info("Embedded %d variants in %.0fms", len(variants), (time.time() - t_embed) * 1000)
 
     # --- Step 3: Multi-vector ChromaDB retrieval + BM25 ---
-    routing = MODE_ROUTING.get(mode, {})
-    effective_n_retrieve = routing.get("n_retrieve", n_retrieve)
+    routing = effective  # unified config replaces raw MODE_ROUTING
+    effective_n_retrieve = effective.get("n_retrieve", n_retrieve)
 
     def _retrieve(vec, target_type=None):
         kwargs = {"query_embeddings": [vec], "n_results": effective_n_retrieve}
@@ -864,6 +1291,9 @@ async def _run_retrieval(
                     "thesis_relevance": meta.get("thesis_relevance", 3),
                 }
 
+    # Query-type routing: BM25 weight from effective config (set by _classify_query)
+    bm25_weight = effective["bm25_weight"]
+
     # Merge BM25 results into RRF
     bm25_seen = {}
     for nid, score in bm25_raw:
@@ -871,7 +1301,7 @@ async def _run_retrieval(
             bm25_seen[nid] = score
     bm25_ranked = sorted(bm25_seen.keys(), key=lambda x: bm25_seen[x], reverse=True)
     for rank, nid in enumerate(bm25_ranked):
-        rrf_scores[nid] = rrf_scores.get(nid, 0) + 1 / (rank + rrf_k)
+        rrf_scores[nid] = rrf_scores.get(nid, 0) + bm25_weight / (rank + rrf_k)
         overlap_count[nid] = overlap_count.get(nid, 0) + 1
         matched_queries.setdefault(nid, []).append(len(variants))
         if nid not in nugget_data:
@@ -1004,6 +1434,7 @@ async def _run_retrieval(
     # Cross-encoder reranking
     if rerank:
         rerank_timeout = _retrieval_cfg.get("rerank_timeout", 10)
+        effective_blend = effective.get("blend_weight", rerank_weight)
         pre_rerank = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x], reverse=True)
         rrf_scores = await loop.run_in_executor(
             _executor,
@@ -1013,11 +1444,11 @@ async def _run_retrieval(
                 nugget_data=nugget_data,
                 rrf_scores=rrf_scores,
                 top_n=rerank_top_n,
-                blend_weight=rerank_weight,
+                blend_weight=effective_blend,
                 timeout=rerank_timeout,
             ),
         )
-        log.info("Reranked top %d candidates (weight=%.1f)", rerank_top_n, rerank_weight)
+        log.info("Reranked top %d candidates (weight=%.1f)", rerank_top_n, effective_blend)
 
     # Sort by RRF score
     ranked = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x], reverse=True)
@@ -1278,45 +1709,77 @@ async def chat_endpoint(req: ChatRequest):
         log.info("Chat request: mode=%s model=%s query=%s",
                  req.mode, req.model, last_msg[:100])
 
-        # Auto-extract \cite{} keys and pin cited papers
-        pinned_from_cites = []
-        if req.mode in ("background", "draft", "review", "check"):
-            cite_keys = _extract_cite_keys(last_msg)
-            if cite_keys:
-                for ck in cite_keys:
-                    pid = _resolve_cite_to_paper_id(ck)
-                    if pid:
-                        pinned_from_cites.append(pid)
-                        log.info("Cite key '%s' resolved to paper_id=%s", ck, pid)
-                    else:
-                        log.warning("Cite key '%s' could not be resolved", ck)
-                if pinned_from_cites:
-                    # Merge with explicit pinned_papers, dedup
-                    existing = set(req.pinned_papers)
-                    for pid in pinned_from_cites:
-                        if pid not in existing:
-                            req.pinned_papers.append(pid)
-                            existing.add(pid)
-                    log.info("Auto-pinned %d papers from cite keys", len(pinned_from_cites))
+        # --- Paper-reference short-circuit ---
+        # Detect paper references and short-circuit for single-paper queries
+        paper_refs = _extract_paper_refs(last_msg)
+        resolved_papers = []
+        if paper_refs:
+            for ref, rtype in paper_refs:
+                pid = _resolve_paper_ref(ref, rtype)
+                if pid and pid not in [p for p, _ in resolved_papers]:
+                    resolved_papers.append((pid, ref))
 
-        top_nuggets, variants = await _run_retrieval(
-            query=last_msg,
-            mode=req.mode,
-            n_variants=req.n_variants,
-            n_retrieve=req.n_retrieve,
-            n_context=req.n_context,
-            model=req.model,
-            type_filter=req.type_filter,
-            max_per_paper=req.max_per_paper,
-            year_min=req.year_min,
-            year_max=req.year_max,
-            rerank=req.rerank,
-            rerank_top_n=req.rerank_top_n,
-            rerank_weight=req.rerank_weight,
-            excluded_nuggets=req.excluded_nuggets,
-            excluded_papers=req.excluded_papers,
-            pinned_papers=req.pinned_papers,
-        )
+            has_cross_paper = bool(_COMPARE_PATTERNS.search(last_msg))
+
+            if (len(resolved_papers) == 1
+                    and not has_cross_paper
+                    and len(paper_refs) == len(resolved_papers)):
+                # Single paper, all refs resolved, no cross-paper intent -> short-circuit
+                sc_pid = resolved_papers[0][0]
+                sc_nuggets = _short_circuit_retrieve(sc_pid, req.mode)
+                if sc_nuggets:
+                    log.info("Short-circuit: paper_id=%s, %d nuggets returned",
+                             sc_pid, len(sc_nuggets))
+                    top_nuggets, variants = sc_nuggets, []
+                else:
+                    # Fallback: paper exists but no nuggets, pin and do full retrieval
+                    log.info("Short-circuit fallback: paper_id=%s has no matching nuggets",
+                             sc_pid)
+                    if sc_pid not in req.pinned_papers:
+                        req.pinned_papers.append(sc_pid)
+                    top_nuggets = None  # signal to run full retrieval below
+            else:
+                # Multiple papers or cross-paper intent: pin and do full retrieval
+                top_nuggets = None
+                for pid, ref in resolved_papers:
+                    if pid not in req.pinned_papers:
+                        req.pinned_papers.append(pid)
+                        log.info("Paper ref '%s' resolved to paper_id=%s (pinned)", ref, pid)
+        else:
+            top_nuggets = None
+
+        # --- Full retrieval (when short-circuit didn't fire or fell back) ---
+        if top_nuggets is None:
+            # Legacy cite-pinning for modes that use it (extends short-circuit pinning)
+            if req.mode in ("background", "draft", "review", "check"):
+                cite_keys = _extract_cite_keys(last_msg)
+                if cite_keys:
+                    existing_pinned = set(req.pinned_papers)
+                    for ck in cite_keys:
+                        pid = _resolve_cite_to_paper_id(ck)
+                        if pid and pid not in existing_pinned:
+                            req.pinned_papers.append(pid)
+                            existing_pinned.add(pid)
+                            log.info("Cite key '%s' resolved to paper_id=%s (pinned)", ck, pid)
+
+            top_nuggets, variants = await _run_retrieval(
+                query=last_msg,
+                mode=req.mode,
+                n_variants=req.n_variants,
+                n_retrieve=req.n_retrieve,
+                n_context=req.n_context,
+                model=req.model,
+                type_filter=req.type_filter,
+                max_per_paper=req.max_per_paper,
+                year_min=req.year_min,
+                year_max=req.year_max,
+                rerank=req.rerank,
+                rerank_top_n=req.rerank_top_n,
+                rerank_weight=req.rerank_weight,
+                excluded_nuggets=req.excluded_nuggets,
+                excluded_papers=req.excluded_papers,
+                pinned_papers=req.pinned_papers,
+            )
 
         api_key = os.environ.get("OPENROUTER_API_KEY")
         if not api_key:
