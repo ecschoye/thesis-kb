@@ -43,6 +43,59 @@ _retrieval_cfg: dict = {}  # loaded from config.yaml retrieval section
 _bib_lookup: dict[str, str] = {}  # normalised key → bibtex cite key
 _feedback_db = None  # separate SQLite connection for feedback
 _feedback_lock = threading.Lock()  # serialize feedback DB writes
+_trace_lock = threading.Lock()
+
+
+def _write_retrieval_trace(query, mode, elapsed, variants, effective_config,
+                           query_delta, hyde_passage, rrf_scores, nugget_data,
+                           overlap_count, top_ids):
+    """Write a structured retrieval trace to logs/retrieval_traces.jsonl."""
+    try:
+        trace_path = os.path.join("logs", "retrieval_traces.jsonl")
+        os.makedirs("logs", exist_ok=True)
+
+        # Top-30 by RRF score with key metadata
+        ranked = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x], reverse=True)[:30]
+        scored_nuggets = []
+        for nid in ranked:
+            nd = nugget_data.get(nid, {})
+            scored_nuggets.append({
+                "nugget_id": nid,
+                "paper_id": nd.get("paper_id", ""),
+                "type": nd.get("type", ""),
+                "section": nd.get("section", ""),
+                "rrf_score": round(rrf_scores.get(nid, 0), 6),
+                "overlap": overlap_count.get(nid, 0),
+                "overall_score": nd.get("overall_score"),
+                "thesis_relevance": nd.get("thesis_relevance", 0),
+            })
+
+        # Compact effective config (drop None values)
+        config_compact = {k: v for k, v in effective_config.items() if v is not None}
+
+        trace = {
+            "ts": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "query": query,
+            "mode": mode,
+            "elapsed_s": round(elapsed, 3),
+            "n_variants": len(variants) if variants else 0,
+            "hyde_enabled": query_delta.get("hyde_enabled"),
+            "hyde_reason": query_delta.get("hyde_reason", ""),
+            "bm25_weight": effective_config.get("bm25_weight", 1.0),
+            "effective_config": config_compact,
+            "query_delta": {k: v for k, v in query_delta.items() if v is not None},
+            "n_candidates": len(rrf_scores),
+            "n_returned": len(top_ids),
+            "top_nuggets": scored_nuggets,
+            "returned_ids": list(top_ids[:20]),
+        }
+
+        with _trace_lock:
+            with open(trace_path, "a") as f:
+                f.write(json.dumps(trace) + "\n")
+    except Exception as e:
+        log.warning("Failed to write retrieval trace: %s", e)
+
 
 # Default mode routing (overridden by config.yaml retrieval.modes)
 _DEFAULT_MODE_ROUTING = {
@@ -1325,13 +1378,15 @@ async def _run_retrieval(
     log.debug("BM25 contributed %d unique nuggets (%d new)",
               len(bm25_ranked), len([n for n in bm25_ranked if n not in nugget_data]))
 
-    # Thesis relevance boosting
+    # Thesis relevance boosting (0 means unscored — treat as neutral 3)
     for nid in rrf_scores:
         relevance = nugget_data[nid].get("thesis_relevance", 3)
         try:
             relevance = int(relevance)
         except (ValueError, TypeError):
             relevance = 3
+        if relevance <= 0:
+            relevance = 3  # unscored nuggets get neutral treatment
         rrf_scores[nid] *= 1.0 + (relevance - 3) * 0.2
 
     # Section-aware boosting (mode-specific)
@@ -1662,7 +1717,20 @@ async def _run_retrieval(
             and (year_max is None or n["paper_year"] <= year_max)
         ]
 
-    log.info("Retrieval complete: %d nuggets, %.1fs", len(top_nuggets), time.time() - t0)
+    elapsed = time.time() - t0
+    log.info("Retrieval complete: %d nuggets, %.1fs", len(top_nuggets), elapsed)
+
+    # --- Retrieval trace logging ---
+    _write_retrieval_trace(
+        query=last_msg, mode=mode, elapsed=elapsed,
+        variants=variants, effective_config=effective,
+        query_delta=query_delta,
+        hyde_passage=hyde_passage if hyde_passage else None,
+        rrf_scores=rrf_scores, nugget_data=nugget_data,
+        overlap_count=overlap_count,
+        top_ids=top_ids,
+    )
+
     return top_nuggets, variants
 
 
