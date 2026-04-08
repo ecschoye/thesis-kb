@@ -46,7 +46,7 @@ def _get_paper_title(nuggets, paper_id):
 def _process_paper_unified(
     client, paper_id, chunks, model, ext_cfg, qcfg, acfg, ucfg,
     extra_body=None, worker_id=0, print_lock=None, counters=None,
-    max_model_len=8192,
+    max_model_len=8192, paper_meta=None,
 ):
     """Full extract→quality→augment pipeline for one paper, all in memory.
 
@@ -86,6 +86,7 @@ def _process_paper_unified(
                 max_retries, retry_delay, paper_id, extra_body,
                 prior_questions=prior_questions if prior_questions else None,
                 max_model_len=max_model_len,
+                paper_meta=paper_meta,
             )
         except Exception as e:
             _log(f"  WARN {short_id} chunk {ci}: {e}")
@@ -576,6 +577,25 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
         print("[unified] Nothing to process.")
         return
 
+    # Load manifest for paper metadata (title, authors, year, venue)
+    corpus_dir = cfg["paths"].get("corpus_dir", "corpus")
+    manifest_path = os.path.join(corpus_dir, "manifest.json")
+    manifest_by_id = {}
+    if os.path.exists(manifest_path):
+        manifest = load_json(manifest_path)
+        for entry in manifest:
+            pid = entry.get("paper_id", "")
+            if pid:
+                manifest_by_id[pid] = {
+                    "title": entry.get("title", ""),
+                    "authors": entry.get("authors", []),
+                    "year": entry.get("year"),
+                    "venue": entry.get("venue", ""),
+                }
+        print(f"[unified] Loaded manifest: {len(manifest_by_id)} papers with metadata")
+    else:
+        print(f"[unified] No manifest found at {manifest_path}, proceeding without paper metadata")
+
     # Load chunk data (needed for both modes)
     paper_chunks = {}
     paper_nuggets = {}  # only for reprocess mode
@@ -630,6 +650,7 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
     def _worker(paper_id):
         with _rr_lock:
             client = clients[next(_rr_counter) % num_instances]
+        meta = manifest_by_id.get(paper_id)
         if reprocess or review:
             result = _process_paper_reprocess(
                 client, paper_id, paper_nuggets[paper_id],
@@ -642,7 +663,7 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
                 client, paper_id, paper_chunks[paper_id], model,
                 ext_cfg, qcfg, acfg, ucfg,
                 extra_body=extra_body, print_lock=print_lock, counters=counters,
-                max_model_len=max_model_len,
+                max_model_len=max_model_len, paper_meta=meta,
             )
         _on_result(paper_id, result)
         return result

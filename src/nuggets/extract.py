@@ -88,6 +88,23 @@ Output format:
 ]"""
 
 
+EXTRACTION_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "question": {"type": "string"},
+            "answer": {"type": "string"},
+            "type": {
+                "type": "string",
+                "enum": ["method", "result", "claim", "limitation", "comparison", "background"],
+            },
+        },
+        "required": ["question", "answer", "type"],
+    },
+}
+
+
 def repair_json(text):
     """Attempt to extract valid JSON from potentially malformed LLM output.
 
@@ -134,10 +151,33 @@ def repair_json(text):
     return None
 
 
-def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_tokens=3000, extra_body=None, prior_questions=None, max_model_len=8192):
-    """Send a chunk to the LLM and parse nuggets."""
+def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_tokens=3000, extra_body=None, prior_questions=None, max_model_len=8192, paper_meta=None):
+    """Send a chunk to the LLM and parse nuggets.
+
+    Args:
+        paper_meta: Optional dict with paper metadata (title, authors, year, venue)
+            to inject into the prompt for better self-contained nuggets.
+    """
     try:
-        user_content = "Extract the key knowledge nuggets from this academic text:\n\n" + chunk_text
+        user_content = ""
+        if paper_meta:
+            meta_parts = []
+            if paper_meta.get("title"):
+                meta_parts.append(f"Title: {paper_meta['title']}")
+            if paper_meta.get("authors"):
+                authors = paper_meta["authors"]
+                if isinstance(authors, list):
+                    authors = ", ".join(a.get("name", a) if isinstance(a, dict) else str(a) for a in authors[:5])
+                    if len(paper_meta["authors"]) > 5:
+                        authors += " et al."
+                meta_parts.append(f"Authors: {authors}")
+            if paper_meta.get("year"):
+                meta_parts.append(f"Year: {paper_meta['year']}")
+            if paper_meta.get("venue"):
+                meta_parts.append(f"Venue: {paper_meta['venue']}")
+            if meta_parts:
+                user_content += "Paper context:\n" + "\n".join(meta_parts) + "\n\n"
+        user_content += "Extract the key knowledge nuggets from this academic text:\n\n" + chunk_text
         if prior_questions:
             truncated = prior_questions[-20:]  # last 20 to stay in context
             if len(prior_questions) > 20:
@@ -151,6 +191,9 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
         effective_max_tokens = max_tokens
         if input_estimate + max_tokens > max_model_len:
             effective_max_tokens = max(256, max_model_len - input_estimate)
+
+        # Use structured output on vLLM backends (extra_body signals vLLM)
+        is_vllm = extra_body is not None
         kwargs = dict(
             model=model,
             messages=[
@@ -160,7 +203,17 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
             temperature=temperature,
             max_tokens=effective_max_tokens,
         )
-        if extra_body:
+        if is_vllm:
+            kwargs["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "nugget_extraction",
+                    "schema": EXTRACTION_SCHEMA,
+                    "strict": False,
+                },
+            }
+            kwargs["extra_body"] = extra_body
+        elif extra_body:
             kwargs["extra_body"] = extra_body
         resp = client.chat.completions.create(**kwargs)
         raw = resp.choices[0].message.content
@@ -228,7 +281,7 @@ def _looks_like_references(text):
     numbered = len(_NUMBERED_REFS.findall(text))
     return numbered >= 3
 
-def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay, paper_id, extra_body=None, prior_questions=None, max_model_len=8192):
+def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay, paper_id, extra_body=None, prior_questions=None, max_model_len=8192, paper_meta=None):
     """Process a single chunk — designed for use in a thread pool."""
     text = chunk["text"]
     if len(text.strip()) < 50:
@@ -258,7 +311,7 @@ def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay
     nuggets = []
     for mi, cur_model in enumerate(models_to_try):
         for attempt in range(max_retries):
-            nuggets, raw = extract_nuggets_from_chunk(client, text, cur_model, temp, max_tok, extra_body=extra_body, prior_questions=cur_prior, max_model_len=max_model_len)
+            nuggets, raw = extract_nuggets_from_chunk(client, text, cur_model, temp, max_tok, extra_body=extra_body, prior_questions=cur_prior, max_model_len=max_model_len, paper_meta=paper_meta)
             if nuggets or raw is None:
                 # raw is None = valid response (even if 0 nuggets, e.g. references chunk)
                 break
@@ -367,6 +420,22 @@ def run_extraction(config_path="config.yaml"):
     total_nuggets = 0
     success, failed = 0, 0
 
+    # Load manifest for paper metadata
+    corpus_dir = cfg["paths"].get("corpus_dir", "corpus")
+    manifest_path = os.path.join(corpus_dir, "manifest.json")
+    manifest_by_id = {}
+    if os.path.exists(manifest_path):
+        manifest = load_json(manifest_path)
+        for entry in manifest:
+            pid = entry.get("paper_id", "")
+            if pid:
+                manifest_by_id[pid] = {
+                    "title": entry.get("title", ""),
+                    "authors": entry.get("authors", []),
+                    "year": entry.get("year"),
+                    "venue": entry.get("venue", ""),
+                }
+
     # Load all paper chunks up front (cheap — just JSON metadata)
     paper_chunks = {}
     for fname in to_process:
@@ -418,6 +487,7 @@ def run_extraction(config_path="config.yaml"):
         warnings = []
         n_chunks = len(chunks)
         short_id = paper_id[:25]
+        meta = manifest_by_id.get(paper_id)
 
         for ci, c in enumerate(chunks):
             with print_lock:
@@ -427,7 +497,8 @@ def run_extraction(config_path="config.yaml"):
                 nuggets = _process_chunk(
                     client, c, model, temp, max_tok,
                     max_retries, retry_delay, paper_id, extra_body,
-                    prior_questions=prior_questions if prior_questions else None)
+                    prior_questions=prior_questions if prior_questions else None,
+                    paper_meta=meta)
             except Exception as e:
                 nuggets = []
                 warnings.append(f"  WARN chunk {c.get('chunk_id', '?')} of {paper_id}: {e}")

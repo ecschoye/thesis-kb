@@ -1320,6 +1320,7 @@ async def _run_retrieval(
                     "distance": 0.0,
                     "thesis_relevance": r.get("thesis_relevance", 3),
                     "source_chunk": r.get("source_chunk"),
+                    "overall_score": r.get("overall_score"),
                 }
     log.debug("BM25 contributed %d unique nuggets (%d new)",
               len(bm25_ranked), len([n for n in bm25_ranked if n not in nugget_data]))
@@ -1430,6 +1431,28 @@ async def _run_retrieval(
             else:
                 _authority_cache[pid] = 1.0
         rrf_scores[nid] *= _authority_cache[pid]
+
+    # Quality score boost — use overall_score from SQLite
+    quality_weight = _retrieval_cfg.get("quality_weight", 0.15)
+    if quality_weight > 0 and _kb and _kb.db:
+        nids_needing_quality = [nid for nid in rrf_scores if "overall_score" not in nugget_data.get(nid, {})]
+        if nids_needing_quality:
+            placeholders = ",".join("?" * len(nids_needing_quality))
+            rows = _kb.db.execute(
+                f"SELECT nugget_id, overall_score FROM nuggets WHERE nugget_id IN ({placeholders})",
+                nids_needing_quality,
+            ).fetchall()
+            for row in rows:
+                nid_r = row[0] if isinstance(row, (tuple, list)) else row["nugget_id"]
+                score_r = row[1] if isinstance(row, (tuple, list)) else row["overall_score"]
+                if nid_r in nugget_data:
+                    nugget_data[nid_r]["overall_score"] = score_r
+        for nid in rrf_scores:
+            qs = nugget_data.get(nid, {}).get("overall_score")
+            if qs is not None and qs > 0:
+                # Boost relative to median quality (3.0): score 5 -> 1.3x, score 1 -> 0.7x
+                quality_boost = 1.0 + (qs - 3.0) * quality_weight
+                rrf_scores[nid] *= max(0.5, quality_boost)
 
     # Cross-encoder reranking
     if rerank:
