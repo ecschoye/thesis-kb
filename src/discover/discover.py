@@ -116,7 +116,7 @@ def run_discovery(
 
     # 7. Download
     if auto_ingest and top:
-        _auto_ingest(top[:ingest_top], config_path)
+        _auto_ingest(top[:ingest_top], config_path, ledger_path)
 
     return report
 
@@ -219,11 +219,12 @@ def _make_filename(paper):
     return f"{author_part} - {year} - {title}.pdf"
 
 
-def _auto_ingest(scored_papers, config_path):
-    """Download top papers to ~/Documents/thesis-papers."""
+def _auto_ingest(scored_papers, config_path, ledger_path):
+    """Download top papers to the configured pdf_dir."""
     from src.acquire.fetch import download_pdf
 
-    paper_dir = os.path.expanduser("~/Documents/thesis-papers")
+    cfg = load_config(config_path)
+    paper_dir = cfg.get("paths", {}).get("pdf_dir", os.path.expanduser("~/Documents/thesis-papers"))
     os.makedirs(paper_dir, exist_ok=True)
 
     downloaded = 0
@@ -248,21 +249,21 @@ def _auto_ingest(scored_papers, config_path):
             downloaded += 1
             print(f"  [{item['relevance']:.2f}] {p.title[:70]}")
             # Mark in ledger
-            _mark_ledger_downloaded(p)
+            _mark_ledger_downloaded(p, ledger_path)
         else:
             failed += 1
 
     print(f"\n  Done: {downloaded} downloaded, {skipped} skipped, {failed} failed")
 
 
-def _mark_ledger_downloaded(paper):
+def _mark_ledger_downloaded(paper, ledger_path):
     """Mark a paper as downloaded in the ledger."""
     try:
-        ledger = _load_ledger()
+        ledger = _load_ledger(ledger_path)
         key = _candidate_key(paper)
         if key in ledger["entries"]:
             ledger["entries"][key]["downloaded"] = True
             ledger["entries"][key]["status"] = "downloaded"
-            _save_ledger(ledger)
+            _save_ledger(ledger, ledger_path)
     except Exception:
         pass

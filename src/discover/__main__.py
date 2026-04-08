@@ -32,14 +32,17 @@ def cmd_run(args):
 
 def cmd_ledger(args):
     """Query the persistent candidate ledger."""
-    from src.discover.discover import _load_ledger, LEDGER_PATH
+    from src.discover.discover import _load_ledger, _get_corpus_dir
     import os
 
-    if not os.path.exists(LEDGER_PATH):
+    corpus_dir = _get_corpus_dir(args.config)
+    ledger_path = os.path.join(corpus_dir, "discovery_ledger.json")
+
+    if not os.path.exists(ledger_path):
         print("No ledger found. Run a discovery first.")
         return
 
-    ledger = _load_ledger()
+    ledger = _load_ledger(ledger_path)
     entries = ledger["entries"]
     stats = ledger["stats"]
 
@@ -137,6 +140,7 @@ def main():
 
     # --- ledger ---
     led_p = sub.add_parser("ledger", help="Browse the accumulated candidate ledger")
+    led_p.add_argument("-c", "--config", default="config.yaml")
     led_p.add_argument("--status", choices=["candidate", "downloaded", "rejected", "ingested"],
                        help="Filter by status")
     led_p.add_argument("--min-score", type=float, help="Minimum relevance score")
