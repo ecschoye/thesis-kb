@@ -1,7 +1,7 @@
 """Cross-encoder reranker using BGE-reranker-v2-m3 via transformers."""
 import time
-import signal
 import torch
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from src.log import get_logger
 
@@ -76,21 +76,17 @@ def rerank_nuggets(
 
     t0 = time.time()
     try:
-        # Use signal-based timeout on Unix
-        def _timeout_handler(signum, frame):
-            raise TimeoutError(f"Reranking exceeded {timeout}s timeout")
-
-        old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
-        signal.alarm(timeout)
-        try:
+        # Use thread pool with timeout (signal.alarm doesn't work outside main thread)
+        def _score():
             with torch.no_grad():
                 inputs = tokenizer(pairs, padding=True, truncation=True,
                                    return_tensors="pt", max_length=512)
-                scores = model(**inputs, return_dict=True).logits.view(-1).float()
-        finally:
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, old_handler)
-    except (TimeoutError, Exception) as e:
+                return model(**inputs, return_dict=True).logits.view(-1).float()
+
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(_score)
+            scores = future.result(timeout=timeout)
+    except (FuturesTimeoutError, Exception) as e:
         elapsed = time.time() - t0
         log.warning("Reranking failed after %.0fms, falling back to RRF-only: %s",
                      elapsed * 1000, e)

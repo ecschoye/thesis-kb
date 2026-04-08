@@ -355,8 +355,8 @@ def update_sqlite(nuggets, manifest, kb_dir, changed_papers, db_name="nuggets.db
     flag_threshold = (cfg.get("nuggets", {}).get("quality", {}).get("flag_threshold", 2)
                       if cfg else 2)
 
-    # Delete old nuggets for changed papers (FTS5 content-sync handles deletion via triggers
-    # if present; otherwise we rebuild FTS at the end)
+    # Delete old nuggets for changed papers via explicit FTS delete commands
+    # followed by row deletion from the main table
     for pid in changed_papers:
         # Get rowids for FTS deletion (content-sync table needs explicit delete commands)
         rows = c.execute(

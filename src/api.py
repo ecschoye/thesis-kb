@@ -81,6 +81,7 @@ def _write_retrieval_trace(query, mode, elapsed, variants, effective_config,
             "n_variants": len(variants) if variants else 0,
             "hyde_enabled": query_delta.get("hyde_enabled"),
             "hyde_reason": query_delta.get("hyde_reason", ""),
+            "hyde_passage": hyde_passage,
             "bm25_weight": effective_config.get("bm25_weight", 1.0),
             "effective_config": config_compact,
             "query_delta": {k: v for k, v in query_delta.items() if v is not None},
@@ -327,8 +328,7 @@ def _build_entity_set(db_path: str, min_count: int = 10):
     import sqlite3
     from collections import Counter
     conn = sqlite3.connect(db_path)
-    rows = conn.execute('SELECT question, answer FROM nuggets').fetchall()
-    conn.close()
+    cursor = conn.execute('SELECT question, answer FROM nuggets')
 
     # CamelCase: FlowNet, SpikingJelly (lower after first cap, then internal cap)
     camel_re = _re.compile(r'\b([A-Z][a-z]+(?:[A-Z][a-z0-9]+)+(?:[-][A-Za-z0-9]+)*)\b')
@@ -340,7 +340,7 @@ def _build_entity_set(db_path: str, min_count: int = 10):
     acronym_re = _re.compile(r'\b([A-Z]{3,}[0-9]*(?:[-][A-Z0-9]+)*)\b')
 
     counts: Counter = Counter()
-    for q, a in rows:
+    for q, a in cursor:
         for text in (q, a):
             for m in camel_re.findall(text):
                 counts[m] += 1
@@ -350,6 +350,7 @@ def _build_entity_set(db_path: str, min_count: int = 10):
                 counts[m] += 1
             for m in acronym_re.findall(text):
                 counts[m] += 1
+    conn.close()
 
     entities = set()
     for term, count in counts.items():
@@ -801,7 +802,9 @@ def _init(config_path: str):
     _bib_lookup = _parse_bib_file(bib_path) if bib_path else {}
     _init_feedback_db(_cfg["paths"]["kb_dir"])
     global _kb_entities
-    db_path = os.path.join(_cfg["paths"]["kb_dir"], "nuggets.db")
+    sqlite_cfg = _cfg.get("store", {}).get("sqlite", {})
+    db_name = sqlite_cfg.get("db_name", "nuggets.db")
+    db_path = os.path.join(_cfg["paths"]["kb_dir"], db_name)
     _kb_entities = _build_entity_set(db_path)
     stats = _kb.stats()
     log.info("KB loaded: %d papers, %d nuggets, %d bib keys, %d entities",
@@ -1530,16 +1533,19 @@ async def _run_retrieval(
     if quality_weight > 0 and _kb and _kb.db:
         nids_needing_quality = [nid for nid in rrf_scores if "overall_score" not in nugget_data.get(nid, {})]
         if nids_needing_quality:
-            placeholders = ",".join("?" * len(nids_needing_quality))
-            rows = _kb.db.execute(
-                f"SELECT nugget_id, overall_score FROM nuggets WHERE nugget_id IN ({placeholders})",
-                nids_needing_quality,
-            ).fetchall()
-            for row in rows:
-                nid_r = row[0] if isinstance(row, (tuple, list)) else row["nugget_id"]
-                score_r = row[1] if isinstance(row, (tuple, list)) else row["overall_score"]
-                if nid_r in nugget_data:
-                    nugget_data[nid_r]["overall_score"] = score_r
+            # Chunk to stay within SQLite's variable limit (default 999)
+            for i in range(0, len(nids_needing_quality), 900):
+                chunk = nids_needing_quality[i:i + 900]
+                placeholders = ",".join("?" * len(chunk))
+                rows = _kb.db.execute(
+                    f"SELECT nugget_id, overall_score FROM nuggets WHERE nugget_id IN ({placeholders})",
+                    chunk,
+                ).fetchall()
+                for row in rows:
+                    nid_r = row[0] if isinstance(row, (tuple, list)) else row["nugget_id"]
+                    score_r = row[1] if isinstance(row, (tuple, list)) else row["overall_score"]
+                    if nid_r in nugget_data:
+                        nugget_data[nid_r]["overall_score"] = score_r
         for nid in rrf_scores:
             qs = nugget_data.get(nid, {}).get("overall_score")
             if qs is not None and qs > 0:

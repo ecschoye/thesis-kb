@@ -39,8 +39,8 @@ def save_jsonl(items, path, removed=None):
             f.write(json.dumps(item, ensure_ascii=False) + "\n")
         if removed:
             for item in removed:
-                item["_removed"] = True
-                f.write(json.dumps(item, ensure_ascii=False) + "\n")
+                removed_item = {**item, "_removed": True}
+                f.write(json.dumps(removed_item, ensure_ascii=False) + "\n")
     os.replace(tmp, path)
 
 

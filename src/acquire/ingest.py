@@ -26,8 +26,9 @@ def run_ingest(config_path="config.yaml", zotero_path=None, enrich=True, paper_f
 
     Args:
         paper_filter: Optional substring to match against paper IDs or filenames.
-            When set, only matching papers are added/enriched; existing manifest
-            entries for non-matching papers are preserved as-is.
+            When set, only matching papers are added/enriched. Note: the manifest
+            is rebuilt from scanned PDFs, so papers whose PDFs are no longer in
+            pdf_dir will be dropped regardless of this filter.
     """
     cfg = load_config(config_path)
     pdf_dir = cfg["paths"]["pdf_dir"]
