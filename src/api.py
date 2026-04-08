@@ -1487,6 +1487,44 @@ async def _run_retrieval(
                 _authority_cache[pid] = 1.0
         rrf_scores[nid] *= _authority_cache[pid]
 
+    # Title-match boost: when query mentions a paper/dataset name, boost that paper
+    title_boost_val = _retrieval_cfg.get("title_match_boost", 2.0)
+    if title_boost_val > 1.0:
+        # Extract significant query words (3+ chars, skip common stopwords)
+        _title_stops = {"the", "and", "for", "with", "from", "that", "this", "are",
+                        "how", "what", "does", "which", "where", "when", "who", "why",
+                        "has", "have", "been", "its", "not", "can", "was", "were",
+                        "based", "using", "between", "about", "into", "over", "than"}
+        query_words = set()
+        for w in re.findall(r'\b[A-Za-z][\w-]*\b', last_msg):
+            if len(w) >= 3 and w.lower() not in _title_stops:
+                query_words.add(w.lower())
+
+        # Build paper_id -> title mapping from authority cache lookup (already loaded)
+        title_boosted = set()
+        for pid in set(nugget_data[nid]["paper_id"] for nid in rrf_scores):
+            paper = _kb._get_paper(pid)
+            if not paper:
+                continue
+            title = (paper.get("title") or "").lower()
+            if not title:
+                continue
+            # Check for significant word overlap between query and title
+            title_words = set(w for w in re.findall(r'\b\w+\b', title)
+                              if len(w) >= 3 and w not in _title_stops)
+            matches = query_words & title_words
+            # Require at least one distinctive match (not just common technical words)
+            if len(matches) >= 1 and any(len(m) >= 4 for m in matches):
+                title_boosted.add(pid)
+
+        if title_boosted:
+            for nid in rrf_scores:
+                if nugget_data[nid]["paper_id"] in title_boosted:
+                    rrf_scores[nid] *= title_boost_val
+            log.debug("Title-match boost (%.1fx) applied to %d papers: %s",
+                       title_boost_val, len(title_boosted),
+                       [p[:40] for p in list(title_boosted)[:5]])
+
     # Quality score boost — use overall_score from SQLite
     quality_weight = _retrieval_cfg.get("quality_weight", 0.15)
     if quality_weight > 0 and _kb and _kb.db:
