@@ -19,7 +19,7 @@ import threading
 import itertools
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.utils import load_config, load_json, save_json, make_llm_clients
+from src.utils import load_config, load_json, save_json, save_jsonl, load_jsonl, make_llm_clients
 
 # Reuse existing stage implementations
 from src.nuggets.extract import _process_chunk, _deduplicate_nuggets
@@ -509,15 +509,8 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
     def _done(paper_id):
         if regenerate or review:
             return False  # force re-processing
-        path = os.path.join(unified_dir, f"{paper_id}.json")
-        if not os.path.exists(path):
-            return False
-        try:
-            with open(path) as f:
-                data = json.load(f)
-            return data.get("num_nuggets", 0) > 0 or len(data.get("removed", [])) > 0
-        except (json.JSONDecodeError, OSError):
-            return False
+        path = os.path.join(unified_dir, f"{paper_id}.jsonl")
+        return os.path.exists(path)
 
     # Enumerate papers from chunk_dir (always needed)
     chunk_files = sorted(f for f in os.listdir(chunk_dir) if f.endswith(".json"))
@@ -534,7 +527,7 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
         elif reprocess or review:
             # In reprocess/review mode, need existing nuggets
             src_dir = unified_dir if review else nugget_dir
-            nug_path = os.path.join(src_dir, f"{paper_id}.json")
+            nug_path = os.path.join(src_dir, f"{paper_id}.jsonl")
             if os.path.exists(nug_path):
                 to_process.append(paper_id)
             else:
@@ -569,11 +562,10 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
             src = "chunks"
             if reprocess or review:
                 src_dir = unified_dir if review else nugget_dir
-                nug_path = os.path.join(src_dir, f"{pid}.json")
+                nug_path = os.path.join(src_dir, f"{pid}.jsonl")
                 try:
-                    ndata = load_json(nug_path)
-                    n_nugs = len(ndata.get("nuggets", []))
-                    src = f"{n_nugs} existing nuggets"
+                    nugs = [n for n in load_jsonl(nug_path) if not n.get("_removed")]
+                    src = f"{len(nugs)} existing nuggets"
                 except Exception:
                     src = "nuggets (missing)"
             print(f"  {pid}: {n_chunks} chunks, source={src}")
@@ -593,17 +585,12 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
             chunk_data = load_json(os.path.join(chunk_dir, f"{paper_id}.json"))
             chunks = [c for c in chunk_data.get("chunks", []) if len(c.get("text", "").strip()) >= 50]
             if not chunks and not reprocess:
-                save_json(
-                    {"paper_id": paper_id, "num_nuggets": 0, "num_removed": 0,
-                     "num_improved": 0, "num_gap_filled": 0,
-                     "quality_summary": {}, "nuggets": [], "removed": []},
-                    os.path.join(unified_dir, f"{paper_id}.json"),
-                )
+                save_jsonl([], os.path.join(unified_dir, f"{paper_id}.jsonl"))
                 continue
             if reprocess or review:
                 src_dir = unified_dir if review else nugget_dir
-                nug_data = load_json(os.path.join(src_dir, f"{paper_id}.json"))
-                nugs = nug_data.get("nuggets", [])
+                nugs = [n for n in load_jsonl(os.path.join(src_dir, f"{paper_id}.jsonl"))
+                        if not n.get("_removed")]
                 if nugs:
                     paper_nuggets[paper_id] = nugs
                 else:
@@ -620,7 +607,8 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
     t_start = time.time()
 
     def _on_result(paper_id, result):
-        save_json(result, os.path.join(unified_dir, f"{paper_id}.json"))
+        save_jsonl(result["nuggets"], os.path.join(unified_dir, f"{paper_id}.jsonl"),
+                   removed=result.get("removed"))
         with print_lock:
             counters["done"] += 1
             counters["nuggets"] += result["num_nuggets"]
@@ -688,11 +676,11 @@ def _select_oldest(unified_dir, chunk_dir, n):
     """Return the N paper IDs with the oldest unified output (by file mtime)."""
     entries = []
     for fname in os.listdir(unified_dir):
-        if not fname.endswith(".json"):
+        if not fname.endswith(".jsonl"):
             continue
-        paper_id = fname.replace(".json", "")
+        paper_id = fname.replace(".jsonl", "")
         # Only consider papers that have chunks (still in corpus)
-        if not os.path.exists(os.path.join(chunk_dir, fname)):
+        if not os.path.exists(os.path.join(chunk_dir, f"{paper_id}.json")):
             continue
         path = os.path.join(unified_dir, fname)
         try:

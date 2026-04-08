@@ -5,7 +5,7 @@ import sqlite3
 import argparse
 import numpy as np
 import chromadb
-from src.utils import load_config, load_json
+from src.utils import load_config, load_json, load_jsonl
 
 
 def build_chromadb(nuggets, embeddings, kb_dir, collection_name, distance_fn="cosine"):
@@ -254,15 +254,15 @@ def run_build(config_path="config.yaml"):
 
     # Load data
     print("[store] Loading data...")
-    nug_path = os.path.join(kb_dir, "nuggets_with_embeddings.json")
+    nug_path = os.path.join(kb_dir, "nuggets_with_embeddings.jsonl")
     emb_path = os.path.join(kb_dir, "embeddings.npy")
     manifest_path = os.path.join(corpus_dir, "manifest.json")
 
     if not os.path.exists(nug_path) or not os.path.exists(emb_path):
-        print("Missing nuggets_with_embeddings.json or embeddings.npy. Run embed first.")
+        print("Missing nuggets_with_embeddings.jsonl or embeddings.npy. Run embed first.")
         return
 
-    nuggets = load_json(nug_path)
+    nuggets = load_jsonl(nug_path)
     embeddings = np.load(emb_path)
     manifest = load_json(manifest_path) if os.path.exists(manifest_path) else []
     print(f"  {len(nuggets)} nuggets, {embeddings.shape} embeddings, {len(manifest)} papers")

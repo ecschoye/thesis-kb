@@ -1,13 +1,16 @@
 """LLM-based nugget extraction via vLLM OpenAI-compatible API."""
 import os
 import json
+import logging
 import re
 import sys
 import time
 import argparse
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.utils import load_config, load_json, save_json, make_llm_client
+from src.utils import load_config, load_json, save_json, save_jsonl, make_llm_client
+
+log = logging.getLogger("nuggets.extract")
 
 
 SYSTEM_PROMPT = """You are a research knowledge extractor for a master's thesis on enhancing autonomous vehicle perception through RGB-Event camera fusion with spiking neural networks.
@@ -86,7 +89,11 @@ Output format:
 
 
 def repair_json(text):
-    """Attempt to extract valid JSON from potentially malformed LLM output."""
+    """Attempt to extract valid JSON from potentially malformed LLM output.
+
+    Handles truncated responses by recovering complete nugget objects
+    from partially-returned JSON arrays.
+    """
     text = text.strip()
     # Strip markdown code fences
     text = re.sub(r"^```(?:json)?\s*", "", text)
@@ -97,13 +104,33 @@ def repair_json(text):
         return json.loads(text)
     except json.JSONDecodeError:
         pass
-    # Try to find array in text
+    # Try to find complete array in text
     m = re.search(r"\[.*\]", text, re.DOTALL)
     if m:
         try:
             return json.loads(m.group())
         except json.JSONDecodeError:
             pass
+    # Truncated array: find the start and recover complete objects
+    arr_start = text.find("[")
+    if arr_start >= 0:
+        partial = text[arr_start:]
+        # Find the last complete object by looking for the last "},"  or "}" before truncation
+        # Try progressively closing the array
+        last_brace = partial.rfind("}")
+        while last_brace > 0:
+            candidate = partial[: last_brace + 1] + "]"
+            try:
+                result = json.loads(candidate)
+                if isinstance(result, list) and result:
+                    log.info(
+                        "Recovered %d nuggets from truncated JSON response",
+                        len(result),
+                    )
+                    return result
+            except json.JSONDecodeError:
+                pass
+            last_brace = partial.rfind("}", 0, last_brace)
     return None
 
 
@@ -115,8 +142,8 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
             truncated = prior_questions[-20:]  # last 20 to stay in context
             if len(prior_questions) > 20:
                 import logging
-                logging.getLogger("nuggets.extract").warning(
-                    "Prior questions truncated from %d to 20 — dedup context lost", len(prior_questions))
+                logging.getLogger("nuggets.extract").debug(
+                    "Prior questions truncated from %d to 20", len(prior_questions))
             already = "\n".join(f"- {q}" for q in truncated)
             user_content += f"\n\nNuggets ALREADY EXTRACTED from earlier chunks of this paper (do NOT repeat these):\n{already}"
         # Cap max_tokens to fit within context window
@@ -155,13 +182,51 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
                     "answer": a,
                     "type": str(n.get("type", "background")),
                 })
-        return valid, raw
+        # None signals "valid response, no error" (even if 0 nuggets)
+        return valid, None
     except Exception as e:
         return [], str(e)
 
 
 _SKIP_SECTIONS = {"references", "acknowledgments", "acknowledgements",
                    "bibliography", "appendix", "appendices"}
+
+# Patterns that appear densely in reference lists but rarely in body text
+_REF_PATTERNS = re.compile(
+    r'(?:'
+    r'doi[:.]10\.\d{3,}'               # doi:10.1234 or doi.10.1234
+    r'|pp\.\s*\d+'                       # pp. 123
+    r'|vol\.\s*\d+'                      # vol. 12
+    r'|PubMed\s+PMID'                    # PubMed PMID
+    r'|PMCID:'                           # PubMed Central ID
+    r'|arXiv[:.]\d{4}\.\d+'             # arXiv:2401.12345
+    r'|ISBN\s+\d'                        # ISBN
+    r'|\bet\s+al\.[,;.\s]+(?:19|20)\d{2}'  # et al. 2024 or et al., 2024
+    r'|\b(?:19|20)\d{2}\s*[;.]\s*\d+\s*\(' # 2024;114(28) - journal ref format
+    r'|\b(?:Proc\.|Proceedings\s+of)\b'  # Proc. or Proceedings of
+    r')',
+    re.IGNORECASE,
+)
+
+_NUMBERED_REFS = re.compile(
+    # "52. Thota AK," — numbered entry followed by surname + initials
+    r'^\s*\d{1,3}[.)]\s*\n?\s*[A-Z][a-z]+\s+[A-Z]{1,2}[,\s]',
+    re.MULTILINE,
+)
+
+
+def _looks_like_references(text):
+    """Detect reference-list chunks via citation-pattern density."""
+    words = len(text.split())
+    if words < 20:
+        return False
+    # Check citation pattern density
+    matches = len(_REF_PATTERNS.findall(text))
+    if matches / words > 1 / 50:
+        return True
+    # Check for dense numbered reference entries (3+ in a chunk)
+    numbered = len(_NUMBERED_REFS.findall(text))
+    return numbered >= 3
 
 def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay, paper_id, extra_body=None, prior_questions=None, max_model_len=8192):
     """Process a single chunk — designed for use in a thread pool."""
@@ -172,31 +237,54 @@ def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay
     section = chunk.get("section", "").lower().strip()
     if section in _SKIP_SECTIONS:
         return []
+    # Skip reference-heavy chunks regardless of section label
+    # (section detection often mislabels bibliography as method/conclusion)
+    if _looks_like_references(text):
+        return []
 
     # Build model list: primary + fallbacks (if configured on client)
     models_to_try = [model] + getattr(client, "_fallback_models", [])
 
+    def _is_rate_limit(raw_str):
+        return "429" in raw_str or "rate limit" in raw_str or "rate_limit" in raw_str or "too many" in raw_str
+
+    def _is_context_too_long(raw_str):
+        return any(k in raw_str for k in (
+            "too long", "maximum context", "max_model_len",
+            "prompt is too long", "context_length_exceeded",
+        ))
+
     cur_prior = prior_questions
     nuggets = []
-    for cur_model in models_to_try:
+    for mi, cur_model in enumerate(models_to_try):
         for attempt in range(max_retries):
             nuggets, raw = extract_nuggets_from_chunk(client, text, cur_model, temp, max_tok, extra_body=extra_body, prior_questions=cur_prior, max_model_len=max_model_len)
-            if nuggets:
+            if nuggets or raw is None:
+                # raw is None = valid response (even if 0 nuggets, e.g. references chunk)
                 break
             raw_str = str(raw).lower()
-            if "rate" in raw_str:
-                time.sleep(retry_delay * (2 ** attempt))
-            elif "too long" in raw_str or "maximum context" in raw_str or "400" in raw_str or "max_model_len" in raw_str or "prompt is too long" in raw_str:
+            if _is_rate_limit(raw_str):
+                print(f"    Rate-limited on {cur_model}, trying next model")
+                break
+            elif _is_context_too_long(raw_str):
                 if cur_prior and len(cur_prior) > 10:
                     cur_prior = cur_prior[-10:]
                 elif cur_prior:
-                    cur_prior = []  # drop all prior context but keep as list (not None)
+                    cur_prior = []
                 else:
+                    print(f"    Context too long on {cur_model}, trying next model")
                     break
             else:
+                print(f"    Error on {cur_model}: {raw_str[:150]}")
                 break
-        if nuggets:
+        if nuggets or raw is None:
             break
+        if mi == len(models_to_try) - 1:
+            log.warning(
+                "All %d models failed for chunk %s, sleeping %.1fs",
+                len(models_to_try), chunk.get("chunk_id", "?"), retry_delay,
+            )
+            time.sleep(retry_delay)
 
     for n in nuggets:
         n["paper_id"] = paper_id
@@ -246,20 +334,13 @@ def run_extraction(config_path="config.yaml"):
     def _nugget_done(paper_id):
         """Check if a paper has already been successfully extracted.
 
-        Checks both nugget_dir (raw) and unified_dir to avoid
-        re-extracting papers that already went through the unified pipeline.
+        Checks both nugget_dir (raw) and unified_dir for .jsonl output.
+        Any existing file (even empty) means the paper was processed.
         """
         for d in (nugget_dir, unified_dir):
-            path = os.path.join(d, f"{paper_id}.json")
-            if not os.path.exists(path):
-                continue
-            try:
-                with open(path) as f:
-                    data = json.load(f)
-                if data.get("num_nuggets", 0) > 0:
-                    return True
-            except (json.JSONDecodeError, OSError):
-                continue
+            path = os.path.join(d, f"{paper_id}.jsonl")
+            if os.path.exists(path):
+                return True
         return False
 
     chunk_files = sorted(f for f in os.listdir(chunk_dir) if f.endswith(".json"))
@@ -296,9 +377,8 @@ def run_extraction(config_path="config.yaml"):
             if chunks:
                 paper_chunks[paper_id] = chunks
             else:
-                # No valid chunks — write empty result
-                save_json({"paper_id": paper_id, "num_nuggets": 0, "nuggets": []},
-                          os.path.join(nugget_dir, f"{paper_id}.json"))
+                # No valid chunks — write empty file as done marker
+                save_jsonl([], os.path.join(nugget_dir, f"{paper_id}.jsonl"))
                 success += 1
         except Exception as e:
             print(f"  ERROR loading chunks for {paper_id}: {e}")
@@ -359,17 +439,7 @@ def run_extraction(config_path="config.yaml"):
                 _print_status(f"    {short_id} chunk {ci+1}/{n_chunks} -> {len(nuggets)} nuggets ({len(all_nuggets)} total)")
 
         deduped = _deduplicate_nuggets(all_nuggets, paper_id)
-        output = {
-            "paper_id": paper_id,
-            "num_nuggets": len(deduped),
-            "num_removed": 0,
-            "num_improved": 0,
-            "num_gap_filled": 0,
-            "quality_summary": {},
-            "nuggets": deduped,
-            "removed": [],
-        }
-        save_json(output, os.path.join(nugget_dir, f"{paper_id}.json"))
+        save_jsonl(deduped, os.path.join(nugget_dir, f"{paper_id}.jsonl"))
 
         with print_lock:
             # total_nuggets already incremented per-chunk; adjust for dedup
