@@ -242,8 +242,211 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
     print(f"  SQLite {db_path}: {papers_count} papers, {nuggets_count} nuggets, {fts_count} FTS entries")
 
 
-def run_build(config_path="config.yaml"):
-    """Build the complete knowledge base."""
+def _get_existing_paper_nugget_counts(db_path):
+    """Get {paper_id: nugget_count} from existing SQLite DB."""
+    if not os.path.exists(db_path):
+        return {}
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = conn.execute(
+            "SELECT paper_id, COUNT(*) as cnt FROM nuggets GROUP BY paper_id"
+        ).fetchall()
+        return {r["paper_id"]: r["cnt"] for r in rows}
+    except sqlite3.OperationalError:
+        return {}  # table doesn't exist
+    finally:
+        conn.close()
+
+
+def _detect_changed_papers(new_nuggets, existing_counts):
+    """Determine which papers need updating.
+
+    Returns (changed_paper_ids, unchanged_paper_ids).
+    A paper is changed if it's new or its nugget count differs.
+    """
+    from collections import Counter
+    new_counts = Counter(n.get("paper_id", "") for n in new_nuggets)
+    all_papers = set(new_counts.keys()) | set(existing_counts.keys())
+    changed = set()
+    unchanged = set()
+    for pid in all_papers:
+        if new_counts.get(pid, 0) != existing_counts.get(pid, 0):
+            changed.add(pid)
+        else:
+            unchanged.add(pid)
+    return changed, unchanged
+
+
+def update_chromadb(nuggets, embeddings, kb_dir, collection_name, changed_papers, distance_fn="cosine"):
+    """Incrementally update ChromaDB for changed papers only."""
+    chroma_path = os.path.join(kb_dir, "chromadb")
+    os.makedirs(chroma_path, exist_ok=True)
+    client = chromadb.PersistentClient(path=chroma_path)
+
+    try:
+        collection = client.get_collection(name=collection_name)
+    except (ValueError, Exception):
+        # Collection doesn't exist — fall back to full build
+        return build_chromadb(nuggets, embeddings, kb_dir, collection_name, distance_fn)
+
+    # Delete old nuggets for changed papers
+    for pid in changed_papers:
+        try:
+            collection.delete(where={"paper_id": pid})
+        except Exception:
+            pass  # paper may not exist yet
+
+    # Insert new nuggets for changed papers only
+    changed_indices = [
+        i for i, n in enumerate(nuggets) if n.get("paper_id", "") in changed_papers
+    ]
+    if not changed_indices:
+        print(f"  ChromaDB: no nuggets to update")
+        return collection
+
+    batch_size = 500
+    for start in range(0, len(changed_indices), batch_size):
+        end = min(start + batch_size, len(changed_indices))
+        batch_idx = changed_indices[start:end]
+        batch_nuggets = [nuggets[i] for i in batch_idx]
+        batch_embs = embeddings[batch_idx].tolist()
+
+        ids = [n["nugget_id"] for n in batch_nuggets]
+        documents = [
+            f"[{n.get('type', '')}] [{n.get('section', '')}] Q: {n['question']} A: {n['answer']}"
+            for n in batch_nuggets
+        ]
+        metadatas = [
+            {
+                "paper_id": n.get("paper_id", ""),
+                "type": n.get("type", ""),
+                "confidence": n.get("confidence", ""),
+                "section": n.get("section", ""),
+                "thesis_relevance": n.get("thesis_relevance", 3),
+                "source_file": n.get("source_file", ""),
+            }
+            for n in batch_nuggets
+        ]
+
+        collection.upsert(
+            ids=ids,
+            embeddings=batch_embs,
+            documents=documents,
+            metadatas=metadatas,
+        )
+
+    print(f"  ChromaDB: updated {len(changed_indices)} nuggets across {len(changed_papers)} papers "
+          f"(collection total: {collection.count()})")
+    return collection
+
+
+def update_sqlite(nuggets, manifest, kb_dir, changed_papers, db_name="nuggets.db", cfg=None):
+    """Incrementally update SQLite for changed papers only."""
+    db_path = os.path.join(kb_dir, db_name)
+    if not os.path.exists(db_path):
+        # No existing DB — fall back to full build
+        return build_sqlite(nuggets, manifest, kb_dir, db_name, cfg=cfg)
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+
+    flag_threshold = (cfg.get("nuggets", {}).get("quality", {}).get("flag_threshold", 2)
+                      if cfg else 2)
+
+    # Delete old nuggets for changed papers (FTS5 content-sync handles deletion via triggers
+    # if present; otherwise we rebuild FTS at the end)
+    for pid in changed_papers:
+        # Get rowids for FTS deletion (content-sync table needs explicit delete commands)
+        rows = c.execute(
+            "SELECT rowid, nugget_id, question, answer FROM nuggets WHERE paper_id = ?", (pid,)
+        ).fetchall()
+        for row in rows:
+            c.execute(
+                "INSERT INTO nuggets_fts(nuggets_fts, rowid, nugget_id, question, answer) "
+                "VALUES('delete', ?, ?, ?, ?)",
+                (row["rowid"], row["nugget_id"], row["question"], row["answer"]),
+            )
+        c.execute("DELETE FROM nuggets WHERE paper_id = ?", (pid,))
+
+    # Upsert papers from manifest
+    for paper in manifest:
+        pid = paper.get("paper_id", "")
+        if pid not in changed_papers:
+            continue
+        pub_types = paper.get("publication_types", [])
+        paper_type = ",".join(pub_types) if isinstance(pub_types, list) else str(pub_types or "")
+        c.execute(
+            "INSERT OR REPLACE INTO papers VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                pid,
+                paper.get("title", ""),
+                json.dumps(paper.get("authors", [])),
+                paper.get("year"),
+                paper.get("arxiv_id"),
+                paper.get("doi"),
+                paper.get("abstract", ""),
+                paper.get("source", "local"),
+                paper.get("citation_count", 0) or 0,
+                paper.get("influential_citation_count", 0) or 0,
+                paper_type,
+            ),
+        )
+
+    # Insert new nuggets for changed papers
+    changed_nuggets = [n for n in nuggets if n.get("paper_id", "") in changed_papers]
+    for n in changed_nuggets:
+        nid = n.get("nugget_id", "")
+        if "quality" in n and isinstance(n["quality"], dict):
+            overall_score = n["quality"].get("overall")
+            flagged = 1 if (overall_score if overall_score is not None else 5) <= flag_threshold else 0
+        else:
+            overall_score = None
+            flagged = 0
+        c.execute(
+            "INSERT OR IGNORE INTO nuggets VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                nid,
+                n.get("paper_id", ""),
+                n.get("question", ""),
+                n.get("answer", ""),
+                n.get("type", ""),
+                n.get("confidence", ""),
+                n.get("section", ""),
+                n.get("source_chunk"),
+                n.get("thesis_relevance", 0),
+                overall_score,
+                flagged,
+                n.get("source_file"),
+            ),
+        )
+
+    # Insert FTS entries for new nuggets
+    for n in changed_nuggets:
+        row = c.execute(
+            "SELECT rowid FROM nuggets WHERE nugget_id = ?", (n.get("nugget_id", ""),)
+        ).fetchone()
+        if row:
+            c.execute(
+                "INSERT INTO nuggets_fts(rowid, nugget_id, question, answer) VALUES(?, ?, ?, ?)",
+                (row["rowid"], n.get("nugget_id", ""), n.get("question", ""), n.get("answer", "")),
+            )
+
+    conn.commit()
+    total = c.execute("SELECT COUNT(*) FROM nuggets").fetchone()[0]
+    conn.close()
+    print(f"  SQLite: updated {len(changed_nuggets)} nuggets across {len(changed_papers)} papers "
+          f"(total: {total})")
+
+
+def run_build(config_path="config.yaml", incremental=False):
+    """Build the complete knowledge base.
+
+    Args:
+        incremental: If True, only update papers with changed nuggets.
+            Compares nugget counts per paper against existing SQLite DB.
+    """
     cfg = load_config(config_path)
     kb_dir = cfg["paths"]["kb_dir"]
     corpus_dir = cfg["paths"]["corpus_dir"]
@@ -271,16 +474,33 @@ def run_build(config_path="config.yaml"):
         print(f"ERROR: nugget count ({len(nuggets)}) != embedding rows ({embeddings.shape[0]}). Re-run embed.")
         return
 
-    # Build ChromaDB
-    print("[store] Building ChromaDB...")
     collection_name = chroma_cfg.get("collection_name", "thesis_nuggets")
     distance_fn = chroma_cfg.get("distance_fn", "cosine")
-    build_chromadb(nuggets, embeddings, kb_dir, collection_name, distance_fn)
-
-    # Build SQLite
-    print("[store] Building SQLite...")
     db_name = sqlite_cfg.get("db_name", "nuggets.db")
-    build_sqlite(nuggets, manifest, kb_dir, db_name, cfg=cfg)
+
+    if incremental:
+        db_path = os.path.join(kb_dir, db_name)
+        existing_counts = _get_existing_paper_nugget_counts(db_path)
+        if not existing_counts:
+            print("[store] No existing DB found, falling back to full build")
+            incremental = False
+        else:
+            changed, unchanged = _detect_changed_papers(nuggets, existing_counts)
+            print(f"[store] Incremental: {len(changed)} papers changed, {len(unchanged)} unchanged")
+            if not changed:
+                print("[store] Nothing to update.")
+                return
+
+    if incremental:
+        print("[store] Updating ChromaDB...")
+        update_chromadb(nuggets, embeddings, kb_dir, collection_name, changed, distance_fn)
+        print("[store] Updating SQLite...")
+        update_sqlite(nuggets, manifest, kb_dir, changed, db_name, cfg=cfg)
+    else:
+        print("[store] Building ChromaDB...")
+        build_chromadb(nuggets, embeddings, kb_dir, collection_name, distance_fn)
+        print("[store] Building SQLite...")
+        build_sqlite(nuggets, manifest, kb_dir, db_name, cfg=cfg)
 
     print("\nKB build complete.")
 
@@ -288,8 +508,10 @@ def run_build(config_path="config.yaml"):
 def main():
     ap = argparse.ArgumentParser(description="Build knowledge base")
     ap.add_argument("-c", "--config", default="config.yaml")
+    ap.add_argument("--incremental", action="store_true",
+                    help="Only update papers with changed nuggets")
     args = ap.parse_args()
-    run_build(args.config)
+    run_build(args.config, incremental=args.incremental)
 
 
 if __name__ == "__main__":

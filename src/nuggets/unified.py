@@ -46,9 +46,12 @@ def _get_paper_title(nuggets, paper_id):
 def _process_paper_unified(
     client, paper_id, chunks, model, ext_cfg, qcfg, acfg, ucfg,
     extra_body=None, worker_id=0, print_lock=None, counters=None,
-    max_model_len=8192, paper_meta=None,
+    max_model_len=8192, paper_meta=None, self_score=False,
 ):
     """Full extract→quality→augment pipeline for one paper, all in memory.
+
+    When self_score=True, extraction includes self-assessed quality scores
+    and the separate quality rating stage (Step 3) is skipped.
 
     Returns output dict ready for save_json.
     """
@@ -68,33 +71,40 @@ def _process_paper_unified(
                 sys.stderr.write(f"\r\033[K  [{counters['done']}/{counters['total']}] {msg}\n")
                 sys.stderr.flush()
 
-    # ── Step 1: Extract nuggets from chunks ──────────────────────────────
+    # ── Step 1: Extract nuggets from chunks (parallel) ────────────────────
     temp = ext_cfg.get("temperature", 0.1)
     max_tok = ext_cfg.get("max_tokens", 3000)
     max_retries = ext_cfg.get("max_retries", 3)
     retry_delay = ext_cfg.get("retry_base_delay", 2.0)
 
-    all_raw_nuggets = []
-    prior_questions = []
     chunk_by_id = {}
-
-    for ci, c in enumerate(chunks):
+    for c in chunks:
         chunk_by_id[c["chunk_id"]] = c
+
+    # Fire all chunk extractions concurrently — no sequential prior_questions
+    # dependency. Post-hoc dedup handles duplicates instead.
+    def _extract_one(ci_c):
+        ci, c = ci_c
         try:
-            nuggets = _process_chunk(
+            return _process_chunk(
                 client, c, model, temp, max_tok,
                 max_retries, retry_delay, paper_id, extra_body,
-                prior_questions=prior_questions if prior_questions else None,
+                prior_questions=None,
                 max_model_len=max_model_len,
                 paper_meta=paper_meta,
+                self_score=self_score,
             )
         except Exception as e:
             _log(f"  WARN {short_id} chunk {ci}: {e}")
-            nuggets = []
-        all_raw_nuggets.extend(nuggets)
-        prior_questions.extend(n["question"] for n in nuggets)
+            return []
 
-    # ── Step 2: Deduplicate ──────────────────────────────────────────────
+    all_raw_nuggets = []
+    with ThreadPoolExecutor(max_workers=min(len(chunks), 8)) as chunk_executor:
+        futures = chunk_executor.map(_extract_one, enumerate(chunks))
+        for chunk_nuggets in futures:
+            all_raw_nuggets.extend(chunk_nuggets)
+
+    # ── Step 2: Deduplicate (post-hoc, replaces sequential prior_questions) ──
     deduped = _deduplicate_nuggets(all_raw_nuggets, paper_id)
     for n in deduped:
         n["origin"] = "extracted"
@@ -111,43 +121,55 @@ def _process_paper_unified(
         }
 
     # ── Step 3: Quality rating ───────────────────────────────────────────
-    paper_title = _get_paper_title(deduped, paper_id)
-    batch_size = qcfg.get("batch_size", 5)
-    quality_by_id = {}
-
-    for i in range(0, len(deduped), batch_size):
-        batch = deduped[i:i + batch_size]
-        results, err = rate_nugget_batch(
-            client, batch, model, paper_title, paper_id, qcfg,
-            max_model_len=max_model_len, extra_body=extra_body,
-        )
-        if results:
-            for r in results:
-                quality_by_id[r["nugget_id"]] = r
-        else:
-            _log(f"  WARN {short_id} quality batch {i // batch_size}: {err}")
-            for n in batch:
-                quality_by_id[n["nugget_id"]] = {
-                    "nugget_id": n["nugget_id"],
-                    "relevance": 0, "specificity": 0, "self_contained": 0,
-                    "type_accuracy": 0, "coherence": 0, "thesis_relevance": 0,
-                    "overall": 0, "flags": ["batch_failed"],
+    if self_score:
+        # Self-scored nuggets already have inlined quality — skip LLM rating
+        _log(f"{short_id}: using self-assessed quality scores (skipping separate rating)")
+        # Ensure all nuggets have quality dict (fallback for any that didn't parse scores)
+        for n in deduped:
+            if "quality" not in n:
+                n["quality"] = {
+                    "relevance": 3, "specificity": 3, "self_contained": 3,
+                    "type_accuracy": 3, "coherence": 3, "thesis_relevance": 3,
+                    "overall": 3, "flags": ["self_score_missing"],
                 }
+    else:
+        paper_title = _get_paper_title(deduped, paper_id)
+        batch_size = qcfg.get("batch_size", 5)
+        quality_by_id = {}
 
-    # Inline quality scores onto nuggets
-    for n in deduped:
-        nid = n["nugget_id"]
-        q = quality_by_id.get(nid, {})
-        n["quality"] = {
-            "relevance": q.get("relevance", 0),
-            "specificity": q.get("specificity", 0),
-            "self_contained": q.get("self_contained", 0),
-            "type_accuracy": q.get("type_accuracy", 0),
-            "coherence": q.get("coherence", 0),
-            "thesis_relevance": q.get("thesis_relevance", 0),
-            "overall": q.get("overall", 0),
-            "flags": q.get("flags", []),
-        }
+        for i in range(0, len(deduped), batch_size):
+            batch = deduped[i:i + batch_size]
+            results, err = rate_nugget_batch(
+                client, batch, model, paper_title, paper_id, qcfg,
+                max_model_len=max_model_len, extra_body=extra_body,
+            )
+            if results:
+                for r in results:
+                    quality_by_id[r["nugget_id"]] = r
+            else:
+                _log(f"  WARN {short_id} quality batch {i // batch_size}: {err}")
+                for n in batch:
+                    quality_by_id[n["nugget_id"]] = {
+                        "nugget_id": n["nugget_id"],
+                        "relevance": 0, "specificity": 0, "self_contained": 0,
+                        "type_accuracy": 0, "coherence": 0, "thesis_relevance": 0,
+                        "overall": 0, "flags": ["batch_failed"],
+                    }
+
+        # Inline quality scores onto nuggets
+        for n in deduped:
+            nid = n["nugget_id"]
+            q = quality_by_id.get(nid, {})
+            n["quality"] = {
+                "relevance": q.get("relevance", 0),
+                "specificity": q.get("specificity", 0),
+                "self_contained": q.get("self_contained", 0),
+                "type_accuracy": q.get("type_accuracy", 0),
+                "coherence": q.get("coherence", 0),
+                "thesis_relevance": q.get("thesis_relevance", 0),
+                "overall": q.get("overall", 0),
+                "flags": q.get("flags", []),
+            }
 
     # ── Step 3b: Bail out if scoring failed entirely ──────────────────────
     all_scores = [n["quality"]["overall"] for n in deduped]
@@ -504,7 +526,8 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
     num_instances = len(clients)
     backend = ncfg.get("backend", "vllm")
     extra_body = {"chat_template_kwargs": {"enable_thinking": False}} if backend == "vllm" else None
-    print(f"[unified] vLLM instances: {num_instances}")
+    self_score = ucfg.get("self_score", False)
+    print(f"[unified] vLLM instances: {num_instances}, self_score: {self_score}")
 
     # Resume: skip papers with existing unified output
     def _done(paper_id):
@@ -664,6 +687,7 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
                 ext_cfg, qcfg, acfg, ucfg,
                 extra_body=extra_body, print_lock=print_lock, counters=counters,
                 max_model_len=max_model_len, paper_meta=meta,
+                self_score=self_score,
             )
         _on_result(paper_id, result)
         return result
