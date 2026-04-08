@@ -1,0 +1,4631 @@
+{
+  "config": {
+    "n": 500,
+    "k": 20,
+    "seed": 42,
+    "type_filter": null,
+    "paper_filter": null,
+    "config_path": "config-ollama.yaml"
+  },
+  "metrics": {
+    "n": 500,
+    "recall_at_k": 0.98,
+    "mrr": 0.9443,
+    "recall_at": {
+      "@1": 0.924,
+      "@3": 0.958,
+      "@5": 0.964,
+      "@10": 0.976,
+      "@20": 0.98
+    },
+    "rank_distribution": {
+      "rank_2-5": 20,
+      "rank_1": 462,
+      "rank_6-10": 6,
+      "rank_11-20": 2,
+      "not_found": 10
+    },
+    "mean_rank_when_found": 1.18,
+    "median_rank_when_found": 1
+  },
+  "breakdowns": {
+    "type": {
+      "background": {
+        "n": 56,
+        "recall": 0.9821,
+        "mrr": 0.9183
+      },
+      "claim": {
+        "n": 90,
+        "recall": 0.9778,
+        "mrr": 0.9493
+      },
+      "comparison": {
+        "n": 45,
+        "recall": 1.0,
+        "mrr": 0.9889
+      },
+      "limitation": {
+        "n": 14,
+        "recall": 1.0,
+        "mrr": 1.0
+      },
+      "method": {
+        "n": 208,
+        "recall": 0.9856,
+        "mrr": 0.9425
+      },
+      "result": {
+        "n": 74,
+        "recall": 0.9865,
+        "mrr": 0.967
+      }
+    },
+    "section": {
+      "abstract": {
+        "n": 75,
+        "recall": 0.9867,
+        "mrr": 0.9611
+      },
+      "appendix": {
+        "n": 16,
+        "recall": 1.0,
+        "mrr": 1.0
+      },
+      "background": {
+        "n": 10,
+        "recall": 1.0,
+        "mrr": 1.0
+      },
+      "code": {
+        "n": 3,
+        "recall": 0.6667,
+        "mrr": 0.3889
+      },
+      "conclusion": {
+        "n": 38,
+        "recall": 0.9211,
+        "mrr": 0.8651
+      },
+      "discussion": {
+        "n": 7,
+        "recall": 1.0,
+        "mrr": 0.9286
+      },
+      "experiments": {
+        "n": 42,
+        "recall": 1.0,
+        "mrr": 0.9563
+      },
+      "introduction": {
+        "n": 21,
+        "recall": 1.0,
+        "mrr": 0.9762
+      },
+      "method": {
+        "n": 152,
+        "recall": 0.9868,
+        "mrr": 0.9412
+      },
+      "preamble": {
+        "n": 58,
+        "recall": 1.0,
+        "mrr": 0.9443
+      },
+      "related_work": {
+        "n": 27,
+        "recall": 1.0,
+        "mrr": 1.0
+      },
+      "results": {
+        "n": 51,
+        "recall": 0.9412,
+        "mrr": 0.9412
+      }
+    }
+  },
+  "elapsed_s": 263.31,
+  "timestamp": "2026-04-08T09:11:58",
+  "per_nugget": [
+    {
+      "nugget_id": "Chang_et_al._-_2019_-_Argoverse_-_3D_Tracking_and_Forecasting_With_Rich_Maps_90",
+      "paper_id": "Chang_et_al._-_2019_-_Argoverse_-_3D_Tracking_and_Forecasting_With_Rich_Maps",
+      "type": "method",
+      "section": "discussion",
+      "overall_score": 4.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Luo_et_al._-_2026_-_Learning_Efficient_Meshflow_and_Optical_Flow_From_Ev_ac57fc3b_65",
+      "paper_id": "Luo_et_al._-_2026_-_Learning_Efficient_Meshflow_and_Optical_Flow_From_Ev_ac57fc3b",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hu_et_al._-_2022_-_Planning-oriented_Autonomous_Driving_89",
+      "paper_id": "Hu_et_al._-_2022_-_Planning-oriented_Autonomous_Driving",
+      "type": "limitation",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ghosh_et_al._-_2019_-_Spatiotemporal_Filtering_for_Event-Based_Action_Re_e614c7e1_34",
+      "paper_id": "Ghosh_et_al._-_2019_-_Spatiotemporal_Filtering_for_Event-Based_Action_Re_e614c7e1",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Nagrani_et_al._-_2021_-_Attention_Bottlenecks_for_Multimodal_Fusion_15",
+      "paper_id": "Nagrani_et_al._-_2021_-_Attention_Bottlenecks_for_Multimodal_Fusion",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Fang_et_al._-_2024_-_Spiking_Wavelet_Transformer_1",
+      "paper_id": "Fang_et_al._-_2024_-_Spiking_Wavelet_Transformer",
+      "type": "claim",
+      "section": "introduction",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hussaini_et_al._-_2022_-_Ensembles_of_Compact,_Region-specific_&_Regular_5b0be6be_37",
+      "paper_id": "Hussaini_et_al._-_2022_-_Ensembles_of_Compact,_Region-specific_&_Regular_5b0be6be",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Pozzorini_-_2015_-_Automated_High-Throughput_Characterization_of_Single__28affe2e_51",
+      "paper_id": "Pozzorini_-_2015_-_Automated_High-Throughput_Characterization_of_Single__28affe2e",
+      "type": "background",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Klenk_et_al._-_2022_-_Masked_Event_Modeling_-_Self-Supervised_Pretrainin_b9e58851_46",
+      "paper_id": "Klenk_et_al._-_2022_-_Masked_Event_Modeling_-_Self-Supervised_Pretrainin_b9e58851",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ye_et_al._-_2025_-_Learning_from_Dense_Events_-_Towards_Fast_Spiking_Neu_dc57fd5e_49",
+      "paper_id": "Ye_et_al._-_2025_-_Learning_from_Dense_Events_-_Towards_Fast_Spiking_Neu_dc57fd5e",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_107",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Muller_et_al._-_2022_-_A_Scalable_Approach_to_Modeling_on_Accelerated_Ne_2cffa324_38",
+      "paper_id": "Muller_et_al._-_2022_-_A_Scalable_Approach_to_Modeling_on_Accelerated_Ne_2cffa324",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Luo_et_al._-_2026_-_Learning_Efficient_Meshflow_and_Optical_Flow_From_Ev_ac57fc3b_1",
+      "paper_id": "Luo_et_al._-_2026_-_Learning_Efficient_Meshflow_and_Optical_Flow_From_Ev_ac57fc3b",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Vicente-Sola_et_al._-_2021_-_Keys_to_accurate_feature_extraction_using_r_3f8397ac_88",
+      "paper_id": "Vicente-Sola_et_al._-_2021_-_Keys_to_accurate_feature_extraction_using_r_3f8397ac",
+      "type": "comparison",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Pan_et_al._-_2018_-_Bringing_a_Blurry_Frame_Alive_at_High_Frame-Rate_Wit_9e209138_53",
+      "paper_id": "Pan_et_al._-_2018_-_Bringing_a_Blurry_Frame_Alive_at_High_Frame-Rate_Wit_9e209138",
+      "type": "background",
+      "section": "appendix",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Liu_et_al._-_2018_-_Deep_Learning_for_Generic_Object_Detection_-_A_Survey_49",
+      "paper_id": "Liu_et_al._-_2018_-_Deep_Learning_for_Generic_Object_Detection_-_A_Survey",
+      "type": "method",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Nicola_and_Clopath_-_2016_-_Supervised_learning_in_spiking_neural_networ_6889c43f_86",
+      "paper_id": "Nicola_and_Clopath_-_2016_-_Supervised_learning_in_spiking_neural_networ_6889c43f",
+      "type": "limitation",
+      "section": "appendix",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Martinez_et_al._-_2024_-_Spiking_neural_networks_for_autonomous_driving_A_review_221",
+      "paper_id": "Martinez_et_al._-_2024_-_Spiking_neural_networks_for_autonomous_driving_A_review",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ghosh_-_2022_-_Event-driven_proto-object_based_saliency_in_3D_space_to_a_33569990_56",
+      "paper_id": "Ghosh_-_2022_-_Event-driven_proto-object_based_saliency_in_3D_space_to_a_33569990",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bi_et_al._-_2019_-_Graph-Based_Object_Classification_for_Neuromorphic_Vi_ba00fe1c_40",
+      "paper_id": "Bi_et_al._-_2019_-_Graph-Based_Object_Classification_for_Neuromorphic_Vi_ba00fe1c",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhao_et_al._-_2018_-_Object_Detection_With_Deep_Learning_-_A_Review_192",
+      "paper_id": "Zhao_et_al._-_2018_-_Object_Detection_With_Deep_Learning_-_A_Review",
+      "type": "comparison",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chen_and_Yu_-_2024_-_Motion_Deblur_by_Learning_Residual_From_Events_3",
+      "paper_id": "Chen_and_Yu_-_2024_-_Motion_Deblur_by_Learning_Residual_From_Events",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Fil_and_Chu_-_2020_-_Minimal_Spiking_Neuron_for_Solving_Multilabel_Class_ebe7eaaf_23",
+      "paper_id": "Fil_and_Chu_-_2020_-_Minimal_Spiking_Neuron_for_Solving_Multilabel_Class_ebe7eaaf",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ercan_et_al._-_2023_-_HyperE2VID_-_Improving_Event-Based_Video_Reconstru_d43a2d55_27",
+      "paper_id": "Ercan_et_al._-_2023_-_HyperE2VID_-_Improving_Event-Based_Video_Reconstru_d43a2d55",
+      "type": "claim",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Conradt_-_2016_-_Asynchronous_Event-based_Cooperative_Stereo_Matching_Us_7c66d548_41",
+      "paper_id": "Conradt_-_2016_-_Asynchronous_Event-based_Cooperative_Stereo_Matching_Us_7c66d548",
+      "type": "claim",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_633",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "background",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Li_et_al._-_2023_-_BlinkFlow_-_A_Dataset_to_Push_the_Limits_of_Event-Bas_1cf7c765_5",
+      "paper_id": "Li_et_al._-_2023_-_BlinkFlow_-_A_Dataset_to_Push_the_Limits_of_Event-Bas_1cf7c765",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Qin_and_Liu_-_2025_-_Mamba-Spike_Enhancing_the_Mamba_Architecture_with_a_17a68a30_2",
+      "paper_id": "Qin_and_Liu_-_2025_-_Mamba-Spike_Enhancing_the_Mamba_Architecture_with_a_17a68a30",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lin_et_al._-_2014_-_Microsoft_COCO_Common_Objects_in_Context_34",
+      "paper_id": "Lin_et_al._-_2014_-_Microsoft_COCO_Common_Objects_in_Context",
+      "type": "result",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cao_et_al._-_2024_-_Chasing_Day_and_Night_Towards_Robust_and_Efficient_A_4da9ca2a_7",
+      "paper_id": "Cao_et_al._-_2024_-_Chasing_Day_and_Night_Towards_Robust_and_Efficient_A_4da9ca2a",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Deng_et_al._-_2021_-_A_Voxel_Graph_CNN_for_Object_Classification_with_Ev_c43f8569_10",
+      "paper_id": "Deng_et_al._-_2021_-_A_Voxel_Graph_CNN_for_Object_Classification_with_Ev_c43f8569",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cho_et_al._-_2024_-_Finding_Meaning_in_Points_-_Weakly_Supervised_Semant_077979d1_83",
+      "paper_id": "Cho_et_al._-_2024_-_Finding_Meaning_in_Points_-_Weakly_Supervised_Semant_077979d1",
+      "type": "method",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Moursi_et_al._-_2024_-_Efficient_FPGA_Implementation_of_an_Optimized_SNN_2dd155fd_8",
+      "paper_id": "Moursi_et_al._-_2024_-_Efficient_FPGA_Implementation_of_an_Optimized_SNN_2dd155fd",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": 3,
+      "found": true
+    },
+    {
+      "nugget_id": "Yedutenko_et_al._-_2024_-_TDE-3_-_an_improved_prior_for_optical_flow_com_cda68f1e_18",
+      "paper_id": "Yedutenko_et_al._-_2024_-_TDE-3_-_an_improved_prior_for_optical_flow_com_cda68f1e",
+      "type": "result",
+      "section": "introduction",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ramesh_et_al._-_2017_-_DART_-_Distribution_Aware_Retinal_Transform_for_E_f037be1b_82",
+      "paper_id": "Ramesh_et_al._-_2017_-_DART_-_Distribution_Aware_Retinal_Transform_for_E_f037be1b",
+      "type": "result",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Redmon_and_Farhadi_-_2016_-_YOLO9000_-_Better,_Faster,_Stronger_17",
+      "paper_id": "Redmon_and_Farhadi_-_2016_-_YOLO9000_-_Better,_Faster,_Stronger",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Gu_et_al._-_2020_-_TactileSGNet_-_A_Spiking_Graph_Neural_Network_for_Eve_6b5457aa_32",
+      "paper_id": "Gu_et_al._-_2020_-_TactileSGNet_-_A_Spiking_Graph_Neural_Network_for_Eve_6b5457aa",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Viale_et_al._-_2022_-_LaneSNNs_-_Spiking_Neural_Networks_for_Lane_Detect_bd122426_55",
+      "paper_id": "Viale_et_al._-_2022_-_LaneSNNs_-_Spiking_Neural_Networks_for_Lane_Detect_bd122426",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Giannone_et_al._-_2020_-_Real-time_Classification_from_Short_Event-Camer_599c1b53_20",
+      "paper_id": "Giannone_et_al._-_2020_-_Real-time_Classification_from_Short_Event-Camer_599c1b53",
+      "type": "claim",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Rasmussen_-_2018_-_NengoDL_-_Combining_Deep_Learning_and_Neuromorphic_Mo_6bd00f8b_64",
+      "paper_id": "Rasmussen_-_2018_-_NengoDL_-_Combining_Deep_Learning_and_Neuromorphic_Mo_6bd00f8b",
+      "type": "method",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Neftci_et_al._-_2013_-_Event-driven_contrastive_divergence_for_spiking_n_19d55a30_60",
+      "paper_id": "Neftci_et_al._-_2013_-_Event-driven_contrastive_divergence_for_spiking_n_19d55a30",
+      "type": "method",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhu_et_al._-_2024_-_Autonomous_Driving_with_Spiking_Neural_Networks_54",
+      "paper_id": "Zhu_et_al._-_2024_-_Autonomous_Driving_with_Spiking_Neural_Networks",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wu_et_al._-_2023_-_EventCLIP_-_Adapting_CLIP_for_Event-based_Object_Recognition_41",
+      "paper_id": "Wu_et_al._-_2023_-_EventCLIP_-_Adapting_CLIP_for_Event-based_Object_Recognition",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lan_et_al._-_2023_-_Tracking_Fast_by_Learning_Slow_-_An_Event-based_Spee_6b6de81c_46",
+      "paper_id": "Lan_et_al._-_2023_-_Tracking_Fast_by_Learning_Slow_-_An_Event-based_Spee_6b6de81c",
+      "type": "result",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhu_et_al._-_2022_-_TCJA-SNN_-_Temporal-Channel_Joint_Attention_for_Spik_ac6de845_70",
+      "paper_id": "Zhu_et_al._-_2022_-_TCJA-SNN_-_Temporal-Channel_Joint_Attention_for_Spik_ac6de845",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "2017_-_Taxonomy_and_Definitions_for_Terms_Related_to_Driving_Automation__8e01fbe3_70",
+      "paper_id": "2017_-_Taxonomy_and_Definitions_for_Terms_Related_to_Driving_Automation__8e01fbe3",
+      "type": "classification",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zheng_et_al._-_2025_-_SNN-Driven_Multimodal_Human_Action_Recognition_via_0e9addaa_146",
+      "paper_id": "Zheng_et_al._-_2025_-_SNN-Driven_Multimodal_Human_Action_Recognition_via_0e9addaa",
+      "type": "method",
+      "section": "appendix",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Li_et_al._-_2024_-_A_High_Energy-Efficiency_Multi-core_Neuromorphic_Arch_65c18e82_114",
+      "paper_id": "Li_et_al._-_2024_-_A_High_Energy-Efficiency_Multi-core_Neuromorphic_Arch_65c18e82",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Leroux_et_al._-_2018_-_Event-Based_Structured_Light_for_Depth_Reconstruc_85cd713f_9",
+      "paper_id": "Leroux_et_al._-_2018_-_Event-Based_Structured_Light_for_Depth_Reconstruc_85cd713f",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bano_et_al._-_2024_-_A_Methodology_to_Study_the_Impact_of_Spiking_Neural_db460410_22",
+      "paper_id": "Bano_et_al._-_2024_-_A_Methodology_to_Study_the_Impact_of_Spiking_Neural_db460410",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ralph_et_al._-_2022_-_Astrometric_calibration_and_source_characterisatio_7c988650_139",
+      "paper_id": "Ralph_et_al._-_2022_-_Astrometric_calibration_and_source_characterisatio_7c988650",
+      "type": "limitation",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Jiang_and_Zhang_-_2023_-_KLIF_-_An_optimized_spiking_neuron_unit_for_tun_1ce27f88_7",
+      "paper_id": "Jiang_and_Zhang_-_2023_-_KLIF_-_An_optimized_spiking_neuron_unit_for_tun_1ce27f88",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Vogels_-_2021_-_The_remarkable_robustness_of_surrogate_gradient_learning_0963516e_86",
+      "paper_id": "Vogels_-_2021_-_The_remarkable_robustness_of_surrogate_gradient_learning_0963516e",
+      "type": "method",
+      "section": "introduction",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Acharya_et_al._-_2019_-_Spiking_Neural_Network_Based_Region_Proposal_Net_bd9f968c_316",
+      "paper_id": "Acharya_et_al._-_2019_-_Spiking_Neural_Network_Based_Region_Proposal_Net_bd9f968c",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1_148",
+      "paper_id": "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1",
+      "type": "background",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Qiao_-_2015_-_A_reconfigurable_on-line_learning_spiking_neuromorphic_pro_4dd0a8a6_99",
+      "paper_id": "Qiao_-_2015_-_A_reconfigurable_on-line_learning_spiking_neuromorphic_pro_4dd0a8a6",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Yang_et_al._-_2024_-_Pedestrian_Trajectory_Prediction_by_Short-Term_Targ_14bd88a6_30",
+      "paper_id": "Yang_et_al._-_2024_-_Pedestrian_Trajectory_Prediction_by_Short-Term_Targ_14bd88a6",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Luo_et_al._-_2025_-_Temporal_Dynamics_Enhancer_for_Directly_Trained_Spik_eb2fff10_54",
+      "paper_id": "Luo_et_al._-_2025_-_Temporal_Dynamics_Enhancer_for_Directly_Trained_Spik_eb2fff10",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wu_et_al._-_2015_-_A_CMOS_Spiking_Neuron_for_Brain-Inspired_Neural_Netwo_1cc7ed4e_12",
+      "paper_id": "Wu_et_al._-_2015_-_A_CMOS_Spiking_Neuron_for_Brain-Inspired_Neural_Netwo_1cc7ed4e",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2022_-_EV-Catcher_-_High-Speed_Object_Catching_Using_Low-L_c14bd04d_28",
+      "paper_id": "Wang_et_al._-_2022_-_EV-Catcher_-_High-Speed_Object_Catching_Using_Low-L_c14bd04d",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sironi_et_al._-_2018_-_HATS_-_Histograms_of_Averaged_Time_Surfaces_for_R_a22384a8_34",
+      "paper_id": "Sironi_et_al._-_2018_-_HATS_-_Histograms_of_Averaged_Time_Surfaces_for_R_a22384a8",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Gupta_et_al._-_2021_-_Foveal-pit_inspired_filtering_of_DVS_spike_response_26",
+      "paper_id": "Gupta_et_al._-_2021_-_Foveal-pit_inspired_filtering_of_DVS_spike_response",
+      "type": "result",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Saleh_-_2022_-_Pedestrian_Trajectory_Prediction_for_Real-Time_Autonomous_d61617bb_52",
+      "paper_id": "Saleh_-_2022_-_Pedestrian_Trajectory_Prediction_for_Real-Time_Autonomous_d61617bb",
+      "type": "result",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "FitzGerald_and_Wong-Lin_-_2021_-_Multi-Objective_Optimisation_of_Cortica_ecbb1d44_16",
+      "paper_id": "FitzGerald_and_Wong-Lin_-_2021_-_Multi-Objective_Optimisation_of_Cortica_ecbb1d44",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Carion_et_al._-_2020_-_End-to-End_Object_Detection_with_Transformers_17",
+      "paper_id": "Carion_et_al._-_2020_-_End-to-End_Object_Detection_with_Transformers",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Khacef_-_2018_-_Confronting_machine-learning_with_neuroscience_for_neuro_5924cb65_18",
+      "paper_id": "Khacef_-_2018_-_Confronting_machine-learning_with_neuroscience_for_neuro_5924cb65",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Guo_et_al._-_2025_-_UTNet_event-RGB_multimodal_fusion_model_for_underwat_2164ed69_100",
+      "paper_id": "Guo_et_al._-_2025_-_UTNet_event-RGB_multimodal_fusion_model_for_underwat_2164ed69",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Khanna_-_Multi-Object_Tracking_using_Mamba_and_an_Investigation_into_Dat_7888444d_90",
+      "paper_id": "Khanna_-_Multi-Object_Tracking_using_Mamba_and_an_Investigation_into_Dat_7888444d",
+      "type": "claim",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Jang_et_al._-_2019_-_An_Introduction_to_Probabilistic_Spiking_Neural_Net_b16998ce_91",
+      "paper_id": "Jang_et_al._-_2019_-_An_Introduction_to_Probabilistic_Spiking_Neural_Net_b16998ce",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ghosh_et_al._-_2019_-_Spatiotemporal_Filtering_for_Event-Based_Action_Re_e614c7e1_45",
+      "paper_id": "Ghosh_et_al._-_2019_-_Spatiotemporal_Filtering_for_Event-Based_Action_Re_e614c7e1",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ghosh_and_Gallego_-_2024_-_Event-Based_Stereo_Depth_Estimation_-_A_Survey_275",
+      "paper_id": "Ghosh_and_Gallego_-_2024_-_Event-Based_Stereo_Depth_Estimation_-_A_Survey",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Stumpp_et_al._-_2024_-_Flow-Based_Visual_Stream_Compression_for_Event_Cameras_101",
+      "paper_id": "Stumpp_et_al._-_2024_-_Flow-Based_Visual_Stream_Compression_for_Event_Cameras",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sun_et_al._-_2024_-_Reliable_Object_Tracking_by_Multimodal_Hybrid_Featur_297dd32e_117",
+      "paper_id": "Sun_et_al._-_2024_-_Reliable_Object_Tracking_by_Multimodal_Hybrid_Featur_297dd32e",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Qin_and_Liu_-_2025_-_Mamba-Spike_Enhancing_the_Mamba_Architecture_with_a_17a68a30_1138",
+      "paper_id": "Qin_and_Liu_-_2025_-_Mamba-Spike_Enhancing_the_Mamba_Architecture_with_a_17a68a30",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sun_et_al._-_2023_-_A_Unified_Framework_for_Event-Based_Frame_Interpolat_1bb81e84_133",
+      "paper_id": "Sun_et_al._-_2023_-_A_Unified_Framework_for_Event-Based_Frame_Interpolat_1bb81e84",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chou_and_Molla_-_2022_-_Recent_advances_in_use_of_bio-inspired_jellyfish_1bebb81d_32",
+      "paper_id": "Chou_and_Molla_-_2022_-_Recent_advances_in_use_of_bio-inspired_jellyfish_1bebb81d",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wu_et_al._-_2024_-_DO3D_Self-supervised_Learning_of_Decomposed_Object-aw_51dd2d6a_102",
+      "paper_id": "Wu_et_al._-_2024_-_DO3D_Self-supervised_Learning_of_Decomposed_Object-aw_51dd2d6a",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Radford_et_al._-_2021_-_Learning_Transferable_Visual_Models_From_Natural_90c5be11_289",
+      "paper_id": "Radford_et_al._-_2021_-_Learning_Transferable_Visual_Models_From_Natural_90c5be11",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Shi_et_al._-_2019_-_PV-RCNN_-_Point-Voxel_Feature_Set_Abstraction_for_3D_599dad07_87",
+      "paper_id": "Shi_et_al._-_2019_-_PV-RCNN_-_Point-Voxel_Feature_Set_Abstraction_for_3D_599dad07",
+      "type": "result",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hao_et_al._-_2024_-_Faster_and_Stronger_-_When_ANN-SNN_Conversion_Meets__98f63a48_29",
+      "paper_id": "Hao_et_al._-_2024_-_Faster_and_Stronger_-_When_ANN-SNN_Conversion_Meets__98f63a48",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Robertson_-_2020_-_Toward_Neuromorphic_Photonic_Networks_of_Ultrafast_Sp_62049088_55",
+      "paper_id": "Robertson_-_2020_-_Toward_Neuromorphic_Photonic_Networks_of_Ultrafast_Sp_62049088",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_355",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Li_et_al._-_2025_-_Spiking_Variational_Graph_Representation_Inference_fo_337ef520_59",
+      "paper_id": "Li_et_al._-_2025_-_Spiking_Variational_Graph_Representation_Inference_fo_337ef520",
+      "type": "result",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Qu_et_al._-_2024_-_Event_fields_-_Capturing_light_fields_at_high_speed,__aeb2a183_49",
+      "paper_id": "Qu_et_al._-_2024_-_Event_fields_-_Capturing_light_fields_at_high_speed,__aeb2a183",
+      "type": "result",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hamann_et_al._-_2024_-_Fourier-Based_Action_Recognition_for_Wildlife_Beh_5eb07388_97",
+      "paper_id": "Hamann_et_al._-_2024_-_Fourier-Based_Action_Recognition_for_Wildlife_Beh_5eb07388",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Vogels_-_2021_-_The_remarkable_robustness_of_surrogate_gradient_learning_0963516e_88",
+      "paper_id": "Vogels_-_2021_-_The_remarkable_robustness_of_surrogate_gradient_learning_0963516e",
+      "type": "method",
+      "section": "introduction",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_and_Li_-_2019_-_Spike-Train_Level_Backpropagation_for_Training_Dee_8cfbc3d2_11",
+      "paper_id": "Zhang_and_Li_-_2019_-_Spike-Train_Level_Backpropagation_for_Training_Dee_8cfbc3d2",
+      "type": "result",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kim_et_al._-_2024_-_Towards_Real-world_Event-guided_Low-light_Video_Enha_7998ffe2_59",
+      "paper_id": "Kim_et_al._-_2024_-_Towards_Real-world_Event-guided_Low-light_Video_Enha_7998ffe2",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 6,
+      "found": true
+    },
+    {
+      "nugget_id": "Dupeyroux_et_al._-_2021_-_A_toolbox_for_neuromorphic_perception_in_robotics_9",
+      "paper_id": "Dupeyroux_et_al._-_2021_-_A_toolbox_for_neuromorphic_perception_in_robotics",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Parameshwara_et_al._-_2020_-_MOMS_with_Events_-_Multi-Object_Motion_Segm_b8e35079_36",
+      "paper_id": "Parameshwara_et_al._-_2020_-_MOMS_with_Events_-_Multi-Object_Motion_Segm_b8e35079",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhao_and_Malikopoulos_-_2022_-_Enhanced_Mobility_With_Connectivity_and_A_0adca4ff_77",
+      "paper_id": "Zhao_and_Malikopoulos_-_2022_-_Enhanced_Mobility_With_Connectivity_and_A_0adca4ff",
+      "type": "result",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bousquet_et_al._-_2021_-_Introduction_to_Statistical_Learning_Theory_140",
+      "paper_id": "Bousquet_et_al._-_2021_-_Introduction_to_Statistical_Learning_Theory",
+      "type": "claim",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2021_-_Dynamic_Event_Camera_Calibration_21",
+      "paper_id": "Huang_et_al._-_2021_-_Dynamic_Event_Camera_Calibration",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lee_et_al._-_2018_-_Rotationally_invariant_slave-boson_and_density_matri_945589f7_51",
+      "paper_id": "Lee_et_al._-_2018_-_Rotationally_invariant_slave-boson_and_density_matri_945589f7",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": null,
+      "found": false
+    },
+    {
+      "nugget_id": "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1_100",
+      "paper_id": "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Srinivasan_-_2016_-_Magnetic_Tunnel_Junction_Based_Long-Term_Short-Term__46105452_68",
+      "paper_id": "Srinivasan_-_2016_-_Magnetic_Tunnel_Junction_Based_Long-Term_Short-Term__46105452",
+      "type": "claim",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Brandli_-_2014_-_Adaptive_pulsed_laser_line_extraction_for_terrain_recon_7cbe5f40_13",
+      "paper_id": "Brandli_-_2014_-_Adaptive_pulsed_laser_line_extraction_for_terrain_recon_7cbe5f40",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sudevan_et_al._-_2025_-_snnTrans-DHZ_-_A_Lightweight_Spiking_Neural_Netw_7f88956d_16",
+      "paper_id": "Sudevan_et_al._-_2025_-_snnTrans-DHZ_-_A_Lightweight_Spiking_Neural_Netw_7f88956d",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Shi_et_al._-_2019_-_PV-RCNN_-_Point-Voxel_Feature_Set_Abstraction_for_3D_599dad07_84",
+      "paper_id": "Shi_et_al._-_2019_-_PV-RCNN_-_Point-Voxel_Feature_Set_Abstraction_for_3D_599dad07",
+      "type": "result",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Tournemire_et_al._-_2020_-_A_Large_Scale_Event-based_Detection_Dataset_f_8970fc2b_35",
+      "paper_id": "Tournemire_et_al._-_2020_-_A_Large_Scale_Event-based_Detection_Dataset_f_8970fc2b",
+      "type": "result",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Vishnevskiy_et_al._-_2024_-_Optimal_OnTheFly_Feedback_Control_of_Event_Sensors_37",
+      "paper_id": "Vishnevskiy_et_al._-_2024_-_Optimal_OnTheFly_Feedback_Control_of_Event_Sensors",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Qin_and_Liu_-_2025_-_Mamba-Spike_Enhancing_the_Mamba_Architecture_with_a_17a68a30_243",
+      "paper_id": "Qin_and_Liu_-_2025_-_Mamba-Spike_Enhancing_the_Mamba_Architecture_with_a_17a68a30",
+      "type": "claim",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Xiong_et_al._-_2020_-_Fast_and_robust_approaches_for_lane_detection_usin_d8af1d31_75",
+      "paper_id": "Xiong_et_al._-_2020_-_Fast_and_robust_approaches_for_lane_detection_usin_d8af1d31",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Guo_et_al._-_2025_-_Building_Real-time_Awareness_of_Out-of-distribution__e862586d_67",
+      "paper_id": "Guo_et_al._-_2025_-_Building_Real-time_Awareness_of_Out-of-distribution__e862586d",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Basha_et_al._-_2013_-_Multi-view_Scene_Flow_Estimation_A_View_Centered_V_b551c077_62",
+      "paper_id": "Basha_et_al._-_2013_-_Multi-view_Scene_Flow_Estimation_A_View_Centered_V_b551c077",
+      "type": "background",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zheng_et_al._-_2023_-_Deep_Learning_for_Event-based_Vision_-_A_Comprehen_a73555dd_359",
+      "paper_id": "Zheng_et_al._-_2023_-_Deep_Learning_for_Event-based_Vision_-_A_Comprehen_a73555dd",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Kirkland_et_al._-_2019_-_UAV_Detection_-_A_STDP_Trained_Deep_Convolution_7381ab89_33",
+      "paper_id": "Kirkland_et_al._-_2019_-_UAV_Detection_-_A_STDP_Trained_Deep_Convolution_7381ab89",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Song_et_al._-_2021_-_DFSynthesizer_-_Dataflow-based_Synthesis_of_Spiking_08bc8aad_100",
+      "paper_id": "Song_et_al._-_2021_-_DFSynthesizer_-_Dataflow-based_Synthesis_of_Spiking_08bc8aad",
+      "type": "limitation",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cho_-_2022_-_Progress_of_Materials_and_Devices_for_Neuromorphic_Vision_Sensors_14",
+      "paper_id": "Cho_-_2022_-_Progress_of_Materials_and_Devices_for_Neuromorphic_Vision_Sensors",
+      "type": "claim",
+      "section": "introduction",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhu_et_al._-_2022_-_Spiking_Graph_Convolutional_Networks_46",
+      "paper_id": "Zhu_et_al._-_2022_-_Spiking_Graph_Convolutional_Networks",
+      "type": "limitation",
+      "section": "conclusion",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sharifrazi_et_al._-_2023_-_Automated_detection_of_Zika_and_dengue_in_Aed_7d0cc01e_41",
+      "paper_id": "Sharifrazi_et_al._-_2023_-_Automated_detection_of_Zika_and_dengue_in_Aed_7d0cc01e",
+      "type": "comparison",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chui_et_al._-_2021_-_Event-Based_Feature_Tracking_in_Continuous_Time_wit_df5fe89a_16",
+      "paper_id": "Chui_et_al._-_2021_-_Event-Based_Feature_Tracking_in_Continuous_Time_wit_df5fe89a",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zeng_et_al._-_2022_-_BrainCog_-_A_spiking_neural_network_based,_brain-in_01b62082_95",
+      "paper_id": "Zeng_et_al._-_2022_-_BrainCog_-_A_spiking_neural_network_based,_brain-in_01b62082",
+      "type": "background",
+      "section": "background",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Stapmanns_et_al._-_2020_-_Event-Based_Update_of_Synapses_in_Voltage-Base_2c8b51ba_4",
+      "paper_id": "Stapmanns_et_al._-_2020_-_Event-Based_Update_of_Synapses_in_Voltage-Base_2c8b51ba",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Varshika_et_al._-_2021_-_Design_of_Many-Core_Big_Little_uBrains_for_Ener_4a583c53_3",
+      "paper_id": "Varshika_et_al._-_2021_-_Design_of_Many-Core_Big_Little_uBrains_for_Ener_4a583c53",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Pellerito_et_al._-_2024_-_Deep_Visual_Odometry_with_Events_and_Frames_71",
+      "paper_id": "Pellerito_et_al._-_2024_-_Deep_Visual_Odometry_with_Events_and_Frames",
+      "type": "claim",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Dupeyroux_et_al._-_2021_-_A_toolbox_for_neuromorphic_perception_in_robotics_62",
+      "paper_id": "Dupeyroux_et_al._-_2021_-_A_toolbox_for_neuromorphic_perception_in_robotics",
+      "type": "method",
+      "section": "appendix",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Furber_-_2013_-_Overview_of_the_SpiNNaker_System_Architecture_20",
+      "paper_id": "Furber_-_2013_-_Overview_of_the_SpiNNaker_System_Architecture",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ganguly_et_al._-_2024_-_Spike_frequency_adaptation_-_bridging_neural_mod_ac8957f2_55",
+      "paper_id": "Ganguly_et_al._-_2024_-_Spike_frequency_adaptation_-_bridging_neural_mod_ac8957f2",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18_102",
+      "paper_id": "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lakshmi_et_al._-_2019_-_Neuromorphic_vision_From_sensors_to_event-based__eea55fb6_92",
+      "paper_id": "Lakshmi_et_al._-_2019_-_Neuromorphic_vision_From_sensors_to_event-based__eea55fb6",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chaney_et_al._-_2021_-_Self-Supervised_Optical_Flow_with_Spiking_Neural__259e6025_63",
+      "paper_id": "Chaney_et_al._-_2021_-_Self-Supervised_Optical_Flow_with_Spiking_Neural__259e6025",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhu_et_al._-_2024_-_Autonomous_Driving_with_Spiking_Neural_Networks_106",
+      "paper_id": "Zhu_et_al._-_2024_-_Autonomous_Driving_with_Spiking_Neural_Networks",
+      "type": "method",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sun_et_al._-_2021_-_Unsupervised_Cross-Modal_Distillation_for_Thermal_In_705ab0ed_56",
+      "paper_id": "Sun_et_al._-_2021_-_Unsupervised_Cross-Modal_Distillation_for_Thermal_In_705ab0ed",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lunscher_-_2018_-_Deep_Learning_3D_Scans_for_Footwear_Fit_Estimation_fro_efccbdcb_117",
+      "paper_id": "Lunscher_-_2018_-_Deep_Learning_3D_Scans_for_Footwear_Fit_Estimation_fro_efccbdcb",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Comsa_et_al._-_2019_-_Temporal_Coding_in_Spiking_Neural_Networks_with_Al_adf213df_0",
+      "paper_id": "Comsa_et_al._-_2019_-_Temporal_Coding_in_Spiking_Neural_Networks_with_Al_adf213df",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Plank_et_al._-_2021_-_A_Long_Short-Term_Memory_for_AI_Applications_in_Sp_8f38520b_147",
+      "paper_id": "Plank_et_al._-_2021_-_A_Long_Short-Term_Memory_for_AI_Applications_in_Sp_8f38520b",
+      "type": "result",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Luo_et_al._-_2022_-_A_particle_swarm_optimization_based_multiobjective_m_2cb7af39_37",
+      "paper_id": "Luo_et_al._-_2022_-_A_particle_swarm_optimization_based_multiobjective_m_2cb7af39",
+      "type": "method",
+      "section": "background",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Meng_et_al._-_2023_-_Towards_Memory-_and_Time-Efficient_Backpropagation__61bb1e18_170",
+      "paper_id": "Meng_et_al._-_2023_-_Towards_Memory-_and_Time-Efficient_Backpropagation__61bb1e18",
+      "type": "background",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2022_-_A_Survey_on_Trajectory-Prediction_Methods_for_Auto_64b7cd36_0",
+      "paper_id": "Huang_et_al._-_2022_-_A_Survey_on_Trajectory-Prediction_Methods_for_Auto_64b7cd36",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cordone_et_al._-_2021_-_Learning_from_Event_Cameras_with_Sparse_Spiking__3367096f_44",
+      "paper_id": "Cordone_et_al._-_2021_-_Learning_from_Event_Cameras_with_Sparse_Spiking__3367096f",
+      "type": "result",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Li_et_al._-_2023_-_SpikeCLIP_-_A_Contrastive_Language-Image_Pretrained_S_adf20abd_64",
+      "paper_id": "Li_et_al._-_2023_-_SpikeCLIP_-_A_Contrastive_Language-Image_Pretrained_S_adf20abd",
+      "type": "result",
+      "section": "appendix",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chang_et_al._-_2019_-_Argoverse_-_3D_Tracking_and_Forecasting_With_Rich_Maps_117",
+      "paper_id": "Chang_et_al._-_2019_-_Argoverse_-_3D_Tracking_and_Forecasting_With_Rich_Maps",
+      "type": "method",
+      "section": "discussion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Mao_et_al._-_2024_-_CREST_-_An_Efficient_Conjointly-trained_Spike-driven_1112ecdd_33",
+      "paper_id": "Mao_et_al._-_2024_-_CREST_-_An_Efficient_Conjointly-trained_Spike-driven_1112ecdd",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Atakishiyev_et_al._-_2024_-_Explainable_Artificial_Intelligence_for_Auto_138aba92_78",
+      "paper_id": "Atakishiyev_et_al._-_2024_-_Explainable_Artificial_Intelligence_for_Auto_138aba92",
+      "type": "background",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Blum_-_2017_-_A_neuromorphic_controller_for_a_robotic_vehicle_equipped_w_00b1d629_23",
+      "paper_id": "Blum_-_2017_-_A_neuromorphic_controller_for_a_robotic_vehicle_equipped_w_00b1d629",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zou_et_al._-_2023_-_Highly_Efficient_3D_Human_Pose_Tracking_From_Events__8c3eb9c6_46",
+      "paper_id": "Zou_et_al._-_2023_-_Highly_Efficient_3D_Human_Pose_Tracking_From_Events__8c3eb9c6",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Alvarez_et_al._-_2000_-_Reliable_Estimation_of_Dense_Optical_Flow_Fields_072ae9b7_82",
+      "paper_id": "Alvarez_et_al._-_2000_-_Reliable_Estimation_of_Dense_Optical_Flow_Fields_072ae9b7",
+      "type": "result",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kabir_et_al._-_2025_-_Terrain_detection_and_segmentation_for_autonomous__67f53fee_143",
+      "paper_id": "Kabir_et_al._-_2025_-_Terrain_detection_and_segmentation_for_autonomous__67f53fee",
+      "type": "background",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_58",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_et_al._-_2021_-_Object_Tracking_by_Jointly_Exploiting_Frame_and_Ev_62210265_57",
+      "paper_id": "Zhang_et_al._-_2021_-_Object_Tracking_by_Jointly_Exploiting_Frame_and_Ev_62210265",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Luo_et_al._-_2024_-_Integer-Valued_Training_and_Spike-Driven_Inference_S_d9a5e0ef_16",
+      "paper_id": "Luo_et_al._-_2024_-_Integer-Valued_Training_and_Spike-Driven_Inference_S_d9a5e0ef",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Sharifrazi_et_al._-_2023_-_Automated_detection_of_Zika_and_dengue_in_Aed_7d0cc01e_28",
+      "paper_id": "Sharifrazi_et_al._-_2023_-_Automated_detection_of_Zika_and_dengue_in_Aed_7d0cc01e",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__98032f34_108",
+      "paper_id": "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__98032f34",
+      "type": "method",
+      "section": "background",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Renner_et_al._-_2021_-_The_backpropagation_algorithm_implemented_on_spik_b07a7c58_1",
+      "paper_id": "Renner_et_al._-_2021_-_The_backpropagation_algorithm_implemented_on_spik_b07a7c58",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zenke_and_Neftci_-_2020_-_Brain-Inspired_Learning_on_Neuromorphic_Substrates_19",
+      "paper_id": "Zenke_and_Neftci_-_2020_-_Brain-Inspired_Learning_on_Neuromorphic_Substrates",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "__smcm_mcfnet___167",
+      "paper_id": "__smcm_mcfnet__",
+      "type": "config",
+      "section": "code",
+      "overall_score": null,
+      "rank": 6,
+      "found": true
+    },
+    {
+      "nugget_id": "Hao_et_al._-_2023_-_Bridging_the_Gap_between_ANNs_and_SNNs_by_Calibratin_74901b33_102",
+      "paper_id": "Hao_et_al._-_2023_-_Bridging_the_Gap_between_ANNs_and_SNNs_by_Calibratin_74901b33",
+      "type": "result",
+      "section": "appendix",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kim_et_al._-_2021_-_N-ImageNet_Towards_Robust,_Fine-Grained_Object_Recog_5cbe4a8c_22",
+      "paper_id": "Kim_et_al._-_2021_-_N-ImageNet_Towards_Robust,_Fine-Grained_Object_Recog_5cbe4a8c",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wu_et_al._-_2015_-_Homogeneous_Spiking_Neuromorphic_System_for_Real-Worl_48462709_2",
+      "paper_id": "Wu_et_al._-_2015_-_Homogeneous_Spiking_Neuromorphic_System_for_Real-Worl_48462709",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2021_-_Dual_Transfer_Learning_for_Event-based_End-task_Pre_a1d437fa_45",
+      "paper_id": "Wang_et_al._-_2021_-_Dual_Transfer_Learning_for_Event-based_End-task_Pre_a1d437fa",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_571",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Imanov_et_al._-_2026_-_Energy-Efficient_Neuromorphic_Computing_for_Edge__d6ce2346_16",
+      "paper_id": "Imanov_et_al._-_2026_-_Energy-Efficient_Neuromorphic_Computing_for_Edge__d6ce2346",
+      "type": "background",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lichtsteiner_et_al._-_2008_-_A_128$times$128_120_dB_15_$mu$s_Latency_Asy_9edf5cec_69",
+      "paper_id": "Lichtsteiner_et_al._-_2008_-_A_128$times$128_120_dB_15_$mu$s_Latency_Asy_9edf5cec",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47_38",
+      "paper_id": "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+      "type": "comparison",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ercan_et_al._-_2023_-_HyperE2VID_-_Improving_Event-Based_Video_Reconstru_d43a2d55_115",
+      "paper_id": "Ercan_et_al._-_2023_-_HyperE2VID_-_Improving_Event-Based_Video_Reconstru_d43a2d55",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 3.0,
+      "rank": 6,
+      "found": true
+    },
+    {
+      "nugget_id": "Zou_et_al._-_2023_-_Seeing_Behind_Dynamic_Occlusions_with_Event_Cameras_27",
+      "paper_id": "Zou_et_al._-_2023_-_Seeing_Behind_Dynamic_Occlusions_with_Event_Cameras",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2022_-_FlowFormer_A_Transformer_Architecture_for_Optical_Flow_55",
+      "paper_id": "Huang_et_al._-_2022_-_FlowFormer_A_Transformer_Architecture_for_Optical_Flow",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Stockl_and_Maass_-_2020_-_Classifying_Images_with_Few_Spikes_per_Neuron_3",
+      "paper_id": "Stockl_and_Maass_-_2020_-_Classifying_Images_with_Few_Spikes_per_Neuron",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 7,
+      "found": true
+    },
+    {
+      "nugget_id": "Chung_et_al._-_2024_-_N-DriverMotion_-_Driver_Motion_Learning_and_Predic_287f6007_50",
+      "paper_id": "Chung_et_al._-_2024_-_N-DriverMotion_-_Driver_Motion_Learning_and_Predic_287f6007",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kai_et_al._-_2024_-_EvTexture_-_Event-driven_Texture_Enhancement_for_Vid_4ec2b7a9_14",
+      "paper_id": "Kai_et_al._-_2024_-_EvTexture_-_Event-driven_Texture_Enhancement_for_Vid_4ec2b7a9",
+      "type": "claim",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Xu_et_al._-_2017_-_PointFusion_-_Deep_Sensor_Fusion_for_3D_Bounding_Box__52bf907e_5",
+      "paper_id": "Xu_et_al._-_2017_-_PointFusion_-_Deep_Sensor_Fusion_for_3D_Bounding_Box__52bf907e",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Yelo-Sarri'on_et_al._-_2022_-_Neuronlike_spiking_dynamics_in_asymmetrica_7a3a1bf7_30",
+      "paper_id": "Yelo-Sarri'on_et_al._-_2022_-_Neuronlike_spiking_dynamics_in_asymmetrica_7a3a1bf7",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2022_-_A_Survey_on_Trajectory-Prediction_Methods_for_Auto_64b7cd36_129",
+      "paper_id": "Huang_et_al._-_2022_-_A_Survey_on_Trajectory-Prediction_Methods_for_Auto_64b7cd36",
+      "type": "background",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": null,
+      "found": false
+    },
+    {
+      "nugget_id": "Almatrafi_et_al._-_2020_-_Distance_Surface_for_Event-Based_Optical_Flow_49",
+      "paper_id": "Almatrafi_et_al._-_2020_-_Distance_Surface_for_Event-Based_Optical_Flow",
+      "type": "result",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Alonso_and_Murillo_-_2018_-_EV-SegNet_-_Semantic_Segmentation_for_Event-_fc4069cb_7",
+      "paper_id": "Alonso_and_Murillo_-_2018_-_EV-SegNet_-_Semantic_Segmentation_for_Event-_fc4069cb",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Devlin_et_al._-_2019_-_BERT_-_Pre-training_of_Deep_Bidirectional_Transfo_2accaeab_40",
+      "paper_id": "Devlin_et_al._-_2019_-_BERT_-_Pre-training_of_Deep_Bidirectional_Transfo_2accaeab",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ma_and_Xue_-_2024_-_A_Review_of_Vehicle_Detection_Methods_Based_on_Compu_1bb67bea_47",
+      "paper_id": "Ma_and_Xue_-_2024_-_A_Review_of_Vehicle_Detection_Methods_Based_on_Compu_1bb67bea",
+      "type": "limitation",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Stewart_et_al._-_2020_-_Online_Few-Shot_Gesture_Learning_on_a_Neuromorph_432e4f2b_84",
+      "paper_id": "Stewart_et_al._-_2020_-_Online_Few-Shot_Gesture_Learning_on_a_Neuromorph_432e4f2b",
+      "type": "method",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cimarelli_et_al._-_2025_-_Hardware,_Algorithms,_and_Applications_of_the__8463c548_37",
+      "paper_id": "Cimarelli_et_al._-_2025_-_Hardware,_Algorithms,_and_Applications_of_the__8463c548",
+      "type": "background",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cannici_et_al._-_2019_-_Asynchronous_Convolutional_Networks_for_Object_D_23f38940_24",
+      "paper_id": "Cannici_et_al._-_2019_-_Asynchronous_Convolutional_Networks_for_Object_D_23f38940",
+      "type": "method",
+      "section": "background",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Song_et_al._-_2021_-_Improving_Inference_Lifetime_of_Neuromorphic_System_5f8ac0b3_55",
+      "paper_id": "Song_et_al._-_2021_-_Improving_Inference_Lifetime_of_Neuromorphic_System_5f8ac0b3",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Suri_-_2012_-_CBRAM_devices_as_binary_synapses_for_low-power_stochastic__4eb42320_6",
+      "paper_id": "Suri_-_2012_-_CBRAM_devices_as_binary_synapses_for_low-power_stochastic__4eb42320",
+      "type": "claim",
+      "section": "introduction",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Paredes-Valles_et_al._-_2021_-_Self-Supervised_Learning_of_Event-Based_O_01560ea5_109",
+      "paper_id": "Paredes-Valles_et_al._-_2021_-_Self-Supervised_Learning_of_Event-Based_O_01560ea5",
+      "type": "result",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Frenkel_et_al._-_2021_-_Bottom-Up_and_Top-Down_Approaches_for_the_Design_f13b6131_150",
+      "paper_id": "Frenkel_et_al._-_2021_-_Bottom-Up_and_Top-Down_Approaches_for_the_Design_f13b6131",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Imanov_et_al._-_2026_-_Energy-Efficient_Neuromorphic_Computing_for_Edge__d6ce2346_18",
+      "paper_id": "Imanov_et_al._-_2026_-_Energy-Efficient_Neuromorphic_Computing_for_Edge__d6ce2346",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2024_-_A_Joint_Prediction_Method_of_Multi-Agent_to_Reduce__f314d8ac_6",
+      "paper_id": "Wang_et_al._-_2024_-_A_Joint_Prediction_Method_of_Multi-Agent_to_Reduce__f314d8ac",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Neumeier_et_al._-_2025_-_EEvAct_-_Early_Event-Based_Action_Recognition_w_a48fdd41_48",
+      "paper_id": "Neumeier_et_al._-_2025_-_EEvAct_-_Early_Event-Based_Action_Recognition_w_a48fdd41",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Liu_et_al._-_2024_-_Boosting_Visual_Recognition_in_Real-World_Degradatio_8e1a8510_65",
+      "paper_id": "Liu_et_al._-_2024_-_Boosting_Visual_Recognition_in_Real-World_Degradatio_8e1a8510",
+      "type": "comparison",
+      "section": "conclusion",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Mondal_et_al._-_2021_-_Moving_Object_Detection_for_Event-based_Vision_us_95960333_16",
+      "paper_id": "Mondal_et_al._-_2021_-_Moving_Object_Detection_for_Event-based_Vision_us_95960333",
+      "type": "claim",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Moeys_et_al._-_2016_-_Steering_a_predator_robot_using_a_mixed_frame-even_779e3bac_22",
+      "paper_id": "Moeys_et_al._-_2016_-_Steering_a_predator_robot_using_a_mixed_frame-even_779e3bac",
+      "type": "result",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhao_et_al._-_2022_-_The_spike_gating_flow_-_A_hierarchical_structure-ba_23441a7f_22",
+      "paper_id": "Zhao_et_al._-_2022_-_The_spike_gating_flow_-_A_hierarchical_structure-ba_23441a7f",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Das_et_al._-_2026_-_Biological_Intuition_on_Digital_Hardware_-_An_RTL_Im_fe2ccf2c_4",
+      "paper_id": "Das_et_al._-_2026_-_Biological_Intuition_on_Digital_Hardware_-_An_RTL_Im_fe2ccf2c",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Guo_et_al._-_2023_-_Direct_learning-based_deep_spiking_neural_networks_-_e177669b_34",
+      "paper_id": "Guo_et_al._-_2023_-_Direct_learning-based_deep_spiking_neural_networks_-_e177669b",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Liang_et_al._-_2020_-_Exploring_Adversarial_Attack_in_Spiking_Neural_Net_6b4a74b8_7",
+      "paper_id": "Liang_et_al._-_2020_-_Exploring_Adversarial_Attack_in_Spiking_Neural_Net_6b4a74b8",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Tang_-_2026_-_NeuronSpark_A_Spiking_Neural_Network_Language_Model_with_S_d4d4fee5_14",
+      "paper_id": "Tang_-_2026_-_NeuronSpark_A_Spiking_Neural_Network_Language_Model_with_S_d4d4fee5",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chen_-_2020_-_EDDD_Event-Based_Drowsiness_Driving_Detection_Through_Faci_b5fd6659_53",
+      "paper_id": "Chen_-_2020_-_EDDD_Event-Based_Drowsiness_Driving_Detection_Through_Faci_b5fd6659",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bilal_-_2025_-_Network-Optimised_Spiking_Neural_Network_for_Event-Driven_ec044996_30",
+      "paper_id": "Bilal_-_2025_-_Network-Optimised_Spiking_Neural_Network_for_Event-Driven_ec044996",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hussaini_et_al._-_2023_-_Applications_of_Spiking_Neural_Networks_in_Visu_f7a09d81_152",
+      "paper_id": "Hussaini_et_al._-_2023_-_Applications_of_Spiking_Neural_Networks_in_Visu_f7a09d81",
+      "type": "result",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Senk_et_al._-_2025_-_Constructive_community_race_-_full-density_spiking__10cf136f_1",
+      "paper_id": "Senk_et_al._-_2025_-_Constructive_community_race_-_full-density_spiking__10cf136f",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Furber_-_2013_-_Overview_of_the_SpiNNaker_System_Architecture_2",
+      "paper_id": "Furber_-_2013_-_Overview_of_the_SpiNNaker_System_Architecture",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Shair_and_Rawashdeh_-_2022_-_High-temporal-resolution_event-based_vehicl_96f9b54f_143",
+      "paper_id": "Shair_and_Rawashdeh_-_2022_-_High-temporal-resolution_event-based_vehicl_96f9b54f",
+      "type": "background",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhu_et_al._-_2018_-_Realtime_Time_Synchronized_Event-based_Stereo_3",
+      "paper_id": "Zhu_et_al._-_2018_-_Realtime_Time_Synchronized_Event-based_Stereo",
+      "type": "comparison",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ghosh_and_Gallego_-_2024_-_Event-Based_Stereo_Depth_Estimation_-_A_Survey_163",
+      "paper_id": "Ghosh_and_Gallego_-_2024_-_Event-Based_Stereo_Depth_Estimation_-_A_Survey",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_1157",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "background",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Schuman_et_al._-_2017_-_A_Survey_of_Neuromorphic_Computing_and_Neural_Ne_1ff3e7b9_32",
+      "paper_id": "Schuman_et_al._-_2017_-_A_Survey_of_Neuromorphic_Computing_and_Neural_Ne_1ff3e7b9",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wunderlich_and_Pehle_-_2020_-_Event-based_backpropagation_can_compute_ex_9b05977b_66",
+      "paper_id": "Wunderlich_and_Pehle_-_2020_-_Event-based_backpropagation_can_compute_ex_9b05977b",
+      "type": "background",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Putra_et_al._-_2025_-_QSViT_-_A_Methodology_for_Quantizing_Spiking_Visio_09b022fc_39",
+      "paper_id": "Putra_et_al._-_2025_-_QSViT_-_A_Methodology_for_Quantizing_Spiking_Visio_09b022fc",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Pijnacker_Hordijk_et_al._-_2018_-_Vertical_landing_for_micro_air_vehicle_3a679e66_91",
+      "paper_id": "Pijnacker_Hordijk_et_al._-_2018_-_Vertical_landing_for_micro_air_vehicle_3a679e66",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Li_et_al._-_2023_-_Semantic-Aware_Frame-Event_Fusion_based_Pattern_Recog_7a293bfe_55",
+      "paper_id": "Li_et_al._-_2023_-_Semantic-Aware_Frame-Event_Fusion_based_Pattern_Recog_7a293bfe",
+      "type": "future_work",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": null,
+      "found": false
+    },
+    {
+      "nugget_id": "Otte_-_2024_-_Flexible_and_Efficient_Surrogate_Gradient_Modeling_with_Fo_f36fb735_38",
+      "paper_id": "Otte_-_2024_-_Flexible_and_Efficient_Surrogate_Gradient_Modeling_with_Fo_f36fb735",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Schlungbaum_and_Lindner_-_2023_-_Detecting_a_periodic_signal_by_a_popula_ffc0b36c_22",
+      "paper_id": "Schlungbaum_and_Lindner_-_2023_-_Detecting_a_periodic_signal_by_a_popula_ffc0b36c",
+      "type": "method",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kielty_-_2026_-_Neuromorphic_vision_and_event-based_algorithms_for_drive_56571818_450",
+      "paper_id": "Kielty_-_2026_-_Neuromorphic_vision_and_event-based_algorithms_for_drive_56571818",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bouvier_-_2021_-_Study_and_design_of_an_energy_efficient_perception_modu_4b833c48_221",
+      "paper_id": "Bouvier_-_2021_-_Study_and_design_of_an_energy_efficient_perception_modu_4b833c48",
+      "type": "result",
+      "section": "introduction",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Gu_et_al._-_2022_-_Self-Supervised_Intensity-Event_Stereo_Matching_78",
+      "paper_id": "Gu_et_al._-_2022_-_Self-Supervised_Intensity-Event_Stereo_Matching",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "__smcm_mcfnet___75",
+      "paper_id": "__smcm_mcfnet__",
+      "type": "implementation",
+      "section": "code",
+      "overall_score": null,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sengupta_et_al._-_2015_-_Hybrid_Spintronic-CMOS_Spiking_Neural_Network_W_c073c7dd_61",
+      "paper_id": "Sengupta_et_al._-_2015_-_Hybrid_Spintronic-CMOS_Spiking_Neural_Network_W_c073c7dd",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kielty_-_2026_-_Neuromorphic_vision_and_event-based_algorithms_for_drive_56571818_370",
+      "paper_id": "Kielty_-_2026_-_Neuromorphic_vision_and_event-based_algorithms_for_drive_56571818",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Messikommer_et_al._-_2020_-_Event-based_Asynchronous_Sparse_Convolutiona_1b8b3493_62",
+      "paper_id": "Messikommer_et_al._-_2020_-_Event-based_Asynchronous_Sparse_Convolutiona_1b8b3493",
+      "type": "claim",
+      "section": "discussion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Contreras_et_al._-_2024_-_A_survey_on_3D_object_detection_in_real_time_f_94dedbe6_10",
+      "paper_id": "Contreras_et_al._-_2024_-_A_survey_on_3D_object_detection_in_real_time_f_94dedbe6",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Patino-Saucedo_et_al._-_2022_-_Liquid_State_Machine_on_SpiNNaker_for_Spa_564faaef_4",
+      "paper_id": "Patino-Saucedo_et_al._-_2022_-_Liquid_State_Machine_on_SpiNNaker_for_Spa_564faaef",
+      "type": "claim",
+      "section": "introduction",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hazan_et_al._-_2018_-_Unsupervised_Learning_with_Self-Organizing_Spiking_ece63816_13",
+      "paper_id": "Hazan_et_al._-_2018_-_Unsupervised_Learning_with_Self-Organizing_Spiking_ece63816",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Schuman_et_al._-_2017_-_A_Survey_of_Neuromorphic_Computing_and_Neural_Ne_1ff3e7b9_45",
+      "paper_id": "Schuman_et_al._-_2017_-_A_Survey_of_Neuromorphic_Computing_and_Neural_Ne_1ff3e7b9",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Panda_and_Srinivasa_-_2017_-_Learning_to_Recognize_Actions_From_Limited__15333cde_91",
+      "paper_id": "Panda_and_Srinivasa_-_2017_-_Learning_to_Recognize_Actions_From_Limited__15333cde",
+      "type": "comparison",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Imanov_et_al._-_2026_-_Energy-Efficient_Neuromorphic_Computing_for_Edge__d6ce2346_59",
+      "paper_id": "Imanov_et_al._-_2026_-_Energy-Efficient_Neuromorphic_Computing_for_Edge__d6ce2346",
+      "type": "background",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 4,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2023_-_Attention-free_Spikformer_-_Mixing_Spike_Sequences__7cd49767_6",
+      "paper_id": "Wang_et_al._-_2023_-_Attention-free_Spikformer_-_Mixing_Spike_Sequences__7cd49767",
+      "type": "method",
+      "section": "introduction",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Yan_et_al._-_2026_-_Vehicle_Trajectory_Prediction_for_Autonomous_Driving_3798eec7_54",
+      "paper_id": "Yan_et_al._-_2026_-_Vehicle_Trajectory_Prediction_for_Autonomous_Driving_3798eec7",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Parameshwara_et_al._-_2020_-_MOMS_with_Events_-_Multi-Object_Motion_Segm_b8e35079_39",
+      "paper_id": "Parameshwara_et_al._-_2020_-_MOMS_with_Events_-_Multi-Object_Motion_Segm_b8e35079",
+      "type": "comparison",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Loshchilov_and_Hutter_-_2017_-_Fixing_Weight_Decay_Regularization_in_Adam_20",
+      "paper_id": "Loshchilov_and_Hutter_-_2017_-_Fixing_Weight_Decay_Regularization_in_Adam",
+      "type": "result",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hamann_et_al._-_2024_-_Fourier-Based_Action_Recognition_for_Wildlife_Beh_5eb07388_63",
+      "paper_id": "Hamann_et_al._-_2024_-_Fourier-Based_Action_Recognition_for_Wildlife_Beh_5eb07388",
+      "type": "limitation",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kong_et_al._-_2024_-_OpenESS_-_Event-Based_Semantic_Scene_Understanding__a514b829_149",
+      "paper_id": "Kong_et_al._-_2024_-_OpenESS_-_Event-Based_Semantic_Scene_Understanding__a514b829",
+      "type": "background",
+      "section": "background",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7_42",
+      "paper_id": "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498_335",
+      "paper_id": "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498",
+      "type": "background",
+      "section": "experiments",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sun_et_al._-_2021_-_TransTrack_Multiple_Object_Tracking_with_Transformer_13",
+      "paper_id": "Sun_et_al._-_2021_-_TransTrack_Multiple_Object_Tracking_with_Transformer",
+      "type": "comparison",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Yu_et_al._-_2025_-_Fault-Tolerant_Attitude_Tracking_Control_Driven_by_Sp_58503e12_33",
+      "paper_id": "Yu_et_al._-_2025_-_Fault-Tolerant_Attitude_Tracking_Control_Driven_by_Sp_58503e12",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": null,
+      "found": false
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2024_-_CLIF_-_Complementary_Leaky_Integrate-and-Fire_Neur_ef5bd24f_162",
+      "paper_id": "Huang_et_al._-_2024_-_CLIF_-_Complementary_Leaky_Integrate-and-Fire_Neur_ef5bd24f",
+      "type": "background",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ding_et_al._-_2022_-_Biologically_Inspired_Dynamic_Thresholds_for_Spikin_25303361_77",
+      "paper_id": "Ding_et_al._-_2022_-_Biologically_Inspired_Dynamic_Thresholds_for_Spikin_25303361",
+      "type": "comparison",
+      "section": "conclusion",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2024_-_Towards_High-performance_Spiking_Transformers_from_b7a1c387_48",
+      "paper_id": "Huang_et_al._-_2024_-_Towards_High-performance_Spiking_Transformers_from_b7a1c387",
+      "type": "result",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lin_et_al._-_2025_-_ClearSight_-_Human_Vision-Inspired_Solutions_for_Eve_c732dcd3_31",
+      "paper_id": "Lin_et_al._-_2025_-_ClearSight_-_Human_Vision-Inspired_Solutions_for_Eve_c732dcd3",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Le_et_al._-_2024_-_A_Comprehensive_Review_of_Mobile_Robot_Navigation_Usi_d7656971_81",
+      "paper_id": "Le_et_al._-_2024_-_A_Comprehensive_Review_of_Mobile_Robot_Navigation_Usi_d7656971",
+      "type": "comparison",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sporea_-_2012_-_Supervised_Learning_in_Multilayer_Spiking_Neural_Networks_103",
+      "paper_id": "Sporea_-_2012_-_Supervised_Learning_in_Multilayer_Spiking_Neural_Networks",
+      "type": "method",
+      "section": "discussion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bu_et_al._-_2024_-_Inference-Scale_Complexity_in_ANN-SNN_Conversion_for__8a87862c_49",
+      "paper_id": "Bu_et_al._-_2024_-_Inference-Scale_Complexity_in_ANN-SNN_Conversion_for__8a87862c",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hamann_et_al._-_2025_-_Motion-Prior_Contrast_Maximization_for_Dense_Cont_2027bfb9_55",
+      "paper_id": "Hamann_et_al._-_2025_-_Motion-Prior_Contrast_Maximization_for_Dense_Cont_2027bfb9",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chang_et_al._-_2019_-_Argoverse_-_3D_Tracking_and_Forecasting_With_Rich_Maps_10",
+      "paper_id": "Chang_et_al._-_2019_-_Argoverse_-_3D_Tracking_and_Forecasting_With_Rich_Maps",
+      "type": "background",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kitazawa_et_al._-_2025_-_PS-EIP_-_Robust_Photometric_Stereo_Based_on_Eve_c2a15059_36",
+      "paper_id": "Kitazawa_et_al._-_2025_-_PS-EIP_-_Robust_Photometric_Stereo_Based_on_Eve_c2a15059",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Agostino_-_2024_-_DenRAM_neuromorphic_dendritic_architecture_with_RRAM_f_ba7e4f54_60",
+      "paper_id": "Agostino_-_2024_-_DenRAM_neuromorphic_dendritic_architecture_with_RRAM_f_ba7e4f54",
+      "type": "result",
+      "section": "discussion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Putra_et_al._-_2021_-_SparkXD_-_A_Framework_for_Resilient_and_Energy-Eff_e846146a_34",
+      "paper_id": "Putra_et_al._-_2021_-_SparkXD_-_A_Framework_for_Resilient_and_Energy-Eff_e846146a",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Jiang_et_al._-_2019_-_Mixed_Frame-Event-Driven_Fast_Pedestrian_Detection_42",
+      "paper_id": "Jiang_et_al._-_2019_-_Mixed_Frame-Event-Driven_Fast_Pedestrian_Detection",
+      "type": "result",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Shariff_-_Neuromorphic_Event-Based_Vision_-_Sparse_and_Spiking_Networks__45bcccf6_550",
+      "paper_id": "Shariff_-_Neuromorphic_Event-Based_Vision_-_Sparse_and_Spiking_Networks__45bcccf6",
+      "type": "comparison",
+      "section": "conclusion",
+      "overall_score": 4.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Lv_et_al._-_2024_-_Spiking_Convolutional_Neural_Networks_for_Text_Classification_67",
+      "paper_id": "Lv_et_al._-_2024_-_Spiking_Convolutional_Neural_Networks_for_Text_Classification",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kim_et_al._-_2022_-_Neural_Architecture_Search_for_Spiking_Neural_Networks_20",
+      "paper_id": "Kim_et_al._-_2022_-_Neural_Architecture_Search_for_Spiking_Neural_Networks",
+      "type": "method",
+      "section": "introduction",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Senk_et_al._-_2025_-_Constructive_community_race_-_full-density_spiking__10cf136f_76",
+      "paper_id": "Senk_et_al._-_2025_-_Constructive_community_race_-_full-density_spiking__10cf136f",
+      "type": "result",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Marchisio_et_al._-_2020_-_Is_Spiking_Secure_A_Comparative_Study_on_the_S_1e27653d_39",
+      "paper_id": "Marchisio_et_al._-_2020_-_Is_Spiking_Secure_A_Comparative_Study_on_the_S_1e27653d",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Dampfhoffer_-_2023_-_Backpropagation-Based_Learning_Techniques_for_Deep__db4b9fd0_120",
+      "paper_id": "Dampfhoffer_-_2023_-_Backpropagation-Based_Learning_Techniques_for_Deep__db4b9fd0",
+      "type": "result",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Saha_et_al._-_2026_-_Sensor_Generalization_for_Adaptive_Sensing_in_Event_87321425_5",
+      "paper_id": "Saha_et_al._-_2026_-_Sensor_Generalization_for_Adaptive_Sensing_in_Event_87321425",
+      "type": "claim",
+      "section": "introduction",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "He_et_al._-_2024_-_Microsaccade-inspired_event_camera_for_robotics_80",
+      "paper_id": "He_et_al._-_2024_-_Microsaccade-inspired_event_camera_for_robotics",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chen_et_al._-_2021_-_SAR_Image_Classification_Based_on_Spiking_Neural_Ne_460a1aa5_48",
+      "paper_id": "Chen_et_al._-_2021_-_SAR_Image_Classification_Based_on_Spiking_Neural_Ne_460a1aa5",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Alharthi_and_Mahmood_-_2024_-_Enhanced_Linear_and_Vision_Transformer-Bas_c85060cb_111",
+      "paper_id": "Alharthi_and_Mahmood_-_2024_-_Enhanced_Linear_and_Vision_Transformer-Bas_c85060cb",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chen_et_al._-_2024_-_SpikMamba_When_SNN_meets_Mamba_in_Event-based_Human_96551c56_9",
+      "paper_id": "Chen_et_al._-_2024_-_SpikMamba_When_SNN_meets_Mamba_in_Event-based_Human_96551c56",
+      "type": "claim",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_1002",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "comparison",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Fang_et_al._-_2023_-_SpikingJelly_An_open-source_machine_learning_infras_c33fd416_63",
+      "paper_id": "Fang_et_al._-_2023_-_SpikingJelly_An_open-source_machine_learning_infras_c33fd416",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1_17",
+      "paper_id": "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1",
+      "type": "background",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bi_et_al._-_2019_-_Graph-based_Spatial-temporal_Feature_Learning_for_Neu_a1f10158_26",
+      "paper_id": "Bi_et_al._-_2019_-_Graph-based_Spatial-temporal_Feature_Learning_for_Neu_a1f10158",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Dampfhoffer_et_al._-_2023_-_Are_SNNs_Really_More_Energy-Efficient_Than_A_b15a776d_98",
+      "paper_id": "Dampfhoffer_et_al._-_2023_-_Are_SNNs_Really_More_Energy-Efficient_Than_A_b15a776d",
+      "type": "method",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Liu_and_Delbruck_-_2018_-_ABMOF_-_A_Novel_Optical_Flow_Algorithm_for_Dyn_b38966e5_49",
+      "paper_id": "Liu_and_Delbruck_-_2018_-_ABMOF_-_A_Novel_Optical_Flow_Algorithm_for_Dyn_b38966e5",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kreiser_et_al._-_2020_-_An_On-chip_Spiking_Neural_Network_for_Estimation_99e8b331_75",
+      "paper_id": "Kreiser_et_al._-_2020_-_An_On-chip_Spiking_Neural_Network_for_Estimation_99e8b331",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19_49",
+      "paper_id": "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19",
+      "type": "motivation",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chandrapala_and_Shi_-_2016_-_Invariant_feature_extraction_from_event_bas_4f4d012c_42",
+      "paper_id": "Chandrapala_and_Shi_-_2016_-_Invariant_feature_extraction_from_event_bas_4f4d012c",
+      "type": "comparison",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hagenaars_et_al._-_2020_-_Evolved_Neuromorphic_Control_for_High_Speed_Di_900a5538_1",
+      "paper_id": "Hagenaars_et_al._-_2020_-_Evolved_Neuromorphic_Control_for_High_Speed_Di_900a5538",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2022_-_A_Survey_on_Trajectory-Prediction_Methods_for_Auto_64b7cd36_136",
+      "paper_id": "Huang_et_al._-_2022_-_A_Survey_on_Trajectory-Prediction_Methods_for_Auto_64b7cd36",
+      "type": "claim",
+      "section": "conclusion",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2026_-_LASTracker_A_Lightweight_RGB-E_Tracking_framework_w_b6cee57c_81",
+      "paper_id": "Wang_et_al._-_2026_-_LASTracker_A_Lightweight_RGB-E_Tracking_framework_w_b6cee57c",
+      "type": "analysis",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_et_al._-_2023_-_Generalizing_Event-Based_Motion_Deblurring_in_Real_d3c3647e_53",
+      "paper_id": "Zhang_et_al._-_2023_-_Generalizing_Event-Based_Motion_Deblurring_in_Real_d3c3647e",
+      "type": "background",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Terres-Escudero_et_al._-_2024_-_Emerging_NeoHebbian_Dynamics_in_Forward-_87eb7cee_26",
+      "paper_id": "Terres-Escudero_et_al._-_2024_-_Emerging_NeoHebbian_Dynamics_in_Forward-_87eb7cee",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhong_et_al._-_2026_-_Real-time_Motion_Segmentation_with_Event-based_Normal_Flow_34",
+      "paper_id": "Zhong_et_al._-_2026_-_Real-time_Motion_Segmentation_with_Event-based_Normal_Flow",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Liu_et_al._-_2018_-_Deep_Learning_for_Generic_Object_Detection_-_A_Survey_128",
+      "paper_id": "Liu_et_al._-_2018_-_Deep_Learning_for_Generic_Object_Detection_-_A_Survey",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Liu_and_Delbruck_-_2018_-_ABMOF_-_A_Novel_Optical_Flow_Algorithm_for_Dyn_b38966e5_78",
+      "paper_id": "Liu_and_Delbruck_-_2018_-_ABMOF_-_A_Novel_Optical_Flow_Algorithm_for_Dyn_b38966e5",
+      "type": "background",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Brebion_et_al._-_2021_-_Real-Time_Optical_Flow_for_Vehicular_Perception__d4feb26e_77",
+      "paper_id": "Brebion_et_al._-_2021_-_Real-Time_Optical_Flow_for_Vehicular_Perception__d4feb26e",
+      "type": "result",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Tang_et_al._-_2020_-_Deep_Reinforcement_Learning_with_Population-Coded_S_d36bccc0_18",
+      "paper_id": "Tang_et_al._-_2020_-_Deep_Reinforcement_Learning_with_Population-Coded_S_d36bccc0",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhong_et_al._-_2024_-_Towards_Low-latency_Event-based_Visual_Recognition_9fcbe7dd_63",
+      "paper_id": "Zhong_et_al._-_2024_-_Towards_Low-latency_Event-based_Visual_Recognition_9fcbe7dd",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2024_-_Research,_Applications_and_Prospects_of_Event-Based_20609380_25",
+      "paper_id": "Wang_et_al._-_2024_-_Research,_Applications_and_Prospects_of_Event-Based_20609380",
+      "type": "method",
+      "section": "background",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Elmezain_et_al._-_2025_-_Advancing_Underwater_Vision_A_Survey_of_Deep_Le_8b448c17_166",
+      "paper_id": "Elmezain_et_al._-_2025_-_Advancing_Underwater_Vision_A_Survey_of_Deep_Le_8b448c17",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Steffen_-_2021_-_A_Benchmark_Environment_for_Neuromorphic_Stereo_Vision_11",
+      "paper_id": "Steffen_-_2021_-_A_Benchmark_Environment_for_Neuromorphic_Stereo_Vision",
+      "type": "claim",
+      "section": "background",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Shariff_-_Neuromorphic_Event-Based_Vision_-_Sparse_and_Spiking_Networks__45bcccf6_51",
+      "paper_id": "Shariff_-_Neuromorphic_Event-Based_Vision_-_Sparse_and_Spiking_Networks__45bcccf6",
+      "type": "claim",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Liang_et_al._-_2020_-_Exploring_Adversarial_Attack_in_Spiking_Neural_Net_6b4a74b8_124",
+      "paper_id": "Liang_et_al._-_2020_-_Exploring_Adversarial_Attack_in_Spiking_Neural_Net_6b4a74b8",
+      "type": "finding",
+      "section": "appendix",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Schmitt_et_al._-_2017_-_Neuromorphic_hardware_in_the_loop_-_Training_a_d_103950d5_33",
+      "paper_id": "Schmitt_et_al._-_2017_-_Neuromorphic_hardware_in_the_loop_-_Training_a_d_103950d5",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Loshchilov_and_Hutter_-_2017_-_Fixing_Weight_Decay_Regularization_in_Adam_13",
+      "paper_id": "Loshchilov_and_Hutter_-_2017_-_Fixing_Weight_Decay_Regularization_in_Adam",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "He_et_al._-_2023_-_Anticipatory_Driving_in_Automated_Vehicles_The_Effect_97272055_0",
+      "paper_id": "He_et_al._-_2023_-_Anticipatory_Driving_in_Automated_Vehicles_The_Effect_97272055",
+      "type": "result",
+      "section": "introduction",
+      "overall_score": 5.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Adra_et_al._-_2025_-_Event-based_Solutions_for_Human-centered_Applicatio_0eb4fe99_118",
+      "paper_id": "Adra_et_al._-_2025_-_Event-based_Solutions_for_Human-centered_Applicatio_0eb4fe99",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bal_and_Sengupta_-_2023_-_SpikingBERT_-_Distilling_BERT_to_Train_Spiking_0e75a71a_27",
+      "paper_id": "Bal_and_Sengupta_-_2023_-_SpikingBERT_-_Distilling_BERT_to_Train_Spiking_0e75a71a",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bharilya_and_Kumar_-_2024_-_Machine_learning_for_autonomous_vehicle's_tr_60c76534_171",
+      "paper_id": "Bharilya_and_Kumar_-_2024_-_Machine_learning_for_autonomous_vehicle's_tr_60c76534",
+      "type": "method",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Martinez-Seras_et_al._-_2022_-_A_Novel_Explainable_Out-of-Distribution_D_77f69c44_135",
+      "paper_id": "Martinez-Seras_et_al._-_2022_-_A_Novel_Explainable_Out-of-Distribution_D_77f69c44",
+      "type": "limitation",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zuo_et_al._-_2022_-_DEVO_-_Depth-Event_Camera_Visual_Odometry_in_Challen_cd5e0c4b_32",
+      "paper_id": "Zuo_et_al._-_2022_-_DEVO_-_Depth-Event_Camera_Visual_Odometry_in_Challen_cd5e0c4b",
+      "type": "background",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "B'ena_et_al._-_2024_-_Event-based_backpropagation_on_the_neuromorphic_pl_204d0b33_46",
+      "paper_id": "B'ena_et_al._-_2024_-_Event-based_backpropagation_on_the_neuromorphic_pl_204d0b33",
+      "type": "method",
+      "section": "appendix",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Shiba_-_2024_-_Secrets_of_Event-Based_Optical_Flow_Depth_and_Ego-Motion__505f38a8_139",
+      "paper_id": "Shiba_-_2024_-_Secrets_of_Event-Based_Optical_Flow_Depth_and_Ego-Motion__505f38a8",
+      "type": "method",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Yu_et_al._-_2024_-_SVFormer_-_A_Direct_Training_Spiking_Transformer_for__cea9b466_52",
+      "paper_id": "Yu_et_al._-_2024_-_SVFormer_-_A_Direct_Training_Spiking_Transformer_for__cea9b466",
+      "type": "comparison",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Thorpe_et_al._-_2001_-_Spike-based_strategies_for_rapid_processing_144",
+      "paper_id": "Thorpe_et_al._-_2001_-_Spike-based_strategies_for_rapid_processing",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sabater_et_al._-_2022_-_Event_Transformer._A_sparse-aware_solution_for_e_9a1fc275_40",
+      "paper_id": "Sabater_et_al._-_2022_-_Event_Transformer._A_sparse-aware_solution_for_e_9a1fc275",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bouvier_et_al._-_2019_-_Spiking_Neural_Networks_Hardware_Implementations_57c0b242_51",
+      "paper_id": "Bouvier_et_al._-_2019_-_Spiking_Neural_Networks_Hardware_Implementations_57c0b242",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Carpegna_et_al._-_2024_-_Neuromorphic_Heart_Rate_Monitors_-_Neural_State_3ab5a757_0",
+      "paper_id": "Carpegna_et_al._-_2024_-_Neuromorphic_Heart_Rate_Monitors_-_Neural_State_3ab5a757",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhou_et_al._-_2024_-_QKFormer_-_Hierarchical_Spiking_Transformer_using_Q_1d6bbaae_109",
+      "paper_id": "Zhou_et_al._-_2024_-_QKFormer_-_Hierarchical_Spiking_Transformer_using_Q_1d6bbaae",
+      "type": "result",
+      "section": "appendix",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wu_et_al._-_2019_-_Deep_Spiking_Neural_Networks_for_Large_Vocabulary_Aut_b5b255aa_39",
+      "paper_id": "Wu_et_al._-_2019_-_Deep_Spiking_Neural_Networks_for_Large_Vocabulary_Aut_b5b255aa",
+      "type": "comparison",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2021_-_Visual_Odometry_with_an_Event_Camera_Using_Continuo_2f28e9d2_8",
+      "paper_id": "Wang_et_al._-_2021_-_Visual_Odometry_with_an_Event_Camera_Using_Continuo_2f28e9d2",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hu_et_al._-_2022_-_Planning-oriented_Autonomous_Driving_44",
+      "paper_id": "Hu_et_al._-_2022_-_Planning-oriented_Autonomous_Driving",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sanyal_et_al._-_2025_-_Energy-Efficient_Autonomous_Aerial_Navigation_wit_87fe1671_41",
+      "paper_id": "Sanyal_et_al._-_2025_-_Energy-Efficient_Autonomous_Aerial_Navigation_wit_87fe1671",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Nowotny_et_al._-_2022_-_Loss_shaping_enhances_exact_gradient_learning_wi_9bd8aa2c_61",
+      "paper_id": "Nowotny_et_al._-_2022_-_Loss_shaping_enhances_exact_gradient_learning_wi_9bd8aa2c",
+      "type": "result",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Abdelrahman_et_al._-_2025_-_A_neuromorphic_approach_to_obstacle_avoidanc_edf974ef_121",
+      "paper_id": "Abdelrahman_et_al._-_2025_-_A_neuromorphic_approach_to_obstacle_avoidanc_edf974ef",
+      "type": "limitation",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chen_et_al._-_2025_-_One-Timestep_is_Enough_-_Achieving_High-performance_1700e6d8_46",
+      "paper_id": "Chen_et_al._-_2025_-_One-Timestep_is_Enough_-_Achieving_High-performance_1700e6d8",
+      "type": "result",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2026_-_Parallel_Training_in_Spiking_Neural_Networks_81",
+      "paper_id": "Huang_et_al._-_2026_-_Parallel_Training_in_Spiking_Neural_Networks",
+      "type": "background",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Neftci_et_al._-_2016_-_Event-Driven_Random_Back-Propagation_-_Enabling_N_ef3b842d_104",
+      "paper_id": "Neftci_et_al._-_2016_-_Event-Driven_Random_Back-Propagation_-_Enabling_N_ef3b842d",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Raju_et_al._-_2025_-_Perturbed_State_Space_Feature_Encoders_for_Optical__1ff29fb4_79",
+      "paper_id": "Raju_et_al._-_2025_-_Perturbed_State_Space_Feature_Encoders_for_Optical__1ff29fb4",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": null,
+      "found": false
+    },
+    {
+      "nugget_id": "Chandarana_et_al._-_2022_-_Energy-Efficient_Deployment_of_Machine_Learni_73d5b42c_14",
+      "paper_id": "Chandarana_et_al._-_2022_-_Energy-Efficient_Deployment_of_Machine_Learni_73d5b42c",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhao_et_al._-_2025_-_Full-DoF_Egomotion_Estimation_for_Event_Cameras_Usi_45ca0cbe_52",
+      "paper_id": "Zhao_et_al._-_2025_-_Full-DoF_Egomotion_Estimation_for_Event_Cameras_Usi_45ca0cbe",
+      "type": "claim",
+      "section": "conclusion",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cordone_et_al._-_2021_-_Learning_from_Event_Cameras_with_Sparse_Spiking__3367096f_37",
+      "paper_id": "Cordone_et_al._-_2021_-_Learning_from_Event_Cameras_with_Sparse_Spiking__3367096f",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Nowotny_et_al._-_2022_-_Loss_shaping_enhances_exact_gradient_learning_wi_9bd8aa2c_114",
+      "paper_id": "Nowotny_et_al._-_2022_-_Loss_shaping_enhances_exact_gradient_learning_wi_9bd8aa2c",
+      "type": "method",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Tang_et_al._-_2020_-_Deep_Reinforcement_Learning_with_Population-Coded_S_d36bccc0_30",
+      "paper_id": "Tang_et_al._-_2020_-_Deep_Reinforcement_Learning_with_Population-Coded_S_d36bccc0",
+      "type": "result",
+      "section": "discussion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lv_et_al._-_2024_-_RT-DETRv2_Improved_Baseline_with_Bag-of-Freebies_for__ff77bec9_6",
+      "paper_id": "Lv_et_al._-_2024_-_RT-DETRv2_Improved_Baseline_with_Bag-of-Freebies_for__ff77bec9",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Madjid_et_al._-_2026_-_Trajectory_prediction_for_autonomous_driving_Prog_8782491a_43",
+      "paper_id": "Madjid_et_al._-_2026_-_Trajectory_prediction_for_autonomous_driving_Prog_8782491a",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ye_et_al._-_2026_-_Fire_on_Motion_-_Optimizing_Video_Pass-bands_for_Effi_ac815c7f_70",
+      "paper_id": "Ye_et_al._-_2026_-_Fire_on_Motion_-_Optimizing_Video_Pass-bands_for_Effi_ac815c7f",
+      "type": "claim",
+      "section": "conclusion",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Yang_et_al._-_2025_-_SMamba_Sparse_Mamba_for_Event-based_Object_Detection_13",
+      "paper_id": "Yang_et_al._-_2025_-_SMamba_Sparse_Mamba_for_Event-based_Object_Detection",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sakhai_et_al._-_2025_-_DVS-PedX_-_Synthetic-and-Real_Event-Based_Pedestr_ca3adaca_29",
+      "paper_id": "Sakhai_et_al._-_2025_-_DVS-PedX_-_Synthetic-and-Real_Event-Based_Pedestr_ca3adaca",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_et_al._-_2023_-_TC-LIF_-_A_Two-Compartment_Spiking_Neuron_Model_fo_4331c1cb_50",
+      "paper_id": "Zhang_et_al._-_2023_-_TC-LIF_-_A_Two-Compartment_Spiking_Neuron_Model_fo_4331c1cb",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hunsberger_and_Eliasmith_-_2016_-_Training_Spiking_Deep_Networks_for_Neu_000be3ec_33",
+      "paper_id": "Hunsberger_and_Eliasmith_-_2016_-_Training_Spiking_Deep_Networks_for_Neu_000be3ec",
+      "type": "claim",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Yin_et_al._-_2026_-_STF-Net_A_unified_spatio-temporal-frequency_learning_cb05db08_33",
+      "paper_id": "Yin_et_al._-_2026_-_STF-Net_A_unified_spatio-temporal-frequency_learning_cb05db08",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wu_et_al._-_2020_-_Brain-inspired_global-local_learning_incorporated_wit_b7efeb44_28",
+      "paper_id": "Wu_et_al._-_2020_-_Brain-inspired_global-local_learning_incorporated_wit_b7efeb44",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bellec_-_2020_-_A_solution_to_the_learning_dilemma_for_recurrent_network_21daf890_105",
+      "paper_id": "Bellec_-_2020_-_A_solution_to_the_learning_dilemma_for_recurrent_network_21daf890",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Deng_et_al._-_2022_-_Temporal_Efficient_Training_of_Spiking_Neural_Netwo_44768627_27",
+      "paper_id": "Deng_et_al._-_2022_-_Temporal_Efficient_Training_of_Spiking_Neural_Netwo_44768627",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Tang_-_2026_-_NeuronSpark_A_Spiking_Neural_Network_Language_Model_with_S_d4d4fee5_19",
+      "paper_id": "Tang_-_2026_-_NeuronSpark_A_Spiking_Neural_Network_Language_Model_with_S_d4d4fee5",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bharilya_and_Kumar_-_2024_-_Machine_learning_for_autonomous_vehicle's_tr_60c76534_290",
+      "paper_id": "Bharilya_and_Kumar_-_2024_-_Machine_learning_for_autonomous_vehicle's_tr_60c76534",
+      "type": "method",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Gao_et_al._-_2023_-_High-accuracy_deep_ANN-to-SNN_conversion_using_quant_d34b6cec_67",
+      "paper_id": "Gao_et_al._-_2023_-_High-accuracy_deep_ANN-to-SNN_conversion_using_quant_d34b6cec",
+      "type": "claim",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_277",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bohte_-_2012_-_Computing_with_Spiking_Neuron_Networks_70",
+      "paper_id": "Bohte_-_2012_-_Computing_with_Spiking_Neuron_Networks",
+      "type": "result",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ding_et_al._-_2024_-_Shrinking_Your_TimeStep_-_Towards_Low-Latency_Neuro_69565ee8_71",
+      "paper_id": "Ding_et_al._-_2024_-_Shrinking_Your_TimeStep_-_Towards_Low-Latency_Neuro_69565ee8",
+      "type": "method",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lu_and_Sengupta_-_2020_-_Exploring_the_Connection_Between_Binary_and_Spi_a1868525_28",
+      "paper_id": "Lu_and_Sengupta_-_2020_-_Exploring_the_Connection_Between_Binary_and_Spi_a1868525",
+      "type": "claim",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hu_et_al._-_2020_-_V2E_-_From_video_frames_to_realistic_DVS_event_camera_streams_15",
+      "paper_id": "Hu_et_al._-_2020_-_V2E_-_From_video_frames_to_realistic_DVS_event_camera_streams",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Liu_-_2018_-_Memory-Efficient_Deep_Learning_on_a_SpiNNaker_2_Prototype_106",
+      "paper_id": "Liu_-_2018_-_Memory-Efficient_Deep_Learning_on_a_SpiNNaker_2_Prototype",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Grimaldi_and_Perrinet_-_2023_-_Learning_heterogeneous_delays_in_a_layer__1a7e8bd8_14",
+      "paper_id": "Grimaldi_and_Perrinet_-_2023_-_Learning_heterogeneous_delays_in_a_layer__1a7e8bd8",
+      "type": "background",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ma_and_Xue_-_2024_-_A_Review_of_Vehicle_Detection_Methods_Based_on_Compu_1bb67bea_66",
+      "paper_id": "Ma_and_Xue_-_2024_-_A_Review_of_Vehicle_Detection_Methods_Based_on_Compu_1bb67bea",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Fang_et_al._-_2023_-_SpikingJelly_An_open-source_machine_learning_infras_c33fd416_233",
+      "paper_id": "Fang_et_al._-_2023_-_SpikingJelly_An_open-source_machine_learning_infras_c33fd416",
+      "type": "comparison",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kheradpisheh_and_Masquelier_-_2019_-_S4NN_-_temporal_backpropagation_for_2480ff6c_34",
+      "paper_id": "Kheradpisheh_and_Masquelier_-_2019_-_S4NN_-_temporal_backpropagation_for_2480ff6c",
+      "type": "result",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Fayaz_et_al._-_2024_-_Intelligent_Underwater_Object_Detection_and_Image__1be41690_54",
+      "paper_id": "Fayaz_et_al._-_2024_-_Intelligent_Underwater_Object_Detection_and_Image__1be41690",
+      "type": "result",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": null,
+      "found": false
+    },
+    {
+      "nugget_id": "Shariff_-_Neuromorphic_Event-Based_Vision_-_Sparse_and_Spiking_Networks__45bcccf6_135",
+      "paper_id": "Shariff_-_Neuromorphic_Event-Based_Vision_-_Sparse_and_Spiking_Networks__45bcccf6",
+      "type": "limitation",
+      "section": "discussion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Burgers_et_al._-_2023_-_Evolving_Spiking_Neural_Networks_to_Mimic_PID_Co_6ca1445b_7",
+      "paper_id": "Burgers_et_al._-_2023_-_Evolving_Spiking_Neural_Networks_to_Mimic_PID_Co_6ca1445b",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Mao_et_al._-_2024_-_CREST_-_An_Efficient_Conjointly-trained_Spike-driven_1112ecdd_21",
+      "paper_id": "Mao_et_al._-_2024_-_CREST_-_An_Efficient_Conjointly-trained_Spike-driven_1112ecdd",
+      "type": "method",
+      "section": "background",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lin_et_al._-_2022_-_Riemannian_foliations_and_geometric_quantization_47",
+      "paper_id": "Lin_et_al._-_2022_-_Riemannian_foliations_and_geometric_quantization",
+      "type": "claim",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Rathi_et_al._-_2020_-_Enabling_Deep_Spiking_Neural_Networks_with_Hybrid__6bb375b5_31",
+      "paper_id": "Rathi_et_al._-_2020_-_Enabling_Deep_Spiking_Neural_Networks_with_Hybrid__6bb375b5",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "2017_-_Taxonomy_and_Definitions_for_Terms_Related_to_Driving_Automation__8e01fbe3_46",
+      "paper_id": "2017_-_Taxonomy_and_Definitions_for_Terms_Related_to_Driving_Automation__8e01fbe3",
+      "type": "definition",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Balaji_et_al._-_2019_-_Mapping_Spiking_Neural_Networks_to_Neuromorphic_Hardware_95",
+      "paper_id": "Balaji_et_al._-_2019_-_Mapping_Spiking_Neural_Networks_to_Neuromorphic_Hardware",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Freeman_et_al._-_2023_-_Accelerated_Event-Based_Feature_Detection_and_Co_24e9b16a_86",
+      "paper_id": "Freeman_et_al._-_2023_-_Accelerated_Event-Based_Feature_Detection_and_Co_24e9b16a",
+      "type": "problem",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": null,
+      "found": false
+    },
+    {
+      "nugget_id": "Bharilya_and_Kumar_-_2024_-_Machine_learning_for_autonomous_vehicle's_tr_60c76534_21",
+      "paper_id": "Bharilya_and_Kumar_-_2024_-_Machine_learning_for_autonomous_vehicle's_tr_60c76534",
+      "type": "claim",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 8,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2024_-_A_Joint_Prediction_Method_of_Multi-Agent_to_Reduce__f314d8ac_36",
+      "paper_id": "Wang_et_al._-_2024_-_A_Joint_Prediction_Method_of_Multi-Agent_to_Reduce__f314d8ac",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Xiao_et_al._-_2022_-_Online_Training_Through_Time_for_Spiking_Neural_Networks_66",
+      "paper_id": "Xiao_et_al._-_2022_-_Online_Training_Through_Time_for_Spiking_Neural_Networks",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhou_et_al._-_2026_-_ResFlow_Fine-Tuning_Residual_Optical_Flow_for_Event_5945b090_63",
+      "paper_id": "Zhou_et_al._-_2026_-_ResFlow_Fine-Tuning_Residual_Optical_Flow_for_Event_5945b090",
+      "type": "result",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Gallego_et_al._-_2016_-_Event-Based,_6-DOF_Camera_Tracking_from_Photomet_72508ea6_92",
+      "paper_id": "Gallego_et_al._-_2016_-_Event-Based,_6-DOF_Camera_Tracking_from_Photomet_72508ea6",
+      "type": "method",
+      "section": "appendix",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Baronig_et_al._-_2024_-_Advancing_spatio-temporal_processing_through_ada_53d87854_234",
+      "paper_id": "Baronig_et_al._-_2024_-_Advancing_spatio-temporal_processing_through_ada_53d87854",
+      "type": "claim",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_et_al._-_2025_-_Improving_vision-language_alignment_with_graph_spi_0935ce4d_44",
+      "paper_id": "Zhang_et_al._-_2025_-_Improving_vision-language_alignment_with_graph_spi_0935ce4d",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Blegiers_et_al._-_2023_-_EventTransAct_-_A_Video_Transformer-Based_Frame_3e6fec3e_54",
+      "paper_id": "Blegiers_et_al._-_2023_-_EventTransAct_-_A_Video_Transformer-Based_Frame_3e6fec3e",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Guo_et_al._-_2023_-_Direct_learning-based_deep_spiking_neural_networks_-_e177669b_89",
+      "paper_id": "Guo_et_al._-_2023_-_Direct_learning-based_deep_spiking_neural_networks_-_e177669b",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Camunas-Mesa_-_2014_-_On_the_use_of_orientation_filters_for_3D_reconstru_e1b40563_61",
+      "paper_id": "Camunas-Mesa_-_2014_-_On_the_use_of_orientation_filters_for_3D_reconstru_e1b40563",
+      "type": "claim",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zheng_et_al._-_2023_-_Deep_Learning_for_Event-based_Vision_-_A_Comprehen_a73555dd_219",
+      "paper_id": "Zheng_et_al._-_2023_-_Deep_Learning_for_Event-based_Vision_-_A_Comprehen_a73555dd",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_et_al._-_2023_-_Perception_and_sensing_for_autonomous_vehicles_und_f532791d_160",
+      "paper_id": "Zhang_et_al._-_2023_-_Perception_and_sensing_for_autonomous_vehicles_und_f532791d",
+      "type": "comparison",
+      "section": "conclusion",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ashraf_et_al._-_2025_-_SPACT18_-_Spiking_Human_Action_Recognition_Benchm_96e616dc_147",
+      "paper_id": "Ashraf_et_al._-_2025_-_SPACT18_-_Spiking_Human_Action_Recognition_Benchm_96e616dc",
+      "type": "background",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2025_-_Low_Latency_Pedestrian_Detection_Based_on_Dynamic__ac9fb68f_28",
+      "paper_id": "Huang_et_al._-_2025_-_Low_Latency_Pedestrian_Detection_Based_on_Dynamic__ac9fb68f",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Vaila_et_al._-_2020_-_A_Deep_Unsupervised_Feature_Learning_Spiking_Neura_f31af682_32",
+      "paper_id": "Vaila_et_al._-_2020_-_A_Deep_Unsupervised_Feature_Learning_Spiking_Neura_f31af682",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Scaramuzza_et_al._-_2006_-_A_Toolbox_for_Easily_Calibrating_Omnidirectio_9a6c8d8e_69",
+      "paper_id": "Scaramuzza_et_al._-_2006_-_A_Toolbox_for_Easily_Calibrating_Omnidirectio_9a6c8d8e",
+      "type": "claim",
+      "section": "experiments",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lee_et_al._-_2016_-_Training_Deep_Spiking_Neural_Networks_Using_Backpropagation_12",
+      "paper_id": "Lee_et_al._-_2016_-_Training_Deep_Spiking_Neural_Networks_Using_Backpropagation",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cuadrado_et_al._-_2023_-_Optical_flow_estimation_from_event-based_camera_a7d424af_62",
+      "paper_id": "Cuadrado_et_al._-_2023_-_Optical_flow_estimation_from_event-based_camera_a7d424af",
+      "type": "result",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Meng_et_al._-_2023_-_Towards_Memory-_and_Time-Efficient_Backpropagation__61bb1e18_29",
+      "paper_id": "Meng_et_al._-_2023_-_Towards_Memory-_and_Time-Efficient_Backpropagation__61bb1e18",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Khacef_et_al._-_2025_-_Privacy-preserving_fall_detection_at_the_edge_usi_2d01b82b_48",
+      "paper_id": "Khacef_et_al._-_2025_-_Privacy-preserving_fall_detection_at_the_edge_usi_2d01b82b",
+      "type": "comparison",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Alharthi_and_Mahmood_-_2024_-_Enhanced_Linear_and_Vision_Transformer-Bas_c85060cb_182",
+      "paper_id": "Alharthi_and_Mahmood_-_2024_-_Enhanced_Linear_and_Vision_Transformer-Bas_c85060cb",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7_23",
+      "paper_id": "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2020_-_Multi-Sensor_Fusion_in_Automated_Driving_A_Survey_107",
+      "paper_id": "Wang_et_al._-_2020_-_Multi-Sensor_Fusion_in_Automated_Driving_A_Survey",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Yuan_-_2019_-_Reinforcement_Learning_in_Spiking_Neural_Networks_with_Sto_35f1e2db_31",
+      "paper_id": "Yuan_-_2019_-_Reinforcement_Learning_in_Spiking_Neural_Networks_with_Sto_35f1e2db",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cuadrado_et_al._-_2023_-_Optical_flow_estimation_from_event-based_camera_a7d424af_103",
+      "paper_id": "Cuadrado_et_al._-_2023_-_Optical_flow_estimation_from_event-based_camera_a7d424af",
+      "type": "method",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": null,
+      "found": false
+    },
+    {
+      "nugget_id": "Paredes-Valles_and_Croon_-_2020_-_Back_to_Event_Basics_-_Self-Supervised_5781a684_26",
+      "paper_id": "Paredes-Valles_and_Croon_-_2020_-_Back_to_Event_Basics_-_Self-Supervised_5781a684",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Meng_et_al._-_2022_-_Training_High-Performance_Low-Latency_Spiking_Neura_639f4420_23",
+      "paper_id": "Meng_et_al._-_2022_-_Training_High-Performance_Low-Latency_Spiking_Neura_639f4420",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Alberico_et_al._-_2025_-_Egocentric_Event-Based_Vision_for_Ping_Pong_Bal_322b969f_23",
+      "paper_id": "Alberico_et_al._-_2025_-_Egocentric_Event-Based_Vision_for_Ping_Pong_Bal_322b969f",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Tenzin_et_al._-_2024_-_Application_of_Event_Cameras_and_Neuromorphic_Com_fa38486d_73",
+      "paper_id": "Tenzin_et_al._-_2024_-_Application_of_Event_Cameras_and_Neuromorphic_Com_fa38486d",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Nowotny_et_al._-_2022_-_Loss_shaping_enhances_exact_gradient_learning_wi_9bd8aa2c_132",
+      "paper_id": "Nowotny_et_al._-_2022_-_Loss_shaping_enhances_exact_gradient_learning_wi_9bd8aa2c",
+      "type": "claim",
+      "section": "appendix",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Fan_et_al._-_2025_-_MS2Edge_-_Towards_Energy-Efficient_and_Crisp_Edge_De_d163a89a_80",
+      "paper_id": "Fan_et_al._-_2025_-_MS2Edge_-_Towards_Energy-Efficient_and_Crisp_Edge_De_d163a89a",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Anumula_-_2018_-_Feature_Representations_for_Neuromorphic_Audio_Spike_Streams_43",
+      "paper_id": "Anumula_-_2018_-_Feature_Representations_for_Neuromorphic_Audio_Spike_Streams",
+      "type": "background",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Putra_and_Shafique_-_2022_-_Mantis_-_Enabling_Energy-Efficient_Autonomou_4a316e18_36",
+      "paper_id": "Putra_and_Shafique_-_2022_-_Mantis_-_Enabling_Energy-Efficient_Autonomou_4a316e18",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Viale_et_al._-_2021_-_CarSNN_-_An_Efficient_Spiking_Neural_Network_for_E_91283361_91",
+      "paper_id": "Viale_et_al._-_2021_-_CarSNN_-_An_Efficient_Spiking_Neural_Network_for_E_91283361",
+      "type": "comparison",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Haddow_and_Kofod-Petersen_-_Your_facilitators_for_this_course_6",
+      "paper_id": "Haddow_and_Kofod-Petersen_-_Your_facilitators_for_this_course",
+      "type": "background",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bojkovi'c_et_al._-_2025_-_Temporal_Misalignment_in_ANN-SNN_Conversion_an_821c7bfc_92",
+      "paper_id": "Bojkovi'c_et_al._-_2025_-_Temporal_Misalignment_in_ANN-SNN_Conversion_an_821c7bfc",
+      "type": "result",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Iakymchuk_-_2015_-_Simplified_spiking_neural_network_architecture_and_ST_96840f03_29",
+      "paper_id": "Iakymchuk_-_2015_-_Simplified_spiking_neural_network_architecture_and_ST_96840f03",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lu_and_Sengupta_-_2020_-_Exploring_the_Connection_Between_Binary_and_Spi_a1868525_52",
+      "paper_id": "Lu_and_Sengupta_-_2020_-_Exploring_the_Connection_Between_Binary_and_Spi_a1868525",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Thakur_et_al._-_2018_-_Large-Scale_Neuromorphic_Spiking_Array_Processors_71926f8c_7",
+      "paper_id": "Thakur_et_al._-_2018_-_Large-Scale_Neuromorphic_Spiking_Array_Processors_71926f8c",
+      "type": "method",
+      "section": "introduction",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71_71",
+      "paper_id": "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Choi_et_al._-_2022_-_Moving_Object_Tracking_Based_on_Sparse_Optical_Flow_f025c194_83",
+      "paper_id": "Choi_et_al._-_2022_-_Moving_Object_Tracking_Based_on_Sparse_Optical_Flow_f025c194",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2024_-_CLIF_-_Complementary_Leaky_Integrate-and-Fire_Neur_ef5bd24f_124",
+      "paper_id": "Huang_et_al._-_2024_-_CLIF_-_Complementary_Leaky_Integrate-and-Fire_Neur_ef5bd24f",
+      "type": "comparison",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec_106",
+      "paper_id": "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Putra_and_Shafique_-_2021_-_Q-SpiNN_-_A_Framework_for_Quantizing_Spiking_6d4a87b7_80",
+      "paper_id": "Putra_and_Shafique_-_2021_-_Q-SpiNN_-_A_Framework_for_Quantizing_Spiking_6d4a87b7",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bu_et_al._-_2024_-_Inference-Scale_Complexity_in_ANN-SNN_Conversion_for__8a87862c_63",
+      "paper_id": "Bu_et_al._-_2024_-_Inference-Scale_Complexity_in_ANN-SNN_Conversion_for__8a87862c",
+      "type": "result",
+      "section": "appendix",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Manabe_et_al._-_2024_-_Monte_Carlo_Path_Tracing_and_Statistical_Event_De_3e0388c0_55",
+      "paper_id": "Manabe_et_al._-_2024_-_Monte_Carlo_Path_Tracing_and_Statistical_Event_De_3e0388c0",
+      "type": "limitation",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Gattepaille_and_Muzy_-_2025_-_Delay_Neural_Networks_(DeNN)_for_exploitin_83cd99b1_28",
+      "paper_id": "Gattepaille_and_Muzy_-_2025_-_Delay_Neural_Networks_(DeNN)_for_exploitin_83cd99b1",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ceolini_-_2020_-_Hand-Gesture_Recognition_Based_on_EMG_and_Event-Based_C_60bdd92c_52",
+      "paper_id": "Ceolini_-_2020_-_Hand-Gesture_Recognition_Based_on_EMG_and_Event-Based_C_60bdd92c",
+      "type": "result",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Rathi_and_Roy_-_2020_-_DIET-SNN_-_Direct_Input_Encoding_With_Leakage_and_ab2297ab_63",
+      "paper_id": "Rathi_and_Roy_-_2020_-_DIET-SNN_-_Direct_Input_Encoding_With_Leakage_and_ab2297ab",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhou_-_2023_-_Spikingformer_Spike-driven_Residual_Learning_for_Transform_c3744c2c_8",
+      "paper_id": "Zhou_-_2023_-_Spikingformer_Spike-driven_Residual_Learning_for_Transform_c3744c2c",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hu_et_al._-_2023_-_Fast-SNN_-_Fast_Spiking_Neural_Network_by_Converting__c72be78f_149",
+      "paper_id": "Hu_et_al._-_2023_-_Fast-SNN_-_Fast_Spiking_Neural_Network_by_Converting__c72be78f",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ren_et_al._-_2025_-_SuperMOT_Decoupling_Motion_and_Fusing_Temporal_Pyram_188916ed_66",
+      "paper_id": "Ren_et_al._-_2025_-_SuperMOT_Decoupling_Motion_and_Fusing_Temporal_Pyram_188916ed",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "__smcm_mcfnet___219",
+      "paper_id": "__smcm_mcfnet__",
+      "type": "experiment",
+      "section": "code",
+      "overall_score": null,
+      "rank": null,
+      "found": false
+    },
+    {
+      "nugget_id": "Peng_et_al._-_2021_-_Globally-Optimal_Contrast_Maximisation_for_Event_Cameras_87",
+      "paper_id": "Peng_et_al._-_2021_-_Globally-Optimal_Contrast_Maximisation_for_Event_Cameras",
+      "type": "comparison",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chowdhury_et_al._-_2020_-_Towards_Understanding_the_Effect_of_Leak_in_Sp_13fd7d21_14",
+      "paper_id": "Chowdhury_et_al._-_2020_-_Towards_Understanding_the_Effect_of_Leak_in_Sp_13fd7d21",
+      "type": "claim",
+      "section": "introduction",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_1594",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "method",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "2017_-_Taxonomy_and_Definitions_for_Terms_Related_to_Driving_Automation__8e01fbe3_91",
+      "paper_id": "2017_-_Taxonomy_and_Definitions_for_Terms_Related_to_Driving_Automation__8e01fbe3",
+      "type": "comparison",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wzorek_and_Kryjak_-_2022_-_Traffic_Sign_Detection_With_Event_Cameras_and_DCNN_18",
+      "paper_id": "Wzorek_and_Kryjak_-_2022_-_Traffic_Sign_Detection_With_Event_Cameras_and_DCNN",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "On-Road_Automated_Driving_(ORAD)_Committee_-_Taxonomy_and_Definitions_fo_68ed36c4_44",
+      "paper_id": "On-Road_Automated_Driving_(ORAD)_Committee_-_Taxonomy_and_Definitions_fo_68ed36c4",
+      "type": "example",
+      "section": "preamble",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Fang_et_al._-_2023_-_SpikingJelly_An_open-source_machine_learning_infras_c33fd416_145",
+      "paper_id": "Fang_et_al._-_2023_-_SpikingJelly_An_open-source_machine_learning_infras_c33fd416",
+      "type": "claim",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Qiu_-_2023_-_VTSNN_a_virtual_temporal_spiking_neural_network_42",
+      "paper_id": "Qiu_-_2023_-_VTSNN_a_virtual_temporal_spiking_neural_network",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Robinson_et_al._-_2025_-_RF-DETR_Neural_Architecture_Search_for_Real-Tim_622a1603_100",
+      "paper_id": "Robinson_et_al._-_2025_-_RF-DETR_Neural_Architecture_Search_for_Real-Tim_622a1603",
+      "type": "comparison",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Mohapatra_et_al._-_2019_-_Exploring_Deep_Spiking_Neural_Networks_for_Aut_2238a637_61",
+      "paper_id": "Mohapatra_et_al._-_2019_-_Exploring_Deep_Spiking_Neural_Networks_for_Aut_2238a637",
+      "type": "background",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_390",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "background",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ozdenizci_and_Legenstein_-_2023_-_Adversarially_Robust_Spiking_Neural_Ne_383d3616_56",
+      "paper_id": "Ozdenizci_and_Legenstein_-_2023_-_Adversarially_Robust_Spiking_Neural_Ne_383d3616",
+      "type": "comparison",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sun_et_al._-_2021_-_Unsupervised_Cross-Modal_Distillation_for_Thermal_In_705ab0ed_29",
+      "paper_id": "Sun_et_al._-_2021_-_Unsupervised_Cross-Modal_Distillation_for_Thermal_In_705ab0ed",
+      "type": "method",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Acharya_et_al._-_2019_-_Spiking_Neural_Network_Based_Region_Proposal_Net_bd9f968c_447",
+      "paper_id": "Acharya_et_al._-_2019_-_Spiking_Neural_Network_Based_Region_Proposal_Net_bd9f968c",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Boybat_et_al._-_2017_-_Neuromorphic_computing_with_multi-memristive_synapses_71",
+      "paper_id": "Boybat_et_al._-_2017_-_Neuromorphic_computing_with_multi-memristive_synapses",
+      "type": "method",
+      "section": "appendix",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Strohmer_-_2021_-_Integrating_Non-spiking_Interneurons_in_Spiking_Neural_ce22fa49_14",
+      "paper_id": "Strohmer_-_2021_-_Integrating_Non-spiking_Interneurons_in_Spiking_Neural_ce22fa49",
+      "type": "background",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Hao_et_al._-_2023_-_Bridging_the_Gap_between_ANNs_and_SNNs_by_Calibratin_74901b33_73",
+      "paper_id": "Hao_et_al._-_2023_-_Bridging_the_Gap_between_ANNs_and_SNNs_by_Calibratin_74901b33",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_and_Li_-_2019_-_Spike-Train_Level_Backpropagation_for_Training_Dee_8cfbc3d2_33",
+      "paper_id": "Zhang_and_Li_-_2019_-_Spike-Train_Level_Backpropagation_for_Training_Dee_8cfbc3d2",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Muglikar_et_al._-_2025_-_Event_Cameras_Meet_SPADs_for_High-Speed,_Low-Ba_d7e3e895_32",
+      "paper_id": "Muglikar_et_al._-_2025_-_Event_Cameras_Meet_SPADs_for_High-Speed,_Low-Ba_d7e3e895",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chen_et_al._-_2021_-_VCANet_Vanishing-Point-Guided_Context-Aware_Network_bb49a7a5_28",
+      "paper_id": "Chen_et_al._-_2021_-_VCANet_Vanishing-Point-Guided_Context-Aware_Network_bb49a7a5",
+      "type": "background",
+      "section": "results",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Li_et_al._-_2023_-_SEENN_-_Towards_Temporal_Spiking_Early-Exit_Neural_Networks_85",
+      "paper_id": "Li_et_al._-_2023_-_SEENN_-_Towards_Temporal_Spiking_Early-Exit_Neural_Networks",
+      "type": "method",
+      "section": "conclusion",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Mazurek_et_al._-_2025_-_Three-Factor_Learning_in_Spiking_Neural_Networks_736af283_51",
+      "paper_id": "Mazurek_et_al._-_2025_-_Three-Factor_Learning_in_Spiking_Neural_Networks_736af283",
+      "type": "limitation",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Xu_et_al._-_2024_-_Parallel_Proportional_Fusion_of_Spiking_Quantum_Neura_191734e4_55",
+      "paper_id": "Xu_et_al._-_2024_-_Parallel_Proportional_Fusion_of_Spiking_Quantum_Neura_191734e4",
+      "type": "method",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "On-Road_Automated_Driving_(ORAD)_Committee_-_Taxonomy_and_Definitions_fo_68ed36c4_121",
+      "paper_id": "On-Road_Automated_Driving_(ORAD)_Committee_-_Taxonomy_and_Definitions_fo_68ed36c4",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Scheerlinck_et_al._-_2018_-_Asynchronous_Spatial_Image_Convolutions_for__216a956e_25",
+      "paper_id": "Scheerlinck_et_al._-_2018_-_Asynchronous_Spatial_Image_Convolutions_for__216a956e",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Saha_et_al._-_2026_-_Sensor_Generalization_for_Adaptive_Sensing_in_Event_87321425_40",
+      "paper_id": "Saha_et_al._-_2026_-_Sensor_Generalization_for_Adaptive_Sensing_in_Event_87321425",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Brosch_et_al._-_2015_-_On_event-based_optical_flow_detection_106",
+      "paper_id": "Brosch_et_al._-_2015_-_On_event-based_optical_flow_detection",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 17,
+      "found": true
+    },
+    {
+      "nugget_id": "Ma_et_al._-_2024_-_Visual_Multi-Object_Tracking_with_Re-Identification_a_13da2cb2_111",
+      "paper_id": "Ma_et_al._-_2024_-_Visual_Multi-Object_Tracking_with_Re-Identification_a_13da2cb2",
+      "type": "ablation",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Oyelade_et_al._-_2022_-_Ebola_Optimization_Search_Algorithm_A_New_Nature_221a5d55_47",
+      "paper_id": "Oyelade_et_al._-_2022_-_Ebola_Optimization_Search_Algorithm_A_New_Nature_221a5d55",
+      "type": "background",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sun_et_al._-_2024_-_Reliable_Object_Tracking_by_Multimodal_Hybrid_Featur_297dd32e_85",
+      "paper_id": "Sun_et_al._-_2024_-_Reliable_Object_Tracking_by_Multimodal_Hybrid_Featur_297dd32e",
+      "type": "result",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wu_et_al._-_2024_-_DO3D_Self-supervised_Learning_of_Decomposed_Object-aw_51dd2d6a_10",
+      "paper_id": "Wu_et_al._-_2024_-_DO3D_Self-supervised_Learning_of_Decomposed_Object-aw_51dd2d6a",
+      "type": "claim",
+      "section": "introduction",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cui_et_al._-_2025_-_Stepwise_Spatial_Global-local_Aggregation_Networks_f_d0a4d39e_34",
+      "paper_id": "Cui_et_al._-_2025_-_Stepwise_Spatial_Global-local_Aggregation_Networks_f_d0a4d39e",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Dupeyroux_et_al._-_2020_-_Neuromorphic_control_for_optic-flow-based_land_cfa15a34_26",
+      "paper_id": "Dupeyroux_et_al._-_2020_-_Neuromorphic_control_for_optic-flow-based_land_cfa15a34",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Li_et_al._-_2023_-_Efficient_Deep_Spiking_Multilayer_Perceptrons_With_Mu_557cca13_86",
+      "paper_id": "Li_et_al._-_2023_-_Efficient_Deep_Spiking_Multilayer_Perceptrons_With_Mu_557cca13",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_et_al._-_2020_-_ISSAFE_-_Improving_Semantic_Segmentation_in_Accide_407bf565_31",
+      "paper_id": "Zhang_et_al._-_2020_-_ISSAFE_-_Improving_Semantic_Segmentation_in_Accide_407bf565",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_759",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "method",
+      "section": "introduction",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Rajendran_et_al._-_2019_-_Low-Power_Neuromorphic_Hardware_for_Signal_Pro_f9a1cacf_9",
+      "paper_id": "Rajendran_et_al._-_2019_-_Low-Power_Neuromorphic_Hardware_for_Signal_Pro_f9a1cacf",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_et_al._-_2025_-_Spiking_neural_networks_for_object_detection_and_s_30aad111_167",
+      "paper_id": "Zhang_et_al._-_2025_-_Spiking_neural_networks_for_object_detection_and_s_30aad111",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Huang_et_al._-_2022_-_A_Survey_on_Trajectory-Prediction_Methods_for_Auto_64b7cd36_149",
+      "paper_id": "Huang_et_al._-_2022_-_A_Survey_on_Trajectory-Prediction_Methods_for_Auto_64b7cd36",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Paredes-Valles_et_al._-_2025_-_Realizing_Fully-Integrated,_Low-Power,_Ev_149111d7_16",
+      "paper_id": "Paredes-Valles_et_al._-_2025_-_Realizing_Fully-Integrated,_Low-Power,_Ev_149111d7",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Dampfhoffer_-_2023_-_Backpropagation-Based_Learning_Techniques_for_Deep__db4b9fd0_167",
+      "paper_id": "Dampfhoffer_-_2023_-_Backpropagation-Based_Learning_Techniques_for_Deep__db4b9fd0",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Li_et_al._-_2022_-_Quantization_Framework_for_Fast_Spiking_Neural_Networks_25",
+      "paper_id": "Li_et_al._-_2022_-_Quantization_Framework_for_Fast_Spiking_Neural_Networks",
+      "type": "background",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhang_et_al._-_2023_-_Event-Based_Optical_Flow_Estimation_with_Spatio-Te_2e6f385f_83",
+      "paper_id": "Zhang_et_al._-_2023_-_Event-Based_Optical_Flow_Estimation_with_Spatio-Te_2e6f385f",
+      "type": "background",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 11,
+      "found": true
+    },
+    {
+      "nugget_id": "Putra_and_Shafique_-_2021_-_Q-SpiNN_-_A_Framework_for_Quantizing_Spiking_6d4a87b7_5",
+      "paper_id": "Putra_and_Shafique_-_2021_-_Q-SpiNN_-_A_Framework_for_Quantizing_Spiking_6d4a87b7",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Schuman_et_al._-_2017_-_A_Survey_of_Neuromorphic_Computing_and_Neural_Ne_1ff3e7b9_108",
+      "paper_id": "Schuman_et_al._-_2017_-_A_Survey_of_Neuromorphic_Computing_and_Neural_Ne_1ff3e7b9",
+      "type": "limitation",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Rahman_et_al._-_2024_-_Mamba_in_Vision_A_Comprehensive_Survey_of_Techniq_a36f66a5_185",
+      "paper_id": "Rahman_et_al._-_2024_-_Mamba_in_Vision_A_Comprehensive_Survey_of_Techniq_a36f66a5",
+      "type": "claim",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2021_-_Dual_Transfer_Learning_for_Event-based_End-task_Pre_a1d437fa_13",
+      "paper_id": "Wang_et_al._-_2021_-_Dual_Transfer_Learning_for_Event-based_End-task_Pre_a1d437fa",
+      "type": "claim",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cannici_et_al._-_2018_-_Event-based_Convolutional_Networks_for_Object_De_f9d025f9_28",
+      "paper_id": "Cannici_et_al._-_2018_-_Event-based_Convolutional_Networks_for_Object_De_f9d025f9",
+      "type": "method",
+      "section": "introduction",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Moursi_et_al._-_2024_-_Efficient_FPGA_Implementation_of_an_Optimized_SNN_2dd155fd_33",
+      "paper_id": "Moursi_et_al._-_2024_-_Efficient_FPGA_Implementation_of_an_Optimized_SNN_2dd155fd",
+      "type": "comparison",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zenke_and_Ganguli_-_2017_-_SuperSpike_-_Supervised_Learning_in_Multilaye_4b9d77e6_56",
+      "paper_id": "Zenke_and_Ganguli_-_2017_-_SuperSpike_-_Supervised_Learning_in_Multilaye_4b9d77e6",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Liu_et_al._-_2020_-_Globally_Optimal_Contrast_Maximisation_for_Event-Bas_d5e84160_32",
+      "paper_id": "Liu_et_al._-_2020_-_Globally_Optimal_Contrast_Maximisation_for_Event-Bas_d5e84160",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Shedligeri_et_al._-_2018_-_Photorealistic_image_reconstruction_from_hybr_688618d9_21",
+      "paper_id": "Shedligeri_et_al._-_2018_-_Photorealistic_image_reconstruction_from_hybr_688618d9",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Contreras_et_al._-_2024_-_A_survey_on_3D_object_detection_in_real_time_f_94dedbe6_71",
+      "paper_id": "Contreras_et_al._-_2024_-_A_survey_on_3D_object_detection_in_real_time_f_94dedbe6",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2025_-_Mamba_YOLO_A_Simple_Baseline_for_Object_Detection_w_192a777f_8",
+      "paper_id": "Wang_et_al._-_2025_-_Mamba_YOLO_A_Simple_Baseline_for_Object_Detection_w_192a777f",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bathla_et_al._-_2022_-_Autonomous_Vehicles_and_Intelligent_Automation_Ap_c4ba3bee_182",
+      "paper_id": "Bathla_et_al._-_2022_-_Autonomous_Vehicles_and_Intelligent_Automation_Ap_c4ba3bee",
+      "type": "background",
+      "section": "introduction",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Yan_et_al._-_2026_-_Vehicle_Trajectory_Prediction_for_Autonomous_Driving_3798eec7_16",
+      "paper_id": "Yan_et_al._-_2026_-_Vehicle_Trajectory_Prediction_for_Autonomous_Driving_3798eec7",
+      "type": "claim",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "B'ena_et_al._-_2024_-_Event-based_backpropagation_on_the_neuromorphic_pl_204d0b33_50",
+      "paper_id": "B'ena_et_al._-_2024_-_Event-based_backpropagation_on_the_neuromorphic_pl_204d0b33",
+      "type": "result",
+      "section": "appendix",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey_1420",
+      "paper_id": "Chakravarthi_et_al._-_2025_-_Recent_Event_Camera_Innovations_A_Survey",
+      "type": "method",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": null,
+      "found": false
+    },
+    {
+      "nugget_id": "Dell'oca_et_al._-_2025_-_Motion_Trajectory_Prediction_in_Dynamic_Human-R_275dac75_17",
+      "paper_id": "Dell'oca_et_al._-_2025_-_Motion_Trajectory_Prediction_in_Dynamic_Human-R_275dac75",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2024_-_Object_Detection_using_Event_Camera_-_A_MoE_Heat_Co_e032f552_21",
+      "paper_id": "Wang_et_al._-_2024_-_Object_Detection_using_Event_Camera_-_A_MoE_Heat_Co_e032f552",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lee_et_al._-_2023_-_An_asynchronous_wireless_network_for_capturing_event_748186ac_72",
+      "paper_id": "Lee_et_al._-_2023_-_An_asynchronous_wireless_network_for_capturing_event_748186ac",
+      "type": "result",
+      "section": "appendix",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Malcolm_and_Casco-Rodriguez_-_2023_-_A_Comprehensive_Review_of_Spiking_N_f1b18037_83",
+      "paper_id": "Malcolm_and_Casco-Rodriguez_-_2023_-_A_Comprehensive_Review_of_Spiking_N_f1b18037",
+      "type": "method",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 4,
+      "found": true
+    },
+    {
+      "nugget_id": "Kaiser_-_2020_-_Synaptic_Plasticity_Dynamics_for_Deep_Continuous_Local_L_87100dfb_68",
+      "paper_id": "Kaiser_-_2020_-_Synaptic_Plasticity_Dynamics_for_Deep_Continuous_Local_L_87100dfb",
+      "type": "method",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Vemprala_et_al._-_2021_-_Representation_Learning_for_Event-based_Visuomo_705b0625_51",
+      "paper_id": "Vemprala_et_al._-_2021_-_Representation_Learning_for_Event-based_Visuomo_705b0625",
+      "type": "comparison",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__98032f34_44",
+      "paper_id": "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__98032f34",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Annamalai_et_al._-_2021_-_Event-LSTM_-_An_Unsupervised_and_Asynchronous__50c36e2e_9",
+      "paper_id": "Annamalai_et_al._-_2021_-_Event-LSTM_-_An_Unsupervised_and_Asynchronous__50c36e2e",
+      "type": "claim",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ercan_et_al._-_2023_-_EVREAL_-_Towards_a_Comprehensive_Benchmark_and_Ana_b8ef8c3f_81",
+      "paper_id": "Ercan_et_al._-_2023_-_EVREAL_-_Towards_a_Comprehensive_Benchmark_and_Ana_b8ef8c3f",
+      "type": "limitation",
+      "section": "appendix",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Amin_et_al._-_2024_-_TrajectoFormer_Transformer-Based_Trajectory_Predict_3a2f9414_32",
+      "paper_id": "Amin_et_al._-_2024_-_TrajectoFormer_Transformer-Based_Trajectory_Predict_3a2f9414",
+      "type": "background",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Paredes-Vall\u00e9s_et_al._-_2021_-_Self-Supervised_Learning_of_Event-Based_O_e999db27_15",
+      "paper_id": "Paredes-Vall\u00e9s_et_al._-_2021_-_Self-Supervised_Learning_of_Event-Based_O_e999db27",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Viola_and_Jones_-_2001_-_Rapid_object_detection_using_a_boosted_cascade__e65fe040_26",
+      "paper_id": "Viola_and_Jones_-_2001_-_Rapid_object_detection_using_a_boosted_cascade__e65fe040",
+      "type": "result",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Patel_et_al._-_2021_-_Event_Camera_Based_Real-Time_Detection_and_Trackin_a7a6412c_93",
+      "paper_id": "Patel_et_al._-_2021_-_Event_Camera_Based_Real-Time_Detection_and_Trackin_a7a6412c",
+      "type": "application",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Cao_et_al._-_2022_-_NeuroGrasp_Multimodal_Neural_Network_With_Euler_Regi_f7457edd_57",
+      "paper_id": "Cao_et_al._-_2022_-_NeuroGrasp_Multimodal_Neural_Network_With_Euler_Regi_f7457edd",
+      "type": "result",
+      "section": "introduction",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kugele_-_2020_-_Efficient_Processing_of_Spatio-Temporal_Data_Streams_Wit_ac322f6f_43",
+      "paper_id": "Kugele_-_2020_-_Efficient_Processing_of_Spatio-Temporal_Data_Streams_Wit_ac322f6f",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Liu_et_al._-_2024_-_A_Survey_on_Autonomous_Driving_Datasets_Statistics,__effe0962_90",
+      "paper_id": "Liu_et_al._-_2024_-_A_Survey_on_Autonomous_Driving_Datasets_Statistics,__effe0962",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Acharya_et_al._-_2019_-_Spiking_Neural_Network_Based_Region_Proposal_Net_bd9f968c_200",
+      "paper_id": "Acharya_et_al._-_2019_-_Spiking_Neural_Network_Based_Region_Proposal_Net_bd9f968c",
+      "type": "comparison",
+      "section": "introduction",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhong_et_al._-_2025_-_SMTrack_-_End-to-End_Trained_Spiking_Neural_Networ_2b0d5814_87",
+      "paper_id": "Zhong_et_al._-_2025_-_SMTrack_-_End-to-End_Trained_Spiking_Neural_Networ_2b0d5814",
+      "type": "background",
+      "section": "abstract",
+      "overall_score": 3.0,
+      "rank": 4,
+      "found": true
+    },
+    {
+      "nugget_id": "Goltz_et_al._-_2021_-_Fast_and_energy-efficient_neuromorphic_deep_learni_bc37ee76_53",
+      "paper_id": "Goltz_et_al._-_2021_-_Fast_and_energy-efficient_neuromorphic_deep_learni_bc37ee76",
+      "type": "result",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Skalli_et_al._-_2026_-_Single-Vehicle_Trajectory_Prediction_A_Review_and_15ebb8a4_13",
+      "paper_id": "Skalli_et_al._-_2026_-_Single-Vehicle_Trajectory_Prediction_A_Review_and_15ebb8a4",
+      "type": "claim",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wang_et_al._-_2025_-_CS3D_-_An_Efficient_Facial_Expression_Recognition_v_e59a92d8_37",
+      "paper_id": "Wang_et_al._-_2025_-_CS3D_-_An_Efficient_Facial_Expression_Recognition_v_e59a92d8",
+      "type": "comparison",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Delbruck_-_2016_-_Evaluation_of_Event-Based_Algorithms_for_Optical_Flow__1554cb08_49",
+      "paper_id": "Delbruck_-_2016_-_Evaluation_of_Event-Based_Algorithms_for_Optical_Flow__1554cb08",
+      "type": "method",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Wu_et_al._-_2019_-_Deep_Spiking_Neural_Network_with_Spike_Count_based_Le_e9ef1ebc_31",
+      "paper_id": "Wu_et_al._-_2019_-_Deep_Spiking_Neural_Network_with_Spike_Count_based_Le_e9ef1ebc",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Luo_et_al._-_2026_-_Learning_Efficient_Meshflow_and_Optical_Flow_From_Ev_ac57fc3b_120",
+      "paper_id": "Luo_et_al._-_2026_-_Learning_Efficient_Meshflow_and_Optical_Flow_From_Ev_ac57fc3b",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Gabayre_et_al._-_2024_-_Advancements_in_Neuromorphic_Computing_for_Bio-I_26b4b333_140",
+      "paper_id": "Gabayre_et_al._-_2024_-_Advancements_in_Neuromorphic_Computing_for_Bio-I_26b4b333",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498_342",
+      "paper_id": "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498",
+      "type": "method",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lee_et_al._-_2023_-_An_asynchronous_wireless_network_for_capturing_event_748186ac_28",
+      "paper_id": "Lee_et_al._-_2023_-_An_asynchronous_wireless_network_for_capturing_event_748186ac",
+      "type": "claim",
+      "section": "conclusion",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Gu_et_al._-_2022_-_Self-Supervised_Intensity-Event_Stereo_Matching_14",
+      "paper_id": "Gu_et_al._-_2022_-_Self-Supervised_Intensity-Event_Stereo_Matching",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Kang_et_al._-_2023_-_Event-based_Shape_from_Polarization_with_Spiking_Ne_2f93558a_26",
+      "paper_id": "Kang_et_al._-_2023_-_Event-based_Shape_from_Polarization_with_Spiking_Ne_2f93558a",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Tang_and_Michmizos_-_2018_-_Gridbot_-_An_autonomous_robot_controlled_by__6b7e6b28_66",
+      "paper_id": "Tang_and_Michmizos_-_2018_-_Gridbot_-_An_autonomous_robot_controlled_by__6b7e6b28",
+      "type": "background",
+      "section": "conclusion",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Xu_et_al._-_2025_-_BAT_Learning_Event-based_Optical_Flow_with_Bidirectio_9f642bdb_40",
+      "paper_id": "Xu_et_al._-_2025_-_BAT_Learning_Event-based_Optical_Flow_with_Bidirectio_9f642bdb",
+      "type": "result",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Prakash_et_al._-_2021_-_Multi-Modal_Fusion_Transformer_for_End-to-End_Au_327393ef_29",
+      "paper_id": "Prakash_et_al._-_2021_-_Multi-Modal_Fusion_Transformer_for_End-to-End_Au_327393ef",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Shariff_et_al._-_2025_-_Benchmarking_Microsaccade_Recognition_with_Event_8cc3902e_17",
+      "paper_id": "Shariff_et_al._-_2025_-_Benchmarking_Microsaccade_Recognition_with_Event_8cc3902e",
+      "type": "claim",
+      "section": "background",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__98032f34_7",
+      "paper_id": "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__98032f34",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 5.0,
+      "rank": 2,
+      "found": true
+    },
+    {
+      "nugget_id": "Ozdenizci_and_Legenstein_-_2023_-_Adversarially_Robust_Spiking_Neural_Ne_383d3616_40",
+      "paper_id": "Ozdenizci_and_Legenstein_-_2023_-_Adversarially_Robust_Spiking_Neural_Ne_383d3616",
+      "type": "claim",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ahmed_et_al._-_2025_-_Efficient_Event-Based_Object_Detection_A_Hybrid_Ne_9b6b5c75_46",
+      "paper_id": "Ahmed_et_al._-_2025_-_Efficient_Event-Based_Object_Detection_A_Hybrid_Ne_9b6b5c75",
+      "type": "comparison",
+      "section": "experiments",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Ramesh_-_2020_-_Low-Power_Dynamic_Object_Detection_and_Classification_Wi_0d928701_71",
+      "paper_id": "Ramesh_-_2020_-_Low-Power_Dynamic_Object_Detection_and_Classification_Wi_0d928701",
+      "type": "result",
+      "section": "results",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Gu_et_al._-_2019_-_STCA_-_Spatio-Temporal_Credit_Assignment_with_Delayed_e06dc747_23",
+      "paper_id": "Gu_et_al._-_2019_-_STCA_-_Spatio-Temporal_Credit_Assignment_with_Delayed_e06dc747",
+      "type": "method",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Zhou_et_al._-_2020_-_Event-Based_Stereo_Visual_Odometry_133",
+      "paper_id": "Zhou_et_al._-_2020_-_Event-Based_Stereo_Visual_Odometry",
+      "type": "method",
+      "section": "method",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Bayoudh_et_al._-_2022_-_A_survey_on_deep_multimodal_learning_for_compute_b47392e7_3",
+      "paper_id": "Bayoudh_et_al._-_2022_-_A_survey_on_deep_multimodal_learning_for_compute_b47392e7",
+      "type": "claim",
+      "section": "introduction",
+      "overall_score": 3.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Xu_et_al._-_2026_-_Error_Amplification_Limits_ANN-to-SNN_Conversion_in_C_ac9933fc_33",
+      "paper_id": "Xu_et_al._-_2026_-_Error_Amplification_Limits_ANN-to-SNN_Conversion_in_C_ac9933fc",
+      "type": "method",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sun_et_al._-_2021_-_Unsupervised_Cross-Modal_Distillation_for_Thermal_In_705ab0ed_79",
+      "paper_id": "Sun_et_al._-_2021_-_Unsupervised_Cross-Modal_Distillation_for_Thermal_In_705ab0ed",
+      "type": "comparison",
+      "section": "conclusion",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lou_et_al._-_2023_-_DC-YOLOv8_Small_Size_Object_Detection_Algorithm_Base_e60208d4_0",
+      "paper_id": "Lou_et_al._-_2023_-_DC-YOLOv8_Small_Size_Object_Detection_Algorithm_Base_e60208d4",
+      "type": "method",
+      "section": "preamble",
+      "overall_score": 3.0,
+      "rank": 8,
+      "found": true
+    },
+    {
+      "nugget_id": "Chen_et_al._-_2020_-_NeuroIV_-_Neuromorphic_Vision_Meets_Intelligent_Veh_45b7a330_8",
+      "paper_id": "Chen_et_al._-_2020_-_NeuroIV_-_Neuromorphic_Vision_Meets_Intelligent_Veh_45b7a330",
+      "type": "claim",
+      "section": "experiments",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Tomy_et_al._-_2022_-_Fusing_Event-based_and_RGB_camera_for_Robust_Object_90486f90_44",
+      "paper_id": "Tomy_et_al._-_2022_-_Fusing_Event-based_and_RGB_camera_for_Robust_Object_90486f90",
+      "type": "result",
+      "section": "abstract",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Brebion_et_al._-_2021_-_Real-Time_Optical_Flow_for_Vehicular_Perception__d4feb26e_10",
+      "paper_id": "Brebion_et_al._-_2021_-_Real-Time_Optical_Flow_for_Vehicular_Perception__d4feb26e",
+      "type": "background",
+      "section": "related_work",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Yao_et_al._-_2024_-_Scaling_Spike-Driven_Transformer_With_Efficient_Spik_9475440e_130",
+      "paper_id": "Yao_et_al._-_2024_-_Scaling_Spike-Driven_Transformer_With_Efficient_Spik_9475440e",
+      "type": "method",
+      "section": "method",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Goltz_et_al._-_2021_-_Fast_and_energy-efficient_neuromorphic_deep_learni_bc37ee76_11",
+      "paper_id": "Goltz_et_al._-_2021_-_Fast_and_energy-efficient_neuromorphic_deep_learni_bc37ee76",
+      "type": "claim",
+      "section": "results",
+      "overall_score": 4.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Chen_et_al._-_2019_-_Multi-Cue_Event_Information_Fusion_for_Pedestrian_D_7dabd0c7_29",
+      "paper_id": "Chen_et_al._-_2019_-_Multi-Cue_Event_Information_Fusion_for_Pedestrian_D_7dabd0c7",
+      "type": "method",
+      "section": "method",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Lin_et_al._-_2017_-_Focal_Loss_for_Dense_Object_Detection_8",
+      "paper_id": "Lin_et_al._-_2017_-_Focal_Loss_for_Dense_Object_Detection",
+      "type": "background",
+      "section": "related_work",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    },
+    {
+      "nugget_id": "Sridharan_et_al._-_2024_-_Ev-Edge_-_Efficient_Execution_of_Event-based_V_abf20ef6_15",
+      "paper_id": "Sridharan_et_al._-_2024_-_Ev-Edge_-_Efficient_Execution_of_Event-based_V_abf20ef6",
+      "type": "result",
+      "section": "background",
+      "overall_score": 5.0,
+      "rank": 1,
+      "found": true
+    }
+  ]
+}
