@@ -21,29 +21,37 @@ Also provide:
 - overall: the minimum of dimensions 1-5 (NOT including thesis_relevance)
 - flags: array of short string labels for issues found (e.g. "too_vague", "wrong_type", "not_self_contained", "trivial_metadata", "malformed_qa", "missing_specifics", "off_topic"). Use empty array [] if no issues.
 
-Output ONLY a JSON array with one object per nugget, in the same order as the input."""
+Output a JSON object with a "ratings" array containing one object per nugget, in the same order as the input."""
 
 
 QUALITY_SCHEMA = {
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "idx": {"type": "integer"},
-            "relevance": {"type": "integer", "minimum": 1, "maximum": 5},
-            "specificity": {"type": "integer", "minimum": 1, "maximum": 5},
-            "self_contained": {"type": "integer", "minimum": 1, "maximum": 5},
-            "type_accuracy": {"type": "integer", "minimum": 1, "maximum": 5},
-            "coherence": {"type": "integer", "minimum": 1, "maximum": 5},
-            "thesis_relevance": {"type": "integer", "minimum": 1, "maximum": 5},
-            "overall": {"type": "integer", "minimum": 1, "maximum": 5},
-            "flags": {"type": "array", "items": {"type": "string"}},
+    "type": "object",
+    "properties": {
+        "ratings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "idx": {"type": "integer"},
+                    "relevance": {"type": "integer"},
+                    "specificity": {"type": "integer"},
+                    "self_contained": {"type": "integer"},
+                    "type_accuracy": {"type": "integer"},
+                    "coherence": {"type": "integer"},
+                    "thesis_relevance": {"type": "integer"},
+                    "overall": {"type": "integer"},
+                    "flags": {"type": "array", "items": {"type": "string"}},
+                },
+                "required": [
+                    "idx", "relevance", "specificity", "self_contained",
+                    "type_accuracy", "coherence", "thesis_relevance", "overall", "flags",
+                ],
+                "additionalProperties": False,
+            },
         },
-        "required": [
-            "idx", "relevance", "specificity", "self_contained",
-            "type_accuracy", "coherence", "thesis_relevance", "overall", "flags",
-        ],
     },
+    "required": ["ratings"],
+    "additionalProperties": False,
 }
 
 
@@ -75,8 +83,6 @@ def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg, max_mode
     models_to_try = [model] + getattr(client, "_fallback_models", [])
 
     # Use structured output and vLLM extras when extra_body is provided (vLLM backend)
-    is_vllm = extra_body is not None
-
     for cur_model in models_to_try:
         for attempt in range(max_retries):
             try:
@@ -84,20 +90,20 @@ def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg, max_mode
                     model=cur_model,
                     messages=[
                         {"role": "system", "content": QUALITY_SYSTEM_PROMPT},
-                        {"role": "user", "content": prompt + "\n\nRespond with ONLY a valid JSON array, no markdown fences."},
+                        {"role": "user", "content": prompt + "\n\nRespond with a JSON object: {\"ratings\": [...]}"},
                     ],
                     temperature=temperature,
                     max_tokens=max_tokens,
                 )
-                if is_vllm:
-                    kwargs["response_format"] = {
-                        "type": "json_schema",
-                        "json_schema": {
-                            "name": "nugget_ratings",
-                            "schema": QUALITY_SCHEMA,
-                            "strict": False,
-                        },
-                    }
+                kwargs["response_format"] = {
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "nugget_ratings",
+                        "schema": QUALITY_SCHEMA,
+                        "strict": True,
+                    },
+                }
+                if extra_body:
                     kwargs["extra_body"] = extra_body
                 resp = client.chat.completions.create(**kwargs)
                 raw = resp.choices[0].message.content
@@ -109,6 +115,10 @@ def rate_nugget_batch(client, batch, model, paper_title, paper_id, cfg, max_mode
                 raw = re.sub(r"^```(?:json)?\s*", "", raw.strip())
                 raw = re.sub(r"\s*```$", "", raw.strip())
                 scores = json.loads(raw)
+
+                # Unwrap object wrapper from structured output
+                if isinstance(scores, dict):
+                    scores = scores.get("ratings", [])
 
                 # Validate we got the right number of results
                 if not isinstance(scores, list):

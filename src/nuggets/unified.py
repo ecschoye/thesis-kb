@@ -525,7 +525,19 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
     clients, model = make_llm_clients(cfg)
     num_instances = len(clients)
     backend = ncfg.get("backend", "vllm")
-    extra_body = {"chat_template_kwargs": {"enable_thinking": False}} if backend == "vllm" else None
+    if backend == "vllm":
+        extra_body = {"chat_template_kwargs": {"enable_thinking": False}}
+    elif backend == "openrouter":
+        extra_body = {
+            "plugins": [{"id": "response-healing"}],
+            "provider": {
+                "sort": "throughput",
+                "require_parameters": True,
+                "allow_fallbacks": True,
+            },
+        }
+    else:
+        extra_body = None
     self_score = ucfg.get("self_score", False)
     print(f"[unified] vLLM instances: {num_instances}, self_score: {self_score}")
 

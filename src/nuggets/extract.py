@@ -66,10 +66,10 @@ Rules:
 - Do NOT extract nuggets that admit missing information ("specific details are not provided")
 - Do NOT extract nuggets about cited/referenced works from bibliography sections. Only extract knowledge about the paper itself
 - Aim for 3-8 nuggets per chunk. Fewer, higher-quality nuggets are always better than exhaustive coverage
-- Output ONLY valid JSON array, no markdown fences, no preamble
+- Output valid JSON with a "nuggets" array wrapper, no markdown fences, no preamble
 
 Output format:
-[
+{"nuggets": [
   {
     "question": "How does ST-FlowNet estimate optical flow from events and what neuron model does it use?",
     "answer": "ST-FlowNet uses a hybrid SNN encoder with LIF neurons (learnable membrane time constant tau_m=2.0, threshold V_th=1.0, soft reset) that processes voxel grid event representations, paired with an ANN decoder for dense flow prediction. It combines STBP training, ANN-to-SNN weight transfer, and BiSNN bridging with ConvGRU temporal recurrence to achieve stable training at scale.",
@@ -85,45 +85,61 @@ Output format:
     "answer": "The fusion model achieves 52.1% mAP@50 on DSEC, outperforming the RGB-only baseline (45.3% mAP@50) by 6.8 percentage points and the event-only baseline (38.7% mAP@50) by 13.4 percentage points, with the largest gains in nighttime and high-speed driving sequences.",
     "type": "comparison"
   }
-]"""
+]}"""
 
 
 EXTRACTION_SCHEMA = {
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "question": {"type": "string"},
-            "answer": {"type": "string"},
-            "type": {
-                "type": "string",
-                "enum": ["method", "result", "claim", "limitation", "comparison", "background"],
+    "type": "object",
+    "properties": {
+        "nuggets": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "question": {"type": "string"},
+                    "answer": {"type": "string"},
+                    "type": {
+                        "type": "string",
+                        "enum": ["method", "result", "claim", "limitation", "comparison", "background"],
+                    },
+                },
+                "required": ["question", "answer", "type"],
+                "additionalProperties": False,
             },
         },
-        "required": ["question", "answer", "type"],
     },
+    "required": ["nuggets"],
+    "additionalProperties": False,
 }
 
 # Extended schema with self-assessed quality scores (used when self_score=True)
 EXTRACTION_SCORED_SCHEMA = {
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "question": {"type": "string"},
-            "answer": {"type": "string"},
-            "type": {
-                "type": "string",
-                "enum": ["method", "result", "claim", "limitation", "comparison", "background"],
+    "type": "object",
+    "properties": {
+        "nuggets": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "question": {"type": "string"},
+                    "answer": {"type": "string"},
+                    "type": {
+                        "type": "string",
+                        "enum": ["method", "result", "claim", "limitation", "comparison", "background"],
+                    },
+                    "relevance": {"type": "integer"},
+                    "specificity": {"type": "integer"},
+                    "self_contained": {"type": "integer"},
+                    "thesis_relevance": {"type": "integer"},
+                },
+                "required": ["question", "answer", "type", "relevance", "specificity",
+                              "self_contained", "thesis_relevance"],
+                "additionalProperties": False,
             },
-            "relevance": {"type": "integer", "minimum": 1, "maximum": 5},
-            "specificity": {"type": "integer", "minimum": 1, "maximum": 5},
-            "self_contained": {"type": "integer", "minimum": 1, "maximum": 5},
-            "thesis_relevance": {"type": "integer", "minimum": 1, "maximum": 5},
         },
-        "required": ["question", "answer", "type", "relevance", "specificity",
-                      "self_contained", "thesis_relevance"],
     },
+    "required": ["nuggets"],
+    "additionalProperties": False,
 }
 
 SELF_SCORE_ADDENDUM = """
@@ -233,8 +249,7 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
         if input_estimate + effective_max_tokens > max_model_len:
             effective_max_tokens = max(256, max_model_len - input_estimate)
 
-        # Use structured output on vLLM backends (extra_body signals vLLM)
-        is_vllm = extra_body is not None
+        # Use structured output to guarantee valid JSON
         kwargs = dict(
             model=model,
             messages=[
@@ -244,17 +259,15 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
             temperature=temperature,
             max_tokens=effective_max_tokens,
         )
-        if is_vllm:
-            kwargs["response_format"] = {
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "nugget_extraction_scored" if self_score else "nugget_extraction",
-                    "schema": schema,
-                    "strict": False,
-                },
-            }
-            kwargs["extra_body"] = extra_body
-        elif extra_body:
+        kwargs["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "nugget_extraction_scored" if self_score else "nugget_extraction",
+                "schema": schema,
+                "strict": True,
+            },
+        }
+        if extra_body:
             kwargs["extra_body"] = extra_body
         resp = client.chat.completions.create(**kwargs)
         raw = resp.choices[0].message.content
@@ -263,6 +276,9 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
         nuggets = repair_json(raw)
         if nuggets is None:
             return [], raw
+        # Unwrap object wrapper from structured output
+        if isinstance(nuggets, dict):
+            nuggets = nuggets.get("nuggets", [])
         # Validate structure
         valid = []
         for n in nuggets:

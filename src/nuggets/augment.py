@@ -79,6 +79,41 @@ def _is_reference_chunk(text):
     return ref_lines / len(lines) > 0.4
 
 
+IMPROVE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "question": {"type": "string"},
+        "answer": {"type": "string"},
+        "type": {"type": "string", "enum": ["method", "result", "claim", "limitation", "comparison", "background"]},
+        "improved": {"type": "boolean"},
+        "changes": {"type": "string"},
+    },
+    "required": ["question", "answer", "type", "improved", "changes"],
+    "additionalProperties": False,
+}
+
+GAPFILL_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "nuggets": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "question": {"type": "string"},
+                    "answer": {"type": "string"},
+                    "type": {"type": "string", "enum": ["method", "result", "claim", "limitation", "comparison", "background"]},
+                },
+                "required": ["question", "answer", "type"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["nuggets"],
+    "additionalProperties": False,
+}
+
+
 def improve_nugget(client, nugget, scores, chunk_text, model, cfg, extra_body=None):
     """Send a weak nugget + quality feedback + source to the LLM for improvement."""
     temperature = cfg.get("temperature", 0.1)
@@ -106,6 +141,14 @@ def improve_nugget(client, nugget, scores, chunk_text, model, cfg, extra_body=No
         ],
         temperature=temperature,
         max_tokens=max_tokens,
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "nugget_improvement",
+                "schema": IMPROVE_SCHEMA,
+                "strict": True,
+            },
+        },
     )
     if extra_body:
         kwargs["extra_body"] = extra_body
@@ -172,10 +215,18 @@ def gapfill_chunk(client, chunk_text, existing_nuggets, model, cfg, extra_body=N
         model=model,
         messages=[
             {"role": "system", "content": GAPFILL_SYSTEM_PROMPT},
-            {"role": "user", "content": user_msg},
+            {"role": "user", "content": user_msg + "\n\nRespond with a JSON object: {\"nuggets\": [...]}"},
         ],
         temperature=temperature,
         max_tokens=max_tokens,
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "nugget_gapfill",
+                "schema": GAPFILL_SCHEMA,
+                "strict": True,
+            },
+        },
     )
     if extra_body:
         kwargs["extra_body"] = extra_body
@@ -188,7 +239,7 @@ def gapfill_chunk(client, chunk_text, existing_nuggets, model, cfg, extra_body=N
             if parsed is None:
                 return []
             if isinstance(parsed, dict):
-                parsed = [parsed]
+                parsed = parsed.get("nuggets", [parsed])
             if not isinstance(parsed, list):
                 return []
             valid = []

@@ -35,12 +35,13 @@ chunk:
 nuggets:
     backend: openrouter
     openrouter:
-        model: deepseek/deepseek-v3.2
+        model: qwen/qwen3-235b-a22b-2507
+        fallback_models: [qwen/qwen3-30b-a3b-instruct-2507]
         base_url: https://openrouter.ai/api/v1
         api_key_env: OPENROUTER_API_KEY
     extraction:
         max_chunk_chars: 2000
-        max_workers: 16
+        max_workers: 4
         max_retries: 3
         max_tokens: 3000
         temperature: 0.1
