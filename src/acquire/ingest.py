@@ -21,7 +21,14 @@ def make_paper_id(pdf_path):
     return safe
 
 
-def run_ingest(config_path="config.yaml", zotero_path=None, enrich=True):
+def run_ingest(config_path="config.yaml", zotero_path=None, enrich=True, paper_filter=None):
+    """Ingest PDFs and enrich metadata.
+
+    Args:
+        paper_filter: Optional substring to match against paper IDs or filenames.
+            When set, only matching papers are added/enriched; existing manifest
+            entries for non-matching papers are preserved as-is.
+    """
     cfg = load_config(config_path)
     pdf_dir = cfg["paths"]["pdf_dir"]
     corpus_dir = cfg["paths"]["corpus_dir"]
@@ -53,10 +60,11 @@ def run_ingest(config_path="config.yaml", zotero_path=None, enrich=True):
     else:
         print("[2/4] No Zotero export, skipping...")
 
-    manifest = []
+    # Build full manifest from scanned PDFs
+    full_manifest = []
     for entry in pdf_entries:
         pid = make_paper_id(entry["pdf_path"])
-        manifest.append({
+        full_manifest.append({
             "paper_id": pid,
             "local_pdf": entry["pdf_path"],
             "title": entry.get("title_zotero") or entry.get("title", ""),
@@ -77,7 +85,7 @@ def run_ingest(config_path="config.yaml", zotero_path=None, enrich=True):
                       "doi", "abstract", "citation_count",
                       "influential_citation_count", "publication_types")
         merged = 0
-        for paper in manifest:
+        for paper in full_manifest:
             old = old_by_id.get(paper["paper_id"])
             if old:
                 for k in merge_keys:
@@ -91,11 +99,33 @@ def run_ingest(config_path="config.yaml", zotero_path=None, enrich=True):
                 merged += 1
         print(f"  Merged metadata from existing manifest for {merged} papers")
 
-    if enrich:
-        print(f"[3/4] Enriching {len(manifest)} papers via S2...")
-        manifest = batch_enrich(manifest, delay=1.0)
+    # Filter to specific paper(s) if requested
+    if paper_filter:
+        filt = paper_filter.lower()
+        matched_papers = [
+            p for p in full_manifest
+            if filt in p["paper_id"].lower() or filt in p.get("local_pdf", "").lower()
+        ]
+        if not matched_papers:
+            print(f"  No papers matching '{paper_filter}'")
+            return
+        print(f"  Filtered to {len(matched_papers)} paper(s) matching '{paper_filter}'")
+        # Only enrich the matched papers
+        if enrich:
+            print(f"[3/4] Enriching {len(matched_papers)} papers via S2...")
+            matched_papers = batch_enrich(matched_papers, delay=1.0)
+        else:
+            print("[3/4] S2 enrichment disabled")
+        # Replace matched entries in full manifest
+        matched_by_id = {p["paper_id"]: p for p in matched_papers}
+        manifest = [matched_by_id.get(p["paper_id"], p) for p in full_manifest]
     else:
-        print("[3/4] S2 enrichment disabled")
+        if enrich:
+            print(f"[3/4] Enriching {len(full_manifest)} papers via S2...")
+            full_manifest = batch_enrich(full_manifest, delay=1.0)
+        else:
+            print("[3/4] S2 enrichment disabled")
+        manifest = full_manifest
 
     manifest_path = os.path.join(corpus_dir, "manifest.json")
     save_json(manifest, manifest_path)
@@ -142,11 +172,13 @@ def main():
                     help="Skip Semantic Scholar enrichment")
     ap.add_argument("--re-enrich", action="store_true",
                     help="Re-enrich only papers with missing metadata in existing manifest")
+    ap.add_argument("--paper", type=str, default=None,
+                    help="Only process paper(s) matching this substring (matches ID or filename)")
     args = ap.parse_args()
     if args.re_enrich:
         run_re_enrich(args.config)
     else:
-        run_ingest(args.config, args.zotero, enrich=not args.no_enrich)
+        run_ingest(args.config, args.zotero, enrich=not args.no_enrich, paper_filter=args.paper)
 
 
 if __name__ == "__main__":
