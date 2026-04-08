@@ -19,7 +19,7 @@ import threading
 import itertools
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.utils import load_config, load_json, save_json, make_llm_clients
+from src.utils import load_config, load_json, save_json, save_jsonl, load_jsonl, make_llm_clients
 
 # Reuse existing stage implementations
 from src.nuggets.extract import _process_chunk, _deduplicate_nuggets
@@ -46,9 +46,12 @@ def _get_paper_title(nuggets, paper_id):
 def _process_paper_unified(
     client, paper_id, chunks, model, ext_cfg, qcfg, acfg, ucfg,
     extra_body=None, worker_id=0, print_lock=None, counters=None,
-    max_model_len=8192,
+    max_model_len=8192, paper_meta=None, self_score=False,
 ):
     """Full extract→quality→augment pipeline for one paper, all in memory.
+
+    When self_score=True, extraction includes self-assessed quality scores
+    and the separate quality rating stage (Step 3) is skipped.
 
     Returns output dict ready for save_json.
     """
@@ -68,32 +71,40 @@ def _process_paper_unified(
                 sys.stderr.write(f"\r\033[K  [{counters['done']}/{counters['total']}] {msg}\n")
                 sys.stderr.flush()
 
-    # ── Step 1: Extract nuggets from chunks ──────────────────────────────
+    # ── Step 1: Extract nuggets from chunks (parallel) ────────────────────
     temp = ext_cfg.get("temperature", 0.1)
     max_tok = ext_cfg.get("max_tokens", 3000)
     max_retries = ext_cfg.get("max_retries", 3)
     retry_delay = ext_cfg.get("retry_base_delay", 2.0)
 
-    all_raw_nuggets = []
-    prior_questions = []
     chunk_by_id = {}
-
-    for ci, c in enumerate(chunks):
+    for c in chunks:
         chunk_by_id[c["chunk_id"]] = c
+
+    # Fire all chunk extractions concurrently — no sequential prior_questions
+    # dependency. Post-hoc dedup handles duplicates instead.
+    def _extract_one(ci_c):
+        ci, c = ci_c
         try:
-            nuggets = _process_chunk(
+            return _process_chunk(
                 client, c, model, temp, max_tok,
                 max_retries, retry_delay, paper_id, extra_body,
-                prior_questions=prior_questions if prior_questions else None,
+                prior_questions=None,
                 max_model_len=max_model_len,
+                paper_meta=paper_meta,
+                self_score=self_score,
             )
         except Exception as e:
             _log(f"  WARN {short_id} chunk {ci}: {e}")
-            nuggets = []
-        all_raw_nuggets.extend(nuggets)
-        prior_questions.extend(n["question"] for n in nuggets)
+            return []
 
-    # ── Step 2: Deduplicate ──────────────────────────────────────────────
+    all_raw_nuggets = []
+    with ThreadPoolExecutor(max_workers=min(len(chunks), 8)) as chunk_executor:
+        futures = chunk_executor.map(_extract_one, enumerate(chunks))
+        for chunk_nuggets in futures:
+            all_raw_nuggets.extend(chunk_nuggets)
+
+    # ── Step 2: Deduplicate (post-hoc, replaces sequential prior_questions) ──
     deduped = _deduplicate_nuggets(all_raw_nuggets, paper_id)
     for n in deduped:
         n["origin"] = "extracted"
@@ -110,43 +121,55 @@ def _process_paper_unified(
         }
 
     # ── Step 3: Quality rating ───────────────────────────────────────────
-    paper_title = _get_paper_title(deduped, paper_id)
-    batch_size = qcfg.get("batch_size", 5)
-    quality_by_id = {}
-
-    for i in range(0, len(deduped), batch_size):
-        batch = deduped[i:i + batch_size]
-        results, err = rate_nugget_batch(
-            client, batch, model, paper_title, paper_id, qcfg,
-            max_model_len=max_model_len, extra_body=extra_body,
-        )
-        if results:
-            for r in results:
-                quality_by_id[r["nugget_id"]] = r
-        else:
-            _log(f"  WARN {short_id} quality batch {i // batch_size}: {err}")
-            for n in batch:
-                quality_by_id[n["nugget_id"]] = {
-                    "nugget_id": n["nugget_id"],
-                    "relevance": 0, "specificity": 0, "self_contained": 0,
-                    "type_accuracy": 0, "coherence": 0, "thesis_relevance": 0,
-                    "overall": 0, "flags": ["batch_failed"],
+    if self_score:
+        # Self-scored nuggets already have inlined quality — skip LLM rating
+        _log(f"{short_id}: using self-assessed quality scores (skipping separate rating)")
+        # Ensure all nuggets have quality dict (fallback for any that didn't parse scores)
+        for n in deduped:
+            if "quality" not in n:
+                n["quality"] = {
+                    "relevance": 3, "specificity": 3, "self_contained": 3,
+                    "type_accuracy": 3, "coherence": 3, "thesis_relevance": 3,
+                    "overall": 3, "flags": ["self_score_missing"],
                 }
+    else:
+        paper_title = _get_paper_title(deduped, paper_id)
+        batch_size = qcfg.get("batch_size", 5)
+        quality_by_id = {}
 
-    # Inline quality scores onto nuggets
-    for n in deduped:
-        nid = n["nugget_id"]
-        q = quality_by_id.get(nid, {})
-        n["quality"] = {
-            "relevance": q.get("relevance", 0),
-            "specificity": q.get("specificity", 0),
-            "self_contained": q.get("self_contained", 0),
-            "type_accuracy": q.get("type_accuracy", 0),
-            "coherence": q.get("coherence", 0),
-            "thesis_relevance": q.get("thesis_relevance", 0),
-            "overall": q.get("overall", 0),
-            "flags": q.get("flags", []),
-        }
+        for i in range(0, len(deduped), batch_size):
+            batch = deduped[i:i + batch_size]
+            results, err = rate_nugget_batch(
+                client, batch, model, paper_title, paper_id, qcfg,
+                max_model_len=max_model_len, extra_body=extra_body,
+            )
+            if results:
+                for r in results:
+                    quality_by_id[r["nugget_id"]] = r
+            else:
+                _log(f"  WARN {short_id} quality batch {i // batch_size}: {err}")
+                for n in batch:
+                    quality_by_id[n["nugget_id"]] = {
+                        "nugget_id": n["nugget_id"],
+                        "relevance": 0, "specificity": 0, "self_contained": 0,
+                        "type_accuracy": 0, "coherence": 0, "thesis_relevance": 0,
+                        "overall": 0, "flags": ["batch_failed"],
+                    }
+
+        # Inline quality scores onto nuggets
+        for n in deduped:
+            nid = n["nugget_id"]
+            q = quality_by_id.get(nid, {})
+            n["quality"] = {
+                "relevance": q.get("relevance", 0),
+                "specificity": q.get("specificity", 0),
+                "self_contained": q.get("self_contained", 0),
+                "type_accuracy": q.get("type_accuracy", 0),
+                "coherence": q.get("coherence", 0),
+                "thesis_relevance": q.get("thesis_relevance", 0),
+                "overall": q.get("overall", 0),
+                "flags": q.get("flags", []),
+            }
 
     # ── Step 3b: Bail out if scoring failed entirely ──────────────────────
     all_scores = [n["quality"]["overall"] for n in deduped]
@@ -503,21 +526,15 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
     num_instances = len(clients)
     backend = ncfg.get("backend", "vllm")
     extra_body = {"chat_template_kwargs": {"enable_thinking": False}} if backend == "vllm" else None
-    print(f"[unified] vLLM instances: {num_instances}")
+    self_score = ucfg.get("self_score", False)
+    print(f"[unified] vLLM instances: {num_instances}, self_score: {self_score}")
 
     # Resume: skip papers with existing unified output
     def _done(paper_id):
         if regenerate or review:
             return False  # force re-processing
-        path = os.path.join(unified_dir, f"{paper_id}.json")
-        if not os.path.exists(path):
-            return False
-        try:
-            with open(path) as f:
-                data = json.load(f)
-            return data.get("num_nuggets", 0) > 0 or len(data.get("removed", [])) > 0
-        except (json.JSONDecodeError, OSError):
-            return False
+        path = os.path.join(unified_dir, f"{paper_id}.jsonl")
+        return os.path.exists(path)
 
     # Enumerate papers from chunk_dir (always needed)
     chunk_files = sorted(f for f in os.listdir(chunk_dir) if f.endswith(".json"))
@@ -534,7 +551,7 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
         elif reprocess or review:
             # In reprocess/review mode, need existing nuggets
             src_dir = unified_dir if review else nugget_dir
-            nug_path = os.path.join(src_dir, f"{paper_id}.json")
+            nug_path = os.path.join(src_dir, f"{paper_id}.jsonl")
             if os.path.exists(nug_path):
                 to_process.append(paper_id)
             else:
@@ -569,11 +586,10 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
             src = "chunks"
             if reprocess or review:
                 src_dir = unified_dir if review else nugget_dir
-                nug_path = os.path.join(src_dir, f"{pid}.json")
+                nug_path = os.path.join(src_dir, f"{pid}.jsonl")
                 try:
-                    ndata = load_json(nug_path)
-                    n_nugs = len(ndata.get("nuggets", []))
-                    src = f"{n_nugs} existing nuggets"
+                    nugs = [n for n in load_jsonl(nug_path) if not n.get("_removed")]
+                    src = f"{len(nugs)} existing nuggets"
                 except Exception:
                     src = "nuggets (missing)"
             print(f"  {pid}: {n_chunks} chunks, source={src}")
@@ -584,6 +600,25 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
         print("[unified] Nothing to process.")
         return
 
+    # Load manifest for paper metadata (title, authors, year, venue)
+    corpus_dir = cfg["paths"].get("corpus_dir", "corpus")
+    manifest_path = os.path.join(corpus_dir, "manifest.json")
+    manifest_by_id = {}
+    if os.path.exists(manifest_path):
+        manifest = load_json(manifest_path)
+        for entry in manifest:
+            pid = entry.get("paper_id", "")
+            if pid:
+                manifest_by_id[pid] = {
+                    "title": entry.get("title", ""),
+                    "authors": entry.get("authors", []),
+                    "year": entry.get("year"),
+                    "venue": entry.get("venue", ""),
+                }
+        print(f"[unified] Loaded manifest: {len(manifest_by_id)} papers with metadata")
+    else:
+        print(f"[unified] No manifest found at {manifest_path}, proceeding without paper metadata")
+
     # Load chunk data (needed for both modes)
     paper_chunks = {}
     paper_nuggets = {}  # only for reprocess mode
@@ -593,17 +628,12 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
             chunk_data = load_json(os.path.join(chunk_dir, f"{paper_id}.json"))
             chunks = [c for c in chunk_data.get("chunks", []) if len(c.get("text", "").strip()) >= 50]
             if not chunks and not reprocess:
-                save_json(
-                    {"paper_id": paper_id, "num_nuggets": 0, "num_removed": 0,
-                     "num_improved": 0, "num_gap_filled": 0,
-                     "quality_summary": {}, "nuggets": [], "removed": []},
-                    os.path.join(unified_dir, f"{paper_id}.json"),
-                )
+                save_jsonl([], os.path.join(unified_dir, f"{paper_id}.jsonl"))
                 continue
             if reprocess or review:
                 src_dir = unified_dir if review else nugget_dir
-                nug_data = load_json(os.path.join(src_dir, f"{paper_id}.json"))
-                nugs = nug_data.get("nuggets", [])
+                nugs = [n for n in load_jsonl(os.path.join(src_dir, f"{paper_id}.jsonl"))
+                        if not n.get("_removed")]
                 if nugs:
                     paper_nuggets[paper_id] = nugs
                 else:
@@ -620,7 +650,8 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
     t_start = time.time()
 
     def _on_result(paper_id, result):
-        save_json(result, os.path.join(unified_dir, f"{paper_id}.json"))
+        save_jsonl(result["nuggets"], os.path.join(unified_dir, f"{paper_id}.jsonl"),
+                   removed=result.get("removed"))
         with print_lock:
             counters["done"] += 1
             counters["nuggets"] += result["num_nuggets"]
@@ -642,6 +673,7 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
     def _worker(paper_id):
         with _rr_lock:
             client = clients[next(_rr_counter) % num_instances]
+        meta = manifest_by_id.get(paper_id)
         if reprocess or review:
             result = _process_paper_reprocess(
                 client, paper_id, paper_nuggets[paper_id],
@@ -654,7 +686,8 @@ def run_unified(config_path="config.yaml", reprocess=False, regenerate=False,
                 client, paper_id, paper_chunks[paper_id], model,
                 ext_cfg, qcfg, acfg, ucfg,
                 extra_body=extra_body, print_lock=print_lock, counters=counters,
-                max_model_len=max_model_len,
+                max_model_len=max_model_len, paper_meta=meta,
+                self_score=self_score,
             )
         _on_result(paper_id, result)
         return result
@@ -688,11 +721,11 @@ def _select_oldest(unified_dir, chunk_dir, n):
     """Return the N paper IDs with the oldest unified output (by file mtime)."""
     entries = []
     for fname in os.listdir(unified_dir):
-        if not fname.endswith(".json"):
+        if not fname.endswith(".jsonl"):
             continue
-        paper_id = fname.replace(".json", "")
+        paper_id = fname.replace(".jsonl", "")
         # Only consider papers that have chunks (still in corpus)
-        if not os.path.exists(os.path.join(chunk_dir, fname)):
+        if not os.path.exists(os.path.join(chunk_dir, f"{paper_id}.json")):
             continue
         path = os.path.join(unified_dir, fname)
         try:

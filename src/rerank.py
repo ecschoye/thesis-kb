@@ -1,32 +1,36 @@
-"""Cross-encoder reranker for improving retrieval precision."""
+"""Cross-encoder reranker using BGE-reranker-v2-m3 via transformers."""
 import time
-import signal
-from flashrank import Ranker, RerankRequest
+import torch
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from src.log import get_logger
 
 log = get_logger("rerank", "api.log")
 
-# Singleton ranker instance (model loads once)
-_ranker: Ranker | None = None
-_ranker_failed: bool = False  # True if model loading failed — skip future attempts
+# Singleton model/tokenizer (loads once)
+_model = None
+_tokenizer = None
+_load_failed: bool = False
 
 
-def get_ranker(model_name: str = "ms-marco-MiniLM-L-12-v2") -> Ranker | None:
-    """Get or create the singleton Ranker instance. Returns None on load failure."""
-    global _ranker, _ranker_failed
-    if _ranker_failed:
-        return None
-    if _ranker is None:
+def get_reranker(model_name: str = "BAAI/bge-reranker-v2-m3"):
+    """Get or create the singleton reranker model. Returns (model, tokenizer) or (None, None)."""
+    global _model, _tokenizer, _load_failed
+    if _load_failed:
+        return None, None
+    if _model is None:
         log.info("Loading reranker model: %s", model_name)
         try:
             t0 = time.time()
-            _ranker = Ranker(model_name=model_name)
+            _tokenizer = AutoTokenizer.from_pretrained(model_name)
+            _model = AutoModelForSequenceClassification.from_pretrained(model_name)
+            _model.eval()
             log.info("Reranker loaded in %.1fs", time.time() - t0)
         except Exception as e:
             log.error("Failed to load reranker model %s: %s", model_name, e)
-            _ranker_failed = True
-            return None
-    return _ranker
+            _load_failed = True
+            return None, None
+    return _model, _tokenizer
 
 
 def rerank_nuggets(
@@ -36,7 +40,7 @@ def rerank_nuggets(
     rrf_scores: dict[str, float],
     top_n: int = 60,
     blend_weight: float = 0.6,
-    model_name: str = "ms-marco-MiniLM-L-12-v2",
+    model_name: str = "BAAI/bge-reranker-v2-m3",
     timeout: int = 10,
 ) -> dict[str, float]:
     """Rerank nuggets using a cross-encoder and blend with RRF scores.
@@ -54,8 +58,8 @@ def rerank_nuggets(
     Returns:
         Updated rrf_scores dict with blended scores.
     """
-    ranker = get_ranker(model_name)
-    if ranker is None:
+    model, tokenizer = get_reranker(model_name)
+    if model is None:
         log.warning("Reranker unavailable, returning RRF-only scores")
         return rrf_scores
 
@@ -64,28 +68,29 @@ def rerank_nuggets(
     if not candidates:
         return rrf_scores
 
-    # Build passages for flashrank
-    passages = []
+    # Build query-passage pairs
+    pairs = []
     for nid in candidates:
         text = nugget_data[nid].get("document", "")
-        passages.append({"id": nid, "text": text})
+        pairs.append([query, text])
 
     t0 = time.time()
     try:
-        request = RerankRequest(query=query, passages=passages)
+        # Use thread pool with timeout (signal.alarm doesn't work outside main thread)
+        def _score():
+            with torch.no_grad():
+                inputs = tokenizer(pairs, padding=True, truncation=True,
+                                   return_tensors="pt", max_length=512)
+                return model(**inputs, return_dict=True).logits.view(-1).float()
 
-        # Use signal-based timeout on Unix
-        def _timeout_handler(signum, frame):
-            raise TimeoutError(f"Reranking exceeded {timeout}s timeout")
-
-        old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
-        signal.alarm(timeout)
-        try:
-            results = ranker.rerank(request)
-        finally:
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, old_handler)
-    except (TimeoutError, Exception) as e:
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(_score)
+            try:
+                scores = future.result(timeout=timeout)
+            except FuturesTimeoutError:
+                future.cancel()
+                raise
+    except (FuturesTimeoutError, Exception) as e:
         elapsed = time.time() - t0
         log.warning("Reranking failed after %.0fms, falling back to RRF-only: %s",
                      elapsed * 1000, e)
@@ -94,10 +99,10 @@ def rerank_nuggets(
     elapsed = time.time() - t0
     log.debug("Reranked %d candidates in %.0fms", len(candidates), elapsed * 1000)
 
-    # Build cross-encoder score map (normalised to 0-1 range)
+    # Build cross-encoder score map
     ce_scores = {}
-    for r in results:
-        ce_scores[r["id"]] = r["score"]
+    for i, nid in enumerate(candidates):
+        ce_scores[nid] = scores[i].item()
 
     # Normalise cross-encoder scores to match RRF score scale
     if ce_scores:

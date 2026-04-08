@@ -163,3 +163,42 @@ Persistent process exposing KB search via ChromaDB vector search + SQLite FTS5. 
 
 ### Hooks
 `cite_prefetch.py` runs on every prompt submission — extracts `\cite{Key}` references, queries SQLite for matching papers, returns nuggets as context. Must use `hookSpecificOutput` wrapper format.
+
+## Writing Style
+
+- Never use em dashes. Prefer commas first, then separate sentences. Parentheses or colons are acceptable but use sparingly.
+
+## Sibling Projects
+
+This KB serves two sibling repositories. All three share state through the Obsidian vault at ~/vault/.
+
+- **Implementation**: ~/SMCM-MCFNet (the model codebase)
+- **Thesis**: ~/TDT4900-master-thesis (the LaTeX document)
+
+## Project Brain
+
+The shared knowledge base is the Obsidian vault at ~/vault/, structured as a neural graph.
+- Read ~/vault/brainstem/index.md to orient at session start
+- Read the relevant status file in ~/vault/prefrontal/status/
+- Read the last 3 entries from the relevant devlog in ~/vault/hippocampus/devlog/
+
+When you learn something about a concept: update ~/vault/cortex/concepts/
+When a significant decision is made: create a file in ~/vault/cortex/decisions/
+Always use [[wikilinks]] between files.
+
+## Session Protocol
+
+**MANDATORY: Before responding to the user's first message, execute `/orient`.** This reads current state from the vault and briefs the user. Do not skip this. Do not jump straight to the user's request. The vault is the shared brain across three interconnected repos, and it must stay current.
+
+If the user's first message is a greeting or open-ended ("hey", "what's up", "let's work"), run `/orient` and brief them. If their first message is a specific task, still run `/orient` silently, mention the briefing briefly, then address their request.
+
+### Cross-project updates
+
+When KB work produces insights relevant to the other projects, update the shared devlog:
+- **New papers or findings relevant to implementation**: prepend to ~/vault/hippocampus/devlog/shared.md
+- **New papers or findings relevant to thesis writing**: prepend to ~/vault/hippocampus/devlog/shared.md
+- **Concept updates** (e.g., ingested a paper that changes understanding of a technique): update ~/vault/cortex/concepts/
+
+### On session end via /wrap-up:
+- If session produced cross-project insights, prepend to ~/vault/hippocampus/devlog/shared.md
+- Update concept/decision files in ~/vault/cortex/ as needed

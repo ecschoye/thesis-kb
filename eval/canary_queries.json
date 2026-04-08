@@ -1,0 +1,197 @@
+{
+  "_meta": {
+    "description": "Canary queries for retrieval regression testing. 5 queries per mode, each with expected paper_ids that must appear in top-k results.",
+    "k": 20,
+    "created": "2026-04-08",
+    "instructions": "Curate by running queries in the web UI, noting which papers appear, and adding their paper_ids here. Use `python -m src.query --search 'your query'` to find paper_ids."
+  },
+  "background": [
+    {
+      "query": "What are the main event camera representations used in computer vision?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate — should surface survey papers on event representations (voxel grids, time surfaces, spike tensors)"
+    },
+    {
+      "query": "How do spiking neural networks process temporal information?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate — should surface SNN survey/foundational papers"
+    },
+    {
+      "query": "What is the DSEC dataset and what sensors does it provide?",
+      "expected_paper_ids": ["Gehrig_et_al._-_2021_-_DSEC_-_A_Stereo_Event_Camera_Dataset_for_Driving__0709932a"],
+      "notes": "Must surface the DSEC paper"
+    },
+    {
+      "query": "What are the advantages of event cameras over frame-based cameras?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate — should surface event camera overview/survey papers"
+    },
+    {
+      "query": "How does the LIF neuron model work in spiking neural networks?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate — should surface foundational SNN papers covering LIF dynamics"
+    }
+  ],
+  "draft": [
+    {
+      "query": "Spike-FlowNet optical flow estimation with spiking neural networks",
+      "expected_paper_ids": ["Lee_et_al._-_2020_-_Spike-FlowNet_Event-Based_Optical_Flow_Estimation_wi_20125e8e"],
+      "notes": "Must surface the Spike-FlowNet paper"
+    },
+    {
+      "query": "RGB and event camera fusion for object detection",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate — should surface RGB-Event fusion detection papers"
+    },
+    {
+      "query": "surrogate gradient methods for training spiking neural networks",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "motion compensation for event cameras using optical flow",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "energy efficiency of neuromorphic hardware for object detection",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    }
+  ],
+  "check": [
+    {
+      "query": "What mAP does Spike-FlowNet achieve on MVSEC for optical flow?",
+      "expected_paper_ids": ["Lee_et_al._-_2020_-_Spike-FlowNet_Event-Based_Optical_Flow_Estimation_wi_20125e8e"],
+      "notes": "Factual check — must surface Spike-FlowNet results"
+    },
+    {
+      "query": "How many sequences are in the DSEC dataset?",
+      "expected_paper_ids": ["Gehrig_et_al._-_2021_-_DSEC_-_A_Stereo_Event_Camera_Dataset_for_Driving__0709932a"],
+      "notes": "Factual check — DSEC has 53 sequences"
+    },
+    {
+      "query": "What is the inference latency of event-based object detectors on edge hardware?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate — should surface papers with Jetson/FPGA deployment results"
+    },
+    {
+      "query": "What training recipe does ANN-to-SNN conversion typically use?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "What temporal resolution do event cameras achieve compared to standard cameras?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    }
+  ],
+  "review": [
+    {
+      "query": "Evaluate the experimental methodology of event-based optical flow papers",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate — should surface papers with detailed ablation studies on optical flow"
+    },
+    {
+      "query": "What are the evaluation metrics used for event-based object detection?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "How reproducible are SNN training results across different random seeds?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "What baseline comparisons are standard for RGB-Event fusion papers?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "How do papers handle the temporal alignment between RGB frames and events?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    }
+  ],
+  "compare": [
+    {
+      "query": "Compare event camera representations: voxel grids vs time surfaces vs spike tensors",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate — should surface multiple papers covering different representations"
+    },
+    {
+      "query": "Compare SNN training methods: STBP vs ANN-to-SNN conversion vs direct training",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "Compare event-based optical flow methods on MVSEC benchmark",
+      "expected_paper_ids": ["Lee_et_al._-_2020_-_Spike-FlowNet_Event-Based_Optical_Flow_Estimation_wi_20125e8e"],
+      "notes": "Should surface multiple flow papers including Spike-FlowNet"
+    },
+    {
+      "query": "Compare RGB-only vs event-only vs fusion approaches for object detection",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "Compare neuromorphic hardware platforms: Loihi vs SpiNNaker vs TrueNorth",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    }
+  ],
+  "gaps": [
+    {
+      "query": "What are the limitations of current event camera representations?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate — should surface papers discussing representation limitations"
+    },
+    {
+      "query": "What open problems remain in SNN training for dense prediction tasks?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "What are the failure modes of RGB-Event fusion in extreme conditions?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "What datasets are missing for evaluating event-based perception?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "What are the scalability challenges for deploying SNNs on neuromorphic hardware?",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    }
+  ],
+  "outline": [
+    {
+      "query": "Survey the landscape of RGB-Event camera fusion for autonomous driving",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate — should surface breadth of fusion papers"
+    },
+    {
+      "query": "Overview of spiking neural network architectures for vision tasks",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    },
+    {
+      "query": "Map the field of event-based optical flow estimation",
+      "expected_paper_ids": ["Lee_et_al._-_2020_-_Spike-FlowNet_Event-Based_Optical_Flow_Estimation_wi_20125e8e"],
+      "notes": "Should surface breadth of optical flow papers including Spike-FlowNet"
+    },
+    {
+      "query": "Outline the evolution of event camera datasets from 2015 to 2025",
+      "expected_paper_ids": ["Gehrig_et_al._-_2021_-_DSEC_-_A_Stereo_Event_Camera_Dataset_for_Driving__0709932a"],
+      "notes": "Should surface DSEC and other dataset papers"
+    },
+    {
+      "query": "Structure the argument for SNN-based motion compensation over CNN-based approaches",
+      "expected_paper_ids": [],
+      "notes": "TODO: curate"
+    }
+  ]
+}

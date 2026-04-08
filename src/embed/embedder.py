@@ -8,16 +8,18 @@ import numpy as np
 import tiktoken
 from openai import OpenAI
 
-from src.utils import load_config, load_json, save_json
+from src.utils import load_config, load_json, load_jsonl, save_json, save_jsonl
 
 
 def load_all_nuggets(nugget_dir, augmented_dir=None, unified_dir=None):
-    """Load all nuggets, preferring unified output, then augmented merge.
+    """Load all nuggets, preferring unified JSONL output, then legacy nugget_dir.
 
     Priority per paper:
-    1. unified_dir (already quality-filtered + augmented)
-    2. nugget_dir + augmented_dir merge (legacy pipeline)
-    3. nugget_dir only (raw extraction)
+    1. unified_dir (.jsonl, already quality-filtered + augmented)
+    2. nugget_dir (.jsonl, raw extraction)
+
+    Legacy augmented_dir (.json envelope) is still supported for backwards
+    compatibility but is expected to be unused in the active pipeline.
     """
     all_nuggets = []
 
@@ -25,24 +27,27 @@ def load_all_nuggets(nugget_dir, augmented_dir=None, unified_dir=None):
     unified_papers = set()
     if unified_dir and os.path.isdir(unified_dir):
         for fname in sorted(os.listdir(unified_dir)):
-            if not fname.endswith(".json"):
+            if not fname.endswith(".jsonl"):
                 continue
-            data = load_json(os.path.join(unified_dir, fname))
-            all_nuggets.extend(data.get("nuggets", []))
-            unified_papers.add(fname)
+            paper_id = fname.replace(".jsonl", "")
+            nuggets = [n for n in load_jsonl(os.path.join(unified_dir, fname))
+                       if not n.get("_removed")]
+            all_nuggets.extend(nuggets)
+            unified_papers.add(paper_id)
 
     # Load remaining papers from nugget_dir (skip unified ones)
     for fname in sorted(os.listdir(nugget_dir)) if os.path.isdir(nugget_dir) else []:
-        if not fname.endswith(".json"):
+        if not fname.endswith(".jsonl"):
             continue
-        if fname in unified_papers:
+        paper_id = fname.replace(".jsonl", "")
+        if paper_id in unified_papers:
             continue
-        data = load_json(os.path.join(nugget_dir, fname))
-        nuggets = data.get("nuggets", [])
+        nuggets = [n for n in load_jsonl(os.path.join(nugget_dir, fname))
+                   if not n.get("_removed")]
 
-        # Merge augmented data if available
+        # Merge augmented data if available (legacy .json envelope format)
         if augmented_dir:
-            aug_path = os.path.join(augmented_dir, fname)
+            aug_path = os.path.join(augmented_dir, f"{paper_id}.json")
             if os.path.exists(aug_path):
                 aug_data = load_json(aug_path)
 
@@ -70,7 +75,6 @@ def load_all_nuggets(nugget_dir, augmented_dir=None, unified_dir=None):
                         nuggets[i] = rep
 
                 # Append gap-filled nuggets
-                paper_id = data.get("paper_id", fname.replace(".json", ""))
                 for gf in aug_data.get("gap_filled", []):
                     gf["paper_id"] = paper_id
                     # Copy paper metadata from first nugget if available
@@ -196,8 +200,34 @@ def make_embed_clients(cfg):
     return HealthAwareClients(clients, ports), model
 
 
-def run_embedding(config_path="config.yaml"):
-    """Embed all nuggets and save to KB directory."""
+def _load_existing_kb(kb_dir):
+    """Load existing embedded nuggets and embeddings for incremental mode.
+
+    Returns (existing_nuggets, existing_embeddings) or (None, None) if not found.
+    """
+    nug_path = os.path.join(kb_dir, "nuggets_with_embeddings.jsonl")
+    npy_path = os.path.join(kb_dir, "embeddings.npy")
+    if not os.path.exists(nug_path) or not os.path.exists(npy_path):
+        return None, None
+    existing_nuggets = load_jsonl(nug_path)
+    existing_embeddings = np.load(npy_path)
+    if len(existing_nuggets) != existing_embeddings.shape[0]:
+        print(
+            f"[embed] WARNING: nugget count ({len(existing_nuggets)}) != "
+            f"embedding rows ({existing_embeddings.shape[0]}), falling back to full rebuild"
+        )
+        return None, None
+    return existing_nuggets, existing_embeddings
+
+
+def run_embedding(config_path="config.yaml", incremental=False):
+    """Embed all nuggets and save to KB directory.
+
+    Args:
+        config_path: Path to YAML config.
+        incremental: If True, only embed nuggets not already in the KB.
+            Existing embeddings are preserved and new ones are appended.
+    """
     cfg = load_config(config_path)
     nugget_dir = cfg["paths"]["nugget_dir"]
     augmented_dir = cfg["paths"].get("augmented_dir")
@@ -239,11 +269,57 @@ def run_embedding(config_path="config.yaml"):
         print("No nuggets found.")
         return
 
+    # Incremental mode: reuse existing embeddings, only embed new nuggets
+    if incremental:
+        existing_nuggets, existing_embeddings = _load_existing_kb(kb_dir)
+        if existing_nuggets is not None:
+            # Build map from nugget_id -> (embedding row, content key) for existing nuggets
+            existing_emb_map = {}
+            for n in existing_nuggets:
+                idx = n.get("embedding_idx")
+                if idx is None or idx >= existing_embeddings.shape[0]:
+                    continue
+                content_key = f"{n.get('question', '')}:{n.get('answer', '')}"
+                existing_emb_map[n["nugget_id"]] = (existing_embeddings[idx], content_key)
+
+            # Split into already-embedded (with same content) and new/changed
+            reused_nuggets = []
+            reused_embeddings = []
+            new_nuggets = []
+            for n in nuggets:
+                nid = n.get("nugget_id", "")
+                if nid in existing_emb_map:
+                    emb, old_content = existing_emb_map[nid]
+                    new_content = f"{n.get('question', '')}:{n.get('answer', '')}"
+                    if new_content == old_content:
+                        reused_nuggets.append(n)
+                        reused_embeddings.append(emb)
+                    else:
+                        new_nuggets.append(n)  # content changed, re-embed
+                else:
+                    new_nuggets.append(n)
+
+            if not new_nuggets:
+                print("[embed] No new nuggets to embed, KB is up to date.")
+                return
+
+            print(
+                f"[embed] Incremental: {len(reused_nuggets)} existing, "
+                f"{len(new_nuggets)} new to embed"
+            )
+            nuggets_to_embed = new_nuggets
+        else:
+            print("[embed] No existing KB found, doing full embedding")
+            incremental = False
+
+    if not incremental:
+        nuggets_to_embed = nuggets
+
     # Format texts (truncate to max_model_len if configured)
     # Use mode="document" to include type/section metadata in embeddings
     texts = [
         format_nugget_text(n, instruction, max_tokens=max_tokens, mode="document")
-        for n in nuggets
+        for n in nuggets_to_embed
     ]
 
     # Embed in batches with pipelined submission
@@ -303,9 +379,17 @@ def run_embedding(config_path="config.yaml"):
             f"No partial output saved to avoid misaligned embeddings."
         )
 
-    all_embeddings = []
+    new_embeddings = []
     for embs in results_by_idx:
-        all_embeddings.extend(embs)
+        new_embeddings.extend(embs)
+
+    # Combine existing + new embeddings in incremental mode
+    if incremental and existing_nuggets is not None:
+        all_nuggets = reused_nuggets + new_nuggets
+        all_embeddings = reused_embeddings + new_embeddings
+    else:
+        all_nuggets = nuggets
+        all_embeddings = new_embeddings
 
     # Save embeddings as numpy matrix
     emb_matrix = np.array(all_embeddings, dtype=np.float32)
@@ -314,18 +398,23 @@ def run_embedding(config_path="config.yaml"):
     print(f"  Saved {npy_path}: shape={emb_matrix.shape}")
 
     # Save nuggets with embedding index
-    for i, nugget in enumerate(nuggets):
+    for i, nugget in enumerate(all_nuggets):
         nugget["embedding_idx"] = i
-    nug_path = os.path.join(kb_dir, "nuggets_with_embeddings.json")
-    save_json(nuggets, nug_path)
-    print(f"  Saved {nug_path}: {len(nuggets)} nuggets")
+    nug_path = os.path.join(kb_dir, "nuggets_with_embeddings.jsonl")
+    save_jsonl(all_nuggets, nug_path)
+    print(f"  Saved {nug_path}: {len(all_nuggets)} nuggets")
 
 
 def main():
     ap = argparse.ArgumentParser(description="Embed nuggets")
     ap.add_argument("-c", "--config", default="config.yaml")
+    ap.add_argument(
+        "--incremental",
+        action="store_true",
+        help="Only embed new nuggets not already in the KB",
+    )
     args = ap.parse_args()
-    run_embedding(args.config)
+    run_embedding(args.config, incremental=args.incremental)
 
 
 if __name__ == "__main__":

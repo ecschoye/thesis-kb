@@ -30,6 +30,41 @@ def save_json(data, path):
         json.dump(data, f, indent=2, ensure_ascii=False)
     os.replace(tmp, path)
 
+def save_jsonl(items, path, removed=None):
+    """Write items as JSONL (one JSON object per line), atomically."""
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        for item in items:
+            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+        if removed:
+            for item in removed:
+                removed_item = {**item, "_removed": True}
+                f.write(json.dumps(removed_item, ensure_ascii=False) + "\n")
+    os.replace(tmp, path)
+
+
+def load_jsonl(path):
+    """Read a JSONL file, returning a list of parsed objects. Skips blank lines."""
+    items = []
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                items.append(json.loads(line))
+    return items
+
+
+def count_jsonl(path):
+    """Count non-empty lines in a JSONL file without parsing."""
+    count = 0
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                count += 1
+    return count
+
+
 def paper_id_from_path(path):
     return Path(path).stem
 

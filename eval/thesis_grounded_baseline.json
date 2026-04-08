@@ -1,0 +1,3083 @@
+{
+  "config": {
+    "k": 20,
+    "chapters": [
+      "4-background.tex",
+      "5-sota.tex",
+      "6-architecture.tex",
+      "7-experiments.tex",
+      "8-evaluation.tex"
+    ]
+  },
+  "metrics": {
+    "n_tested": 176,
+    "mean_recall": 0.4356,
+    "perfect_recall_pct": 0.3807,
+    "zero_recall_pct": 0.4943
+  },
+  "chapter_metrics": {
+    "4-background": {
+      "tested": 111,
+      "total_recall": 39.75,
+      "perfect": 33,
+      "zero": 63,
+      "avg_recall": 0.3581
+    },
+    "5-sota": {
+      "tested": 65,
+      "total_recall": 36.916666666666664,
+      "perfect": 34,
+      "zero": 24,
+      "avg_recall": 0.5679
+    }
+  },
+  "elapsed_s": 106.4,
+  "timestamp": "2026-04-08T09:18:04",
+  "per_claim": [
+    {
+      "query": "To read out the array of pixels, frame-based cameras use either a global shutter or rolling shutter",
+      "cite_keys": [
+        "Cazzato_2024:application-driven-survey-event-based"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "A global shutter exposes all pixels simultaneously, resulting in a temporally consistent image, whil",
+      "cite_keys": [
+        "Cazzato_2024:application-driven-survey-event-based"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Typical frame rates range from 20 to 240 , with automotive systems commonly operating at 30 to 45",
+      "cite_keys": [
+        "Cazzato_2024:application-driven-survey-event-based",
+        "Gehrig_2024:low-latency-automotive-vision"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc",
+        "Gehrig_and_Scaramuzza_-_2024_-_Low-latency_automotive_vision_with_event_cameras"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gehrig_and_Scaramuzza_-_2024_-_Low-latency_automotive_vision_with_event_cameras"
+      ],
+      "missing_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "For example, at 30 to 45 , each frame is separated by approximately 22 to 33 ms during which scene c",
+      "cite_keys": [
+        "Gehrig_2024:low-latency-automotive-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gehrig_and_Scaramuzza_-_2024_-_Low-latency_automotive_vision_with_event_cameras"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gehrig_and_Scaramuzza_-_2024_-_Low-latency_automotive_vision_with_event_cameras"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "While increasing the frame rate can help reduce these gaps, it significantly increases data throughp",
+      "cite_keys": [
+        "Cazzato_2024:application-driven-survey-event-based"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Furthermore, motion blur occurs when objects move relative to the sensor during the exposure interva",
+      "cite_keys": [
+        "Cazzato_2024:application-driven-survey-event-based"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Shortening exposure time mitigates motion blur but reduces light accumulation, degrading the image q",
+      "cite_keys": [
+        "Cazzato_2024:application-driven-survey-event-based"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Cazzato_and_Bono_-_2024_-_An_Application-Driven_Survey_on_Event-Based_Ne_9e51a8fc"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Frame-based sensors exhibit a dynamic range of approximately 60 dB , limited by the fixed well capac",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "In high-contrast scenes, this range is insufficient to simultaneously resolve detail in both brightl",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "In terms of spatial sampling, the full pixel array is sampled at every frame regardless of scene act",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Each triggered event is represented as a tuple , where denotes the pixel coordinates, is the timesta",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The sensor architecture supports a dynamic range of approximately 120 dB, with sub-millisecond trans",
+      "cite_keys": [
+        "Lichtsteiner_2008:DVS"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Lichtsteiner_et_al._-_2008_-_A_128$times$128_120_dB_15_$mu$s_Latency_Asy_9edf5cec"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Lichtsteiner_et_al._-_2008_-_A_128$times$128_120_dB_15_$mu$s_Latency_Asy_9edf5cec"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "These pixels primarily emulate peripheral retinal processing, which responds to temporal changes in ",
+      "cite_keys": [
+        "Lichtsteiner_2008:DVS",
+        "Steffen_2019:neuromorphic-stereo-vision-survey",
+        "Lakshmi_2019:neuromorphic-vision-survey",
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 4,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey",
+        "Lichtsteiner_et_al._-_2008_-_A_128$times$128_120_dB_15_$mu$s_Latency_Asy_9edf5cec",
+        "Lakshmi_et_al._-_2019_-_Neuromorphic_vision_From_sensors_to_event-based__eea55fb6",
+        "Steffen_et_al._-_2019_-_Neuromorphic_Stereo_Vision_A_Survey_of_Bio-Inspi_0737859c"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Steffen_et_al._-_2019_-_Neuromorphic_Stereo_Vision_A_Survey_of_Bio-Inspi_0737859c"
+      ],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey",
+        "Lichtsteiner_et_al._-_2008_-_A_128$times$128_120_dB_15_$mu$s_Latency_Asy_9edf5cec",
+        "Lakshmi_et_al._-_2019_-_Neuromorphic_vision_From_sensors_to_event-based__eea55fb6"
+      ],
+      "recall": 0.25
+    },
+    {
+      "query": "Each pixel consists of a photodiode, a logarithmic photoreceptor, a differencing circuit, and a comp",
+      "cite_keys": [
+        "Chakravarthi_2024:recent-event-camera-innovations"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Chakravarthi_et_al._-_2024_-_Recent_Event_Camera_Innovations_-_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Chakravarthi_et_al._-_2024_-_Recent_Event_Camera_Innovations_-_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Together, this processing chain allows each pixel to independently modulate its effective sampling r",
+      "cite_keys": [
+        "Shariff_2024:event-cameras-automotive-review"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Shariff_et_al._-_2024_-_Event_Cameras_in_Automotive_Sensing_A_Review"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Shariff_et_al._-_2024_-_Event_Cameras_in_Automotive_Sensing_A_Review"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The resulting events are transmitted off-chip using the protocol, which assigns a unique binary addr",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "A four-phase handshake is used to manage sparse data traffic on limited physical lines, mimicking th",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Pixels are often equipped with handshake buffers to decouple individual pixel timing from potential ",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The performance of event cameras is influenced by several physical characteristics and noise sources",
+      "cite_keys": [
+        "Vishenvskiy_2025:onthefly-feedback-control",
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Junction leakage current, or dark current, in the differencing amplifier circuit can introduce a pos",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "This leakage, alongside parasitic photocurrent sensitivity and stray light, contributes to backgroun",
+      "cite_keys": [
+        "Vishenvskiy_2025:onthefly-feedback-control",
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Manufacturing variations lead to fixed-pattern noise manifesting as spatially variant contrast thres",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision",
+        "Bao_2025:temporal-mapping-photography"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey",
+        "Bao_et_al._-_2025_-_Temporal-Mapping_Photography_for_Event_Cameras"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "missing_pids": [
+        "Bao_et_al._-_2025_-_Temporal-Mapping_Photography_for_Event_Cameras"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "The selection of involves a trade-off, where lower thresholds increase sensitivity to small intensit",
+      "cite_keys": [
+        "Vishenvskiy_2025:onthefly-feedback-control",
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Conversely, higher thresholds reduce noise but may result in the loss of low-contrast information",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Because the asynchronous event stream cannot be processed directly by standard neural network archit",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "where denotes the Kronecker delta",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Alternatively, the events can be separated by polarity into two channels, yielding an event count im",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Voxel grids preserve temporal structure by discretizing the time interval into equally spaced bins a",
+      "cite_keys": [
+        "Zhu_2019_unsup-event-flow"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhu_et_al._-_2019_-_Unsupervised_Event-Based_Learning_of_Optical_Flow,_D_a664521f"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zhu_et_al._-_2019_-_Unsupervised_Event-Based_Learning_of_Optical_Flow,_D_a664521f"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "where indexes the temporal bins",
+      "cite_keys": [
+        "Zhu_2019_unsup-event-flow"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhu_et_al._-_2019_-_Unsupervised_Event-Based_Learning_of_Optical_Flow,_D_a664521f"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Zhu_et_al._-_2019_-_Unsupervised_Event-Based_Learning_of_Optical_Flow,_D_a664521f"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Optical flow is the estimation of the per-pixel apparent motion field induced by the movement of obj",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "A fundamental assumption in flow estimation is that the brightness intensity of a moving point remai",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Local estimation of this field is often constrained by the aperture problem, where only the componen",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Separating these components allows for the isolation of moving objects by aligning background pixels",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Because event cameras trigger events asynchronously as edges move across the sensor, a single moving",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Motion compensation is the process of estimating the underlying motion parameters and using them to ",
+      "cite_keys": [
+        "Gallego_2018:contrast-maximization",
+        "Stoffregen_2019:event-based-segmentation"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Stoffregen_et_al._-_2019_-_Event-Based_Motion_Segmentation_by_Motion_Com_1854409e",
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Stoffregen_et_al._-_2019_-_Event-Based_Motion_Segmentation_by_Motion_Com_1854409e"
+      ],
+      "missing_pids": [
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "where the scalar determines the magnitude of the displacement",
+      "cite_keys": [
+        "Gallego_2018:contrast-maximization"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Longer windows require iterative warping methods to discretize the trajectory and assume linearity o",
+      "cite_keys": [
+        "Paredes_2023:taming_contrast_maximization"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Paredes-Valles_et_al._-_2023_-_Taming_Contrast_Maximization_for_Learning_a99d2f94"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Paredes-Valles_et_al._-_2023_-_Taming_Contrast_Maximization_for_Learning_a99d2f94"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The accumulation of all warped events at the reference time produces a two dimensional representatio",
+      "cite_keys": [
+        "Gallego_2018:contrast-maximization",
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey",
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "Conversely, incorrect motion parameters scatter the warped events, resulting in a blurred representa",
+      "cite_keys": [
+        "Stoffregen_2019:event-based-segmentation"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Stoffregen_et_al._-_2019_-_Event-Based_Motion_Segmentation_by_Motion_Com_1854409e"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Stoffregen_et_al._-_2019_-_Event-Based_Motion_Segmentation_by_Motion_Com_1854409e"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The relationship between motion accuracy and sharpness forms the basis of an optimization framework ",
+      "cite_keys": [
+        "Gallego_2018:contrast-maximization"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "where denotes the pixel value at location , is the spatial mean of the , and is the set of pixel loc",
+      "cite_keys": [
+        "Gallego_2018:contrast-maximization"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Incorrect parameters disperse the events, reducing the variance",
+      "cite_keys": [
+        "Gallego_2018:contrast-maximization",
+        "Stoffregen_2019:event-based-segmentation"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Stoffregen_et_al._-_2019_-_Event-Based_Motion_Segmentation_by_Motion_Com_1854409e",
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb",
+        "Stoffregen_et_al._-_2019_-_Event-Based_Motion_Segmentation_by_Motion_Com_1854409e"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "which can be solved via gradient-based optimization without requiring ground-truth motion labels",
+      "cite_keys": [
+        "Gallego_2018:contrast-maximization",
+        "Paredes_2023:taming_contrast_maximization"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Paredes-Valles_et_al._-_2023_-_Taming_Contrast_Maximization_for_Learning_a99d2f94",
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Paredes-Valles_et_al._-_2023_-_Taming_Contrast_Maximization_for_Learning_a99d2f94",
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The variance-based formulation is one instance of a broader family of focus loss functions, where al",
+      "cite_keys": [
+        "Gallego_2018:contrast-maximization",
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey",
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey",
+        "Gallego_et_al._-_2018_-_A_Unifying_Contrast_Maximization_Framework_for_E_70e647eb"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "snn are characterized as the third generation of neural network models, distinguished by their use o",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "While first-generation models utilize McCulloch-Pitts neurons with digital outputs and second-genera",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks",
+        "He_2025:learnable-temporal-encoding-snn"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "He_-_2025_-_Revisiting_Direct_Encoding_-_Learnable_Temporal_Dynamics_for_9188d3d6",
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [
+        "He_-_2025_-_Revisiting_Direct_Encoding_-_Learnable_Temporal_Dynamics_for_9188d3d6"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "This paradigm mirrors biological neural systems, where information is encoded in precise temporal pa",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks",
+        "He_2025:learnable-temporal-encoding-snn"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "He_-_2025_-_Revisiting_Direct_Encoding_-_Learnable_Temporal_Dynamics_for_9188d3d6",
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [
+        "He_-_2025_-_Revisiting_Direct_Encoding_-_Learnable_Temporal_Dynamics_for_9188d3d6"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "The resulting event-driven architecture supports asynchronous processing, where computation only occ",
+      "cite_keys": [
+        "Zhang_2025:SNN-object-detection-segmentation-review"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The computational state of a spiking neuron is defined by its membrane potential , which evolves as ",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Excitatory postsynaptic potentials increase the membrane potential, while inhibitory postsynaptic po",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "During the absolute refractory period, the neuron is incapable of firing regardless of the input str",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The membrane potential is modeled as a resistor-capacitor circuit that decays exponentially towards ",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks",
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "where denotes the membrane time constant, the membrane resistance, and the weighted sum of pre-synap",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks",
+        "Eshraghian_2023:training-snn-deep-learning",
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 3,
+      "expected_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498",
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19",
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "recall": 0.3333333333333333
+    },
+    {
+      "query": "Two reset conventions are defined in the literature: a hard reset, in which is returned to a fixed v",
+      "cite_keys": [
+        "Eshraghian_2023:training-snn-deep-learning",
+        "Fang_2021:deep-residual-learning-snn",
+        "Zhang_2025:SNN-object-detection-segmentation-review"
+      ],
+      "expected_papers": 3,
+      "expected_pids": [
+        "Fang_et_al._-_2021_-_Deep_Residual_Learning_in_Spiking_Neural_Networks",
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec"
+      ],
+      "missing_pids": [
+        "Fang_et_al._-_2021_-_Deep_Residual_Learning_in_Spiking_Neural_Networks",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "recall": 0.3333333333333333
+    },
+    {
+      "query": "The leak term is absent in the Integrate-and-Fire model, which accumulates input indefinitely withou",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The continuous-time model is commonly discretized for implementation in deep , where computation pro",
+      "cite_keys": [
+        "Eshraghian_2023:training-snn-deep-learning",
+        "Zhang_2025:SNN-object-detection-segmentation-review",
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 3,
+      "expected_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "where is a leak factor governing the rate of decay toward the resting potential, fixed as a hyperpar",
+      "cite_keys": [
+        "Eshraghian_2023:training-snn-deep-learning",
+        "Zhang_2025:SNN-object-detection-segmentation-review",
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 3,
+      "expected_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec"
+      ],
+      "missing_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "recall": 0.3333333333333333
+    },
+    {
+      "query": "where denotes the post-reset membrane state carried forward to the next timestep",
+      "cite_keys": [
+        "Zhang_2025:SNN-object-detection-segmentation-review",
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "missing_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "Biological neurons fire at rates below 100 Hz, yet visual recognition completes within approximately",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Rate coding requires a comparable time window simply to estimate firing rates reliably, which would ",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "This observation motivates temporal coding, where information is carried in the precise timing of in",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The coincidence detection function provides a formal example of spike-timing-based computation: a sp",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "where are synaptic weights and are the input spike times",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The encoding scheme controls the balance between representation fidelity, latency, and energy cost",
+      "cite_keys": [
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "In rate coding, information is represented by the average firing frequency over a temporal observati",
+      "cite_keys": [
+        "Iaboni_2024:event-based-snn-object-detection-review",
+        "Zhang_2025:SNN-object-detection-segmentation-review"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Estimating a rate reliably requires accumulating spikes across several timesteps, as individual spik",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks",
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "Temporal encoding, by contrast, carries information in the precise timing of individual spikes rathe",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The latency of that spike relative to a reference signal encodes the stimulus intensity, with strong",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks",
+        "Goeltz_2021:first-spike-neuromorphic-learning"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Temporal coding requires fine temporal resolution, making the representation more sensitive to noise",
+      "cite_keys": [
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "A first layer, typically convolutional, receives the raw or normalized values and produces feature m",
+      "cite_keys": [
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The derivative of this function is zero for all , meaning that the gradient signal vanishes during b",
+      "cite_keys": [
+        "Eshraghian_2023:training-snn-deep-learning",
+        "Cordone_2022:SNN-obj-det"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec",
+        "Cordone_et_al._-_2022_-_Object_Detection_with_Spiking_Neural_Networks_on_8ed0fbde"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec",
+        "Cordone_et_al._-_2022_-_Object_Detection_with_Spiking_Neural_Networks_on_8ed0fbde"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Consequently, when the chain rule is applied across layers, the product of zero-valued local gradien",
+      "cite_keys": [
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "This non-differentiability blocked gradient-based training of deep with supervised gradient descent ",
+      "cite_keys": [
+        "Iaboni_2024:event-based-snn-object-detection-review",
+        "Cordone_2022:SNN-obj-det"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Cordone_et_al._-_2022_-_Object_Detection_with_Spiking_Neural_Networks_on_8ed0fbde",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498",
+        "Cordone_et_al._-_2022_-_Object_Detection_with_Spiking_Neural_Networks_on_8ed0fbde"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "During the forward pass, the network retains the standard Heaviside step function, preserving the di",
+      "cite_keys": [
+        "Cordone_2022:SNN-obj-det",
+        "Eshraghian_2023:training-snn-deep-learning"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec",
+        "Cordone_et_al._-_2022_-_Object_Detection_with_Spiking_Neural_Networks_on_8ed0fbde"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec"
+      ],
+      "missing_pids": [
+        "Cordone_et_al._-_2022_-_Object_Detection_with_Spiking_Neural_Networks_on_8ed0fbde"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "During the backward pass, the non-differentiable step function is replaced with a smooth, differenti",
+      "cite_keys": [
+        "Cordone_2022:SNN-obj-det",
+        "Iaboni_2024:event-based-snn-object-detection-review"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498",
+        "Cordone_et_al._-_2022_-_Object_Detection_with_Spiking_Neural_Networks_on_8ed0fbde"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Cordone_et_al._-_2022_-_Object_Detection_with_Spiking_Neural_Networks_on_8ed0fbde",
+        "Iaboni_and_Abichandani_-_2024_-_Event-Based_Spiking_Neural_Networks_for__64004498"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Because possess discrete internal states that evolve over discrete timesteps, surrogate gradients ar",
+      "cite_keys": [
+        "Eshraghian_2023:training-snn-deep-learning"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The network is unrolled over the sequence of simulation timesteps, and the surrogate gradient enable",
+      "cite_keys": [
+        "Eshraghian_2023:training-snn-deep-learning"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Eshraghian_et_al._-_2023_-_Training_Spiking_Neural_Networks_Using_Lesson_d4c5d9ec"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "In a standard , each neuron computes a weighted sum of continuous-valued activations using operation",
+      "cite_keys": [
+        "Kim_2020:Spiking-YOLO",
+        "Yu_2025:SpikingViT"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Kim_et_al._-_2020_-_Spiking-YOLO_Spiking_Neural_Network_for_Energy-Effic_9d30a54a",
+        "Yu_et_al._-_2025_-_SpikingViT_A_Multiscale_Spiking_Vision_Transformer_Mo_8e48112d"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Kim_et_al._-_2020_-_Spiking-YOLO_Spiking_Neural_Network_for_Energy-Effic_9d30a54a",
+        "Yu_et_al._-_2025_-_SpikingViT_A_Multiscale_Spiking_Vision_Transformer_Mo_8e48112d"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Because inputs are binary spikes, the multiplication reduces to a conditional selection, when a pres",
+      "cite_keys": [
+        "Kim_2020:Spiking-YOLO",
+        "Sun_2025:st-flownet",
+        "Luo_2025:integer-valued"
+      ],
+      "expected_papers": 3,
+      "expected_pids": [
+        "Sun_et_al._-_2025_-_ST-FlowNet_An_efficient_Spiking_Neural_Network_for_e_88fce2f5",
+        "Kim_et_al._-_2020_-_Spiking-YOLO_Spiking_Neural_Network_for_Energy-Effic_9d30a54a",
+        "Luo_et_al._-_2025_-_Integer-Valued_Training_and_Spike-Driven_Inference_S_b4603b2e"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Sun_et_al._-_2025_-_ST-FlowNet_An_efficient_Spiking_Neural_Network_for_e_88fce2f5",
+        "Kim_et_al._-_2020_-_Spiking-YOLO_Spiking_Neural_Network_for_Energy-Effic_9d30a54a",
+        "Luo_et_al._-_2025_-_Integer-Valued_Training_and_Spike-Driven_Inference_S_b4603b2e"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "This distinction is amplified by the event-driven computation paradigm, in which processing is trigg",
+      "cite_keys": [
+        "Maass_1997:third-generation-neural-networks",
+        "Zhang_2025:SNN-object-detection-segmentation-review"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Maass_-_1997_-_Networks_of_spiking_neurons_The_third_generation_of_neura_dc5f0e19",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Only those neural pathways that receive incoming spikes perform operations, whereas neurons that do ",
+      "cite_keys": [
+        "Zhang_2025:SNN-object-detection-segmentation-review"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The total number of operations per timestep therefore scales with the total number of active neurons",
+      "cite_keys": [
+        "Kim_2020:Spiking-YOLO",
+        "Zhang_2025:SNN-object-detection-segmentation-review"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Kim_et_al._-_2020_-_Spiking-YOLO_Spiking_Neural_Network_for_Energy-Effic_9d30a54a",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Kim_et_al._-_2020_-_Spiking-YOLO_Spiking_Neural_Network_for_Energy-Effic_9d30a54a",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Object detection is the task of simultaneously classifying and localizing all object instances of pr",
+      "cite_keys": [
+        "Zou_2023:object-detection-in-20"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The spatial extent is most commonly parameterized as an axis-aligned bounding box defined by a four-",
+      "cite_keys": [
+        "Zhou_2023:RGB-E-fusion-moving"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "A detection model therefore produces, for each candidate region, both a class probability distributi",
+      "cite_keys": [
+        "Zou_2023:object-detection-in-20"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The quality of a predicted bounding box relative to the ground-truth annotation is measured by the ,",
+      "cite_keys": [
+        "Zou_2023:object-detection-in-20"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "This metric serves both as a matching criterion during evaluation and as a component of regression l",
+      "cite_keys": [
+        "Zou_2023:object-detection-in-20"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Because objects in a scene vary in apparent size depending on their distance from the sensor, a dete",
+      "cite_keys": [
+        "Zou_2023:object-detection-in-20"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Trajectory prediction is the task of estimating future spatial positions of detected objects given a",
+      "cite_keys": [
+        "Sharma_2023:navigating-uncertainty"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Formally, given a set of detections at timesteps , the objective is to predict the positions at futu",
+      "cite_keys": [
+        "Sharma_2023:navigating-uncertainty"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Prediction accuracy is governed by the motion model, the length of the observed history, and the pre",
+      "cite_keys": [
+        "Xu_2025:trajectory-prediction-survey"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Trajectory prediction tasks are further distinguished by their temporal horizon . sttp estimates pos",
+      "cite_keys": [
+        "Sharma_2023:navigating-uncertainty",
+        "Sharma_2023:navigating-uncertainty",
+        "Xu_2025:trajectory-prediction-survey"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18",
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18"
+      ],
+      "missing_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "Long-term prediction extends over longer horizons and addresses route planning and behavior predicti",
+      "cite_keys": [
+        "Ravindran_2021:multi-object-det"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Ravindran_et_al._-_2021_-_Multi-Object_Detection_and_Tracking,_Based_on__039bac98"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Ravindran_et_al._-_2021_-_Multi-Object_Detection_and_Tracking,_Based_on__039bac98"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "As the horizon increases, cumulative drift and behavioral uncertainty grow, and the linear approxima",
+      "cite_keys": [
+        "Xu_2025:trajectory-prediction-survey"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "where is the time interval between successive predictions",
+      "cite_keys": [
+        "Xu_2025:trajectory-prediction-survey",
+        "Sharma_2023:navigating-uncertainty"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18",
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18",
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "where denotes the acceleration",
+      "cite_keys": [
+        "Xu_2025:trajectory-prediction-survey",
+        "Sharma_2023:navigating-uncertainty"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18",
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18",
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "In practice, the state estimates are typically maintained by a Bayesian filter, such as the Kalman f",
+      "cite_keys": [
+        "Xu_2025:trajectory-prediction-survey"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The velocity vector in Equations and can be obtained from different sources, including bounding box ",
+      "cite_keys": [
+        "Xu_2025:trajectory-prediction-survey",
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18",
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18",
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "A tracker then associates detections across frames into temporally consistent object identities, typ",
+      "cite_keys": [
+        "Cao_2024:review-object-tracking",
+        "Ravindran_2021:multi-object-det"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1",
+        "Ravindran_et_al._-_2021_-_Multi-Object_Detection_and_Tracking,_Based_on__039bac98"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1",
+        "Ravindran_et_al._-_2021_-_Multi-Object_Detection_and_Tracking,_Based_on__039bac98"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "A prediction module subsequently extrapolates future positions from the accumulated track history",
+      "cite_keys": [
+        "Cao_2024:review-object-tracking"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Detection performance is evaluated using map, which aggregates precision and recall across object cl",
+      "cite_keys": [
+        "Zou_2023:object-detection-in-20"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "A precision-recall curve is computed by varying the confidence threshold, and the average precision ",
+      "cite_keys": [
+        "Zou_2023:object-detection-in-20"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The is the mean of the average precision values across all classes",
+      "cite_keys": [
+        "Zou_2023:object-detection-in-20"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zou_et_al._-_2023_-_Object_Detection_in_20_Years_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The standard metric for optical flow estimation is the , defined as the Euclidean distance between t",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The quality of predicted trajectories is evaluated using displacement-based metrics that measure the",
+      "cite_keys": [
+        "Sharma_2023:navigating-uncertainty"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "where denotes the number of predicted future positions . ade captures the average trajectory quality",
+      "cite_keys": [
+        "Sharma_2023:navigating-uncertainty"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "which reflects the cumulative drift at the end of the prediction window . fde is particularly releva",
+      "cite_keys": [
+        "Sharma_2023:navigating-uncertainty"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "End-to-end latency measures the time elapsed from sensor input to detection output, typically report",
+      "cite_keys": [
+        "Gehrig_2024:low-latency-automotive-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gehrig_and_Scaramuzza_-_2024_-_Low-latency_automotive_vision_with_event_cameras"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gehrig_and_Scaramuzza_-_2024_-_Low-latency_automotive_vision_with_event_cameras"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "In , the number of counts each operation",
+      "cite_keys": [
+        "Kim_2020:Spiking-YOLO"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Kim_et_al._-_2020_-_Spiking-YOLO_Spiking_Neural_Network_for_Energy-Effic_9d30a54a"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Kim_et_al._-_2020_-_Spiking-YOLO_Spiking_Neural_Network_for_Energy-Effic_9d30a54a"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "In , the relevant measure is , which counts the number of operations triggered by incoming spikes",
+      "cite_keys": [
+        "Kim_2020:Spiking-YOLO"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Kim_et_al._-_2020_-_Spiking-YOLO_Spiking_Neural_Network_for_Energy-Effic_9d30a54a"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Kim_et_al._-_2020_-_Spiking-YOLO_Spiking_Neural_Network_for_Energy-Effic_9d30a54a"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Finally, ttc estimates the time remaining before a collision between the ego vehicle and a detected ",
+      "cite_keys": [
+        "Ravindran_2021:multi-object-det",
+        "Sharma_2023:navigating-uncertainty"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b",
+        "Ravindran_et_al._-_2021_-_Multi-Object_Detection_and_Tracking,_Based_on__039bac98"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b",
+        "Ravindran_et_al._-_2021_-_Multi-Object_Detection_and_Tracking,_Based_on__039bac98"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Many early works focused on late fusion methods allowing them to process RGB and event modalities th",
+      "cite_keys": [
+        "Li_2019:Event-based-enhanced",
+        "Chen_2019:multi-cue-event",
+        "Jiang_2019:Mixed-frame-event",
+        "Jiang_2019:Mixed-frame-event"
+      ],
+      "expected_papers": 3,
+      "expected_pids": [
+        "Li_et_al._-_2019_-_Event-Based_Vision_Enhanced_A_Joint_Detection_Framewo_81eef9c4",
+        "Chen_et_al._-_2019_-_Multi-Cue_Event_Information_Fusion_for_Pedestrian_D_7dabd0c7",
+        "Jiang_et_al._-_2019_-_Mixed_Frame-Event-Driven_Fast_Pedestrian_Detection"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Chen_et_al._-_2019_-_Multi-Cue_Event_Information_Fusion_for_Pedestrian_D_7dabd0c7"
+      ],
+      "missing_pids": [
+        "Li_et_al._-_2019_-_Event-Based_Vision_Enhanced_A_Joint_Detection_Framewo_81eef9c4",
+        "Jiang_et_al._-_2019_-_Mixed_Frame-Event-Driven_Fast_Pedestrian_Detection"
+      ],
+      "recall": 0.3333333333333333
+    },
+    {
+      "query": "In contrast, and adopt a more formal fusion strategy based on Dempster\u2013Shafer theory",
+      "cite_keys": [
+        "Li_2019:Event-based-enhanced",
+        "Chen_2019:multi-cue-event"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Li_et_al._-_2019_-_Event-Based_Vision_Enhanced_A_Joint_Detection_Framewo_81eef9c4",
+        "Chen_et_al._-_2019_-_Multi-Cue_Event_Information_Fusion_for_Pedestrian_D_7dabd0c7"
+      ],
+      "found_papers": 2,
+      "found_pids": [
+        "Li_et_al._-_2019_-_Event-Based_Vision_Enhanced_A_Joint_Detection_Framewo_81eef9c4",
+        "Chen_et_al._-_2019_-_Multi-Cue_Event_Information_Fusion_for_Pedestrian_D_7dabd0c7"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "These limitations led to intermediate fusion approaches, where information from frames and event str",
+      "cite_keys": [
+        "Tomy_2022:Fusing-event-rgb"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Tomy_et_al._-_2022_-_Fusing_Event-based_and_RGB_camera_for_Robust_Object_90486f90"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Tomy_et_al._-_2022_-_Fusing_Event-based_and_RGB_camera_for_Robust_Object_90486f90"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Two independent backbones whose feature maps are concatenated at multiple scales and fed into a .Thi",
+      "cite_keys": [
+        "Tomy_2022:Fusing-event-rgb"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Tomy_et_al._-_2022_-_Fusing_Event-based_and_RGB_camera_for_Robust_Object_90486f90"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Tomy_et_al._-_2022_-_Fusing_Event-based_and_RGB_camera_for_Robust_Object_90486f90"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Attention- and calibration-based methods therefore dominate more recent intermediate-fusion designs ",
+      "cite_keys": [
+        "Cao_2021:Fusion-based-attention",
+        "Zhou_2023:RGB-E-fusion-moving",
+        "Cao_2024:Embracing-events",
+        "Cao_2021:Fusion-based-attention"
+      ],
+      "expected_papers": 3,
+      "expected_pids": [
+        "Cao_et_al._-_2021_-_Fusion-Based_Feature_Attention_Gate_Component_for_Ve_8eccbc6e",
+        "Cao_et_al._-_2024_-_Embracing_Events_and_Frames_with_Hierarchical_Featur_c2f3a855",
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c"
+      ],
+      "found_papers": 3,
+      "found_pids": [
+        "Cao_et_al._-_2021_-_Fusion-Based_Feature_Attention_Gate_Component_for_Ve_8eccbc6e",
+        "Cao_et_al._-_2024_-_Embracing_Events_and_Frames_with_Hierarchical_Featur_c2f3a855",
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The design treats events mainly as a guide for RGB features, meaning it may under-utilize event feat",
+      "cite_keys": [
+        "Cao_2021:Fusion-based-attention"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cao_et_al._-_2021_-_Fusion-Based_Feature_Attention_Gate_Component_for_Ve_8eccbc6e"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Cao_et_al._-_2021_-_Fusion-Based_Feature_Attention_Gate_Component_for_Ve_8eccbc6e"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "extended this idea by explicitly aggregating event information over multiple temporal scales and app",
+      "cite_keys": [
+        "Zhou_2023:RGB-E-fusion-moving"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Building on both ideas, explicitly targets feature-modality imbalance: CAFR first enables bidirectio",
+      "cite_keys": [
+        "Cao_2024:Embracing-events"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cao_et_al._-_2024_-_Embracing_Events_and_Frames_with_Hierarchical_Featur_c2f3a855"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Cao_et_al._-_2024_-_Embracing_Events_and_Frames_with_Hierarchical_Featur_c2f3a855"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The authors of treat as a spatio-temporal sequence problem and uses a Transformer to aggregate long-",
+      "cite_keys": [
+        "Li_2023:SODFormer"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "To address efficiency and latency challenges in , proposed a recurrent vision Transformer architectu",
+      "cite_keys": [
+        "Li_2023:SODFormer",
+        "Gehrig_2023:recurrent-vision"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Gehrig_and_Scaramuzza_-_2023_-_Recurrent_Vision_Transformers_for_Object__504ae4b9",
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gehrig_and_Scaramuzza_-_2023_-_Recurrent_Vision_Transformers_for_Object__504ae4b9"
+      ],
+      "missing_pids": [
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "For instance, observe that event streams often provide information at much higher temporal frequency",
+      "cite_keys": [
+        "Zhang_2025:Frequency-adaptive-OD"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "More recent work such as further explores sequence modeling approaches inspired by state-space model",
+      "cite_keys": [
+        "Liu_2025:Beyond-Conventional"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Early works focused on simple statistical accumulations to create 2D event-frames that mimic convent",
+      "cite_keys": [
+        "Jiang_2019:Mixed-frame-event",
+        "Liu_2021:attention-fusion-network",
+        "Cao_2021:Fusion-based-attention",
+        "Cao_2021:Fusion-based-attention",
+        "Liu_2021:attention-fusion-network"
+      ],
+      "expected_papers": 3,
+      "expected_pids": [
+        "Cao_et_al._-_2021_-_Fusion-Based_Feature_Attention_Gate_Component_for_Ve_8eccbc6e",
+        "Jiang_et_al._-_2019_-_Mixed_Frame-Event-Driven_Fast_Pedestrian_Detection",
+        "Liu_et_al._-_2021_-_An_Attention_Fusion_Network_For_Event-Based_Vehicle__8995c6fc"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Cao_et_al._-_2021_-_Fusion-Based_Feature_Attention_Gate_Component_for_Ve_8eccbc6e",
+        "Jiang_et_al._-_2019_-_Mixed_Frame-Event-Driven_Fast_Pedestrian_Detection",
+        "Liu_et_al._-_2021_-_An_Attention_Fusion_Network_For_Event-Based_Vehicle__8995c6fc"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "To address this limitation, many works adopt {\\em voxel grid} representations that preserve coarse t",
+      "cite_keys": [
+        "Perot_2020:detect-objects",
+        "Tomy_2022:Fusing-event-rgb",
+        "Gehrig_2023:recurrent-vision",
+        "Cao_2024:Embracing-events"
+      ],
+      "expected_papers": 4,
+      "expected_pids": [
+        "Gehrig_and_Scaramuzza_-_2023_-_Recurrent_Vision_Transformers_for_Object__504ae4b9",
+        "Tomy_et_al._-_2022_-_Fusing_Event-based_and_RGB_camera_for_Robust_Object_90486f90",
+        "Cao_et_al._-_2024_-_Embracing_Events_and_Frames_with_Hierarchical_Featur_c2f3a855",
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Tomy_et_al._-_2022_-_Fusing_Event-based_and_RGB_camera_for_Robust_Object_90486f90"
+      ],
+      "missing_pids": [
+        "Gehrig_and_Scaramuzza_-_2023_-_Recurrent_Vision_Transformers_for_Object__504ae4b9",
+        "Cao_et_al._-_2024_-_Embracing_Events_and_Frames_with_Hierarchical_Featur_c2f3a855",
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "recall": 0.25
+    },
+    {
+      "query": "employ temporally discretized event volumes as the input to a convolutional feature extractor follow",
+      "cite_keys": [
+        "Perot_2020:detect-objects"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "In this formulation, the voxel grid captures short-term motion patterns within each temporal window.",
+      "cite_keys": [
+        "Tomy_2022:Fusing-event-rgb"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Tomy_et_al._-_2022_-_Fusing_Event-based_and_RGB_camera_for_Robust_Object_90486f90"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Tomy_et_al._-_2022_-_Fusing_Event-based_and_RGB_camera_for_Robust_Object_90486f90"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Other works emphasize practical efficiency and compatibility with existing architectures. discretize",
+      "cite_keys": [
+        "Gehrig_2023:recurrent-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gehrig_and_Scaramuzza_-_2023_-_Recurrent_Vision_Transformers_for_Object__504ae4b9"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gehrig_and_Scaramuzza_-_2023_-_Recurrent_Vision_Transformers_for_Object__504ae4b9"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Similarly, treat the discretized temporal dimension as additional channels in an image-like tensor, ",
+      "cite_keys": [
+        "Cao_2024:Embracing-events"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cao_et_al._-_2024_-_Embracing_Events_and_Frames_with_Hierarchical_Featur_c2f3a855"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Cao_et_al._-_2024_-_Embracing_Events_and_Frames_with_Hierarchical_Featur_c2f3a855"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "The discretization process requires selecting hyperparameters such as the temporal window length and",
+      "cite_keys": [
+        "Perot_2020:detect-objects",
+        "Zhou_2023:RGB-E-fusion-moving"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c",
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera",
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "As a result, very fine temporal relationships between events may be lost, and the representation can",
+      "cite_keys": [
+        "Li_2023:SODFormer",
+        "Gehrig_2023:recurrent-vision"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Gehrig_and_Scaramuzza_-_2023_-_Recurrent_Vision_Transformers_for_Object__504ae4b9",
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gehrig_and_Scaramuzza_-_2023_-_Recurrent_Vision_Transformers_for_Object__504ae4b9",
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Despite these limitations, voxel grids remain one of the most widely used event representations due ",
+      "cite_keys": [
+        "Zhang_2025:Frequency-adaptive-OD",
+        "Liu_2025:Beyond-Conventional"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "One direction focuses on learning how to aggregate event information across multiple temporal ranges",
+      "cite_keys": [
+        "Zhou_2023:RGB-E-fusion-moving"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Another line of work aims to learn where and when to sample event information in order to better exp",
+      "cite_keys": [
+        "Li_2023:SODFormer"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Other works focus on the practical mismatch between the sensing rates of RGB cameras and event senso",
+      "cite_keys": [
+        "Zhang_2025:Frequency-adaptive-OD"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "observe that event sensors often have lower spatial resolution and operate asynchronously relative t",
+      "cite_keys": [
+        "Liu_2025:Beyond-Conventional"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Overall, learned event encodings produce more adaptive representations of event data",
+      "cite_keys": [
+        "Zhou_2023:RGB-E-fusion-moving",
+        "Li_2023:SODFormer",
+        "Zhang_2025:Frequency-adaptive-OD",
+        "Liu_2025:Beyond-Conventional"
+      ],
+      "expected_papers": 4,
+      "expected_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c",
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b",
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+        "Zhou_et_al._-_2023_-_RGB-Event_Fusion_for_Moving_Object_Detection_in_Aut_aa98db8c",
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "By learning how to aggregate temporal information, align modalities, or refine event structures, the",
+      "cite_keys": [
+        "Li_2023:SODFormer",
+        "Zhang_2025:Frequency-adaptive-OD"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47",
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Li_et_al._-_2023_-_SODFormer_Streaming_Object_Detection_With_Transformer_0610bc71"
+      ],
+      "missing_pids": [
+        "Zhang_et_al._-_2025_-_Frequency-Adaptive_Low-Latency_Object_Detection_Us_70027e47"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "Many methods rely on complex modules which can increase computational cost and training complexity",
+      "cite_keys": [
+        "Liu_2025:Beyond-Conventional"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Furthermore, most current approaches still begin with a dense intermediate representation of events,",
+      "cite_keys": [
+        "Perot_2020:detect-objects",
+        "Gehrig_2023:recurrent-vision",
+        "Liu_2025:Beyond-Conventional",
+        "Liu_2025:Beyond-Conventional"
+      ],
+      "expected_papers": 3,
+      "expected_pids": [
+        "Gehrig_and_Scaramuzza_-_2023_-_Recurrent_Vision_Transformers_for_Object__504ae4b9",
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b",
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Gehrig_and_Scaramuzza_-_2023_-_Recurrent_Vision_Transformers_for_Object__504ae4b9",
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b",
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "For example, introduced EV-FlowNet, which aggregates events into multi-channel images encoding count",
+      "cite_keys": [
+        "Zhu_2018:ev-flownet"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhu_et_al._-_2018_-_EV-FlowNet_Self-Supervised_Optical_Flow_Estimation_f_b76811a1"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Zhu_et_al._-_2018_-_EV-FlowNet_Self-Supervised_Optical_Flow_Estimation_f_b76811a1"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Subsequent work addressed the event representation and proposed using a voxel grid representation in",
+      "cite_keys": [
+        "Zhu_2019_unsup-event-flow"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhu_et_al._-_2019_-_Unsupervised_Event-Based_Learning_of_Optical_Flow,_D_a664521f"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zhu_et_al._-_2019_-_Unsupervised_Event-Based_Learning_of_Optical_Flow,_D_a664521f"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Similarly, Ye et al. introduced the ECN architecture, which jointly estimates optical flow, depth, a",
+      "cite_keys": [
+        "Ye_2020:unsup-learn-dense"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Ye_et_al._-_2020_-_Unsupervised_Learning_of_Dense_Optical_Flow,_Depth_an_db308d0d"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Ye_et_al._-_2020_-_Unsupervised_Learning_of_Dense_Optical_Flow,_Depth_an_db308d0d"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Gehrig et al. proposed E-RAFT, adapting the RAFT architecture to event data by computing correlation",
+      "cite_keys": [
+        "Gehrig_2021:e_raft"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gehrig_et_al._-_2021_-_E-RAFT_-_Dense_Optical_Flow_from_Event_Cameras"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gehrig_et_al._-_2021_-_E-RAFT_-_Dense_Optical_Flow_from_Event_Cameras"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The network iteratively refines flow estimates using recurrent updates, enabling accurate matching o",
+      "cite_keys": [
+        "Gehrig_2021:e_raft"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gehrig_et_al._-_2021_-_E-RAFT_-_Dense_Optical_Flow_from_Event_Cameras"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gehrig_et_al._-_2021_-_E-RAFT_-_Dense_Optical_Flow_from_Event_Cameras"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "By exploiting the continuous trajectories formed by event streams, the model predicts residual flow ",
+      "cite_keys": [
+        "Wu_2024:lightweight-event-based"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Wu_et_al._-_2024_-_Lightweight_Event-based_Optical_Flow_Estimation_via_I_7547445f"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Wu_et_al._-_2024_-_Lightweight_Event-based_Optical_Flow_Estimation_via_I_7547445f"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Contrast\u2013maximization (CM) variants provide a principled unsupervised route: they estimate warps tha",
+      "cite_keys": [
+        "Shiba_2022",
+        "ParedesValles_2023"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Shiba_et_al._-_2022_-_Fast_Event-Based_Optical_Flow_Estimation_by_Triple_637a2015"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Shiba_et_al._-_2022_-_Fast_Event-Based_Optical_Flow_Estimation_by_Triple_637a2015"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "These motion fields form the geometric backbone for aligning high-rate events to RGB timestamps or t",
+      "cite_keys": [
+        "Shiba_2022"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Shiba_et_al._-_2022_-_Fast_Event-Based_Optical_Flow_Estimation_by_Triple_637a2015"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Shiba_et_al._-_2022_-_Fast_Event-Based_Optical_Flow_Estimation_by_Triple_637a2015"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Event data are sparse, asynchronous, and noisy, so naive CM can suffer event-collapse or sensitivity",
+      "cite_keys": [
+        "Shiba_2022"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Shiba_et_al._-_2022_-_Fast_Event-Based_Optical_Flow_Estimation_by_Triple_637a2015"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Shiba_et_al._-_2022_-_Fast_Event-Based_Optical_Flow_Estimation_by_Triple_637a2015"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Learned alignment modules (trained with time-shift strategies or jointly with detectors) reduce resi",
+      "cite_keys": [
+        "Zhang_2025_FAOD",
+        "Liu_2025_MCFNet"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b",
+        "Zhang_et_al._-_2025_-_Adaptive_Event_Stream_Slicing_for_Open-Vocabulary__c27a8cb3"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Liu_et_al._-_2025_-_Beyond_conventional_vision_-_RGB-event_fusion_for_ro_15f3ed4b",
+        "Zhang_et_al._-_2025_-_Adaptive_Event_Stream_Slicing_for_Open-Vocabulary__c27a8cb3"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "have been explored for optical-flow estimation because they offer a native way of processing asynchr",
+      "cite_keys": [
+        "Xu_2025:ann-vs-snn",
+        "Zhang_etal_2023:event-based-of",
+        "Sun_2025:st-flownet"
+      ],
+      "expected_papers": 3,
+      "expected_pids": [
+        "Xu_et_al._-_2025_-_SNNSIR_-_A_Simple_Spiking_Neural_Network_for_Stereo_I_08922c80",
+        "Sun_et_al._-_2025_-_ST-FlowNet_An_efficient_Spiking_Neural_Network_for_e_88fce2f5",
+        "Zhang_et_al._-_2023_-_Accurate_and_Efficient_Event-Based_Semantic_Segmen_6817f769"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Sun_et_al._-_2025_-_ST-FlowNet_An_efficient_Spiking_Neural_Network_for_e_88fce2f5"
+      ],
+      "missing_pids": [
+        "Xu_et_al._-_2025_-_SNNSIR_-_A_Simple_Spiking_Neural_Network_for_Stereo_I_08922c80",
+        "Zhang_et_al._-_2023_-_Accurate_and_Efficient_Event-Based_Semantic_Segmen_6817f769"
+      ],
+      "recall": 0.3333333333333333
+    },
+    {
+      "query": "Early hybrid solutions place spiking encoders before ANN decoders: Spike-FlowNet uses IF neurons in ",
+      "cite_keys": [
+        "Lee_2020:spike-flownet"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Lee_et_al._-_2020_-_Spike-FlowNet_Event-Based_Optical_Flow_Estimation_wi_20125e8e"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Lee_et_al._-_2020_-_Spike-FlowNet_Event-Based_Optical_Flow_Estimation_wi_20125e8e"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Some earlier hybrid flow work already highlighted this as a key obstacle for deeper spiking models",
+      "cite_keys": [
+        "Lee_2020:spike-flownet",
+        "Hagenaars_2021:self-supervised-learning-of-event-based-optical-flow-with-snns"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Lee_et_al._-_2020_-_Spike-FlowNet_Event-Based_Optical_Flow_Estimation_wi_20125e8e"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Lee_et_al._-_2020_-_Spike-FlowNet_Event-Based_Optical_Flow_Estimation_wi_20125e8e"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "By adapting these parameters during training the network maintains sufficient spiking activity throu",
+      "cite_keys": [
+        "Kosta_2023:adaptive-spikenet"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Kosta_and_Roy_-_2023_-_Adaptive-SpikeNet_Event-based_Optical_Flow_Estima_f3054bd0"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Kosta_and_Roy_-_2023_-_Adaptive-SpikeNet_Event-based_Optical_Flow_Estima_f3054bd0"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "A further limitation of several early designs was their reliance on hardware-unfriendly operations, ",
+      "cite_keys": [
+        "Cuadrado_2023:optical-flow-estimation"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cuadrado_et_al._-_2023_-_Optical_flow_estimation_from_event-based_camera_a7d424af"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Cuadrado_et_al._-_2023_-_Optical_flow_estimation_from_event-based_camera_a7d424af"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "This limitation motivates , who employ adaptive event slicing and spatio-temporal backpropagation (S",
+      "cite_keys": [
+        "Zhang_etal_2023:event-based-of"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Zhang_et_al._-_2023_-_Accurate_and_Efficient_Event-Based_Semantic_Segmen_6817f769"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Zhang_et_al._-_2023_-_Accurate_and_Efficient_Event-Based_Semantic_Segmen_6817f769"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Hardware-in-the-loop benchmarking by confirms that the efficiency gains of SNNs are real, showing th",
+      "cite_keys": [
+        "Xu_2025:ann-vs-snn"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Xu_et_al._-_2025_-_SNNSIR_-_A_Simple_Spiking_Neural_Network_for_Stereo_I_08922c80"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Xu_et_al._-_2025_-_SNNSIR_-_A_Simple_Spiking_Neural_Network_for_Stereo_I_08922c80"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "then take a different path by reducing the accuracy gap through ANN-to-SNN conversion, using pre-tra",
+      "cite_keys": [
+        "Sun_2025:st-flownet"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Sun_et_al._-_2025_-_ST-FlowNet_An_efficient_Spiking_Neural_Network_for_e_88fce2f5"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Sun_et_al._-_2025_-_ST-FlowNet_An_efficient_Spiking_Neural_Network_for_e_88fce2f5"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Finally, extend the design space further by introducing spike-driven self-attention, which addresses",
+      "cite_keys": [
+        "Tian_2025:sdformerflow"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Tian_and_Andrade-Cetto_-_2025_-_SDformerFlow_Spiking_Neural_Network_Tran_f5fccda6"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Tian_and_Andrade-Cetto_-_2025_-_SDformerFlow_Spiking_Neural_Network_Tran_f5fccda6"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "In the standard perception pipeline, this information is obtained through a sequential detect-track-",
+      "cite_keys": [
+        "Cao_2024:review-object-tracking",
+        "Ravindran_2021:multi-object-det"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1",
+        "Ravindran_et_al._-_2021_-_Multi-Object_Detection_and_Tracking,_Based_on__039bac98"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Ravindran_et_al._-_2021_-_Multi-Object_Detection_and_Tracking,_Based_on__039bac98"
+      ],
+      "missing_pids": [
+        "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "The dominant paradigm for follows a tracking-by-detection strategy in which detections from successi",
+      "cite_keys": [
+        "Ravindran_2021:multi-object-det"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Ravindran_et_al._-_2021_-_Multi-Object_Detection_and_Tracking,_Based_on__039bac98"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Ravindran_et_al._-_2021_-_Multi-Object_Detection_and_Tracking,_Based_on__039bac98"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The resulting state predictions are matched against new detections using the Hungarian algorithm, wh",
+      "cite_keys": [
+        "Cao_2024:review-object-tracking"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "DeepSORT, by Wojke_2017:deep-sort, uses a standard Kalman filter with a constant-velocity model and ",
+      "cite_keys": [
+        "Wojke_2017:deep-sort"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Wojke_et_al._-_2017_-_Simple_online_and_realtime_tracking_with_a_deep_as_a140ff11"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Wojke_et_al._-_2017_-_Simple_online_and_realtime_tracking_with_a_deep_as_a140ff11"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "By learning a 2D velocity estimate directly in the detection head and replacing Hungarian matching w",
+      "cite_keys": [
+        "Yin_2021:CenterPoint"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Yin_et_al._-_2021_-_Accurate_and_efficient_time-domain_classification_wi_0eaeeb49"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Yin_et_al._-_2021_-_Accurate_and_efficient_time-domain_classification_wi_0eaeeb49"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Estimating where objects will be in the near future to enable hazard assessment and path planning . ",
+      "cite_keys": [
+        "Cao_2024:review-object-tracking",
+        "Sharma_2023:navigating-uncertainty"
+      ],
+      "expected_papers": 2,
+      "expected_pids": [
+        "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1",
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Cao_et_al._-_2024_-_A_review_of_object_tracking_methods_From_general_fie_15c68ea1"
+      ],
+      "missing_pids": [
+        "Sharma_et_al._-_2023_-_Navigating_Uncertainty_The_Role_of_Short-Term_Tra_f5a8597b"
+      ],
+      "recall": 0.5
+    },
+    {
+      "query": "High-precision models based on , , or transformers require computational resources that conflict wit",
+      "cite_keys": [
+        "Xu_2025:trajectory-prediction-survey",
+        "Xu_2025:trajectory-prediction-survey"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Xu_et_al._-_2025_-_A_Survey_of_Autonomous_Driving_Trajectory_Prediction__ee82ba18"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "ForeSight, which represents the current for joint detection and trajectory forecasting, reports a co",
+      "cite_keys": [
+        "Papais_2025:ForeSight"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The introduced a dual regression head architecture in which a secondary head predicts bounding boxes",
+      "cite_keys": [
+        "Perot_2020:detect-objects"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "A temporal consistency loss forces predictions for the same future moment to agree regardless of whe",
+      "cite_keys": [
+        "Perot_2020:detect-objects"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Perot_et_al._-_2020_-_Learning_to_Detect_Objects_with_a_1_Megapixel_Event_Camera"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Object queries propagate bidirectionally between detection and forecasting tasks through a joint str",
+      "cite_keys": [
+        "Papais_2025:ForeSight"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Notably, instead of degrading the detection when adding the decoder, detection accuracy improves bec",
+      "cite_keys": [
+        "Papais_2025:ForeSight"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "ForeSight further argues against tracker-based forecasting pipelines on robustness grounds because m",
+      "cite_keys": [
+        "Papais_2025:ForeSight"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Papais_et_al._-_2025_-_ForeSight_Multi-View_Streaming_Joint_Object_Detec_aca33fe7"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "The CenterPoint velocity head predicts only single-step displacement for tracking association, yet a",
+      "cite_keys": [
+        "Yin_2021:CenterPoint"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Yin_et_al._-_2021_-_Accurate_and_efficient_time-domain_classification_wi_0eaeeb49"
+      ],
+      "found_papers": 0,
+      "found_pids": [],
+      "missing_pids": [
+        "Yin_et_al._-_2021_-_Accurate_and_efficient_time-domain_classification_wi_0eaeeb49"
+      ],
+      "recall": 0.0
+    },
+    {
+      "query": "Their microsecond temporal resolution enables asynchronous tracking adaptec to scene dynamics , and ",
+      "cite_keys": [
+        "Gallego_2022:event-based-vision",
+        "Gallego_2022:event-based-vision"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Gallego_et_al._-_2022_-_Event-based_Vision_A_Survey"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "Early event-based tracking relied on clustering-based methods with Kalman filter smoothing, where th",
+      "cite_keys": [
+        "Barranco_2018:real-time-clustering-tracking"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Barranco_et_al._-_2018_-_Real-Time_Clustering_and_Multi-Target_Tracking__0e87e6b0"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Barranco_et_al._-_2018_-_Real-Time_Clustering_and_Multi-Target_Tracking__0e87e6b0"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    },
+    {
+      "query": "More recent work has explored for object tracking, achieving competitive precision on standard bench",
+      "cite_keys": [
+        "Xiang_2024:spiking-siamfc",
+        "Alberico_2025:event-trajectory"
+      ],
+      "expected_papers": 1,
+      "expected_pids": [
+        "Alberico_et_al._-_2025_-_Egocentric_Event-Based_Vision_for_Ping_Pong_Bal_322b969f"
+      ],
+      "found_papers": 1,
+      "found_pids": [
+        "Alberico_et_al._-_2025_-_Egocentric_Event-Based_Vision_for_Ping_Pong_Bal_322b969f"
+      ],
+      "missing_pids": [],
+      "recall": 1.0
+    }
+  ]
+}

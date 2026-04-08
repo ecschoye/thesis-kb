@@ -1,13 +1,16 @@
 """LLM-based nugget extraction via vLLM OpenAI-compatible API."""
 import os
 import json
+import logging
 import re
 import sys
 import time
 import argparse
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.utils import load_config, load_json, save_json, make_llm_client
+from src.utils import load_config, load_json, save_json, save_jsonl, make_llm_client
+
+log = logging.getLogger("nuggets.extract")
 
 
 SYSTEM_PROMPT = """You are a research knowledge extractor for a master's thesis on enhancing autonomous vehicle perception through RGB-Event camera fusion with spiking neural networks.
@@ -85,8 +88,61 @@ Output format:
 ]"""
 
 
+EXTRACTION_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "question": {"type": "string"},
+            "answer": {"type": "string"},
+            "type": {
+                "type": "string",
+                "enum": ["method", "result", "claim", "limitation", "comparison", "background"],
+            },
+        },
+        "required": ["question", "answer", "type"],
+    },
+}
+
+# Extended schema with self-assessed quality scores (used when self_score=True)
+EXTRACTION_SCORED_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "question": {"type": "string"},
+            "answer": {"type": "string"},
+            "type": {
+                "type": "string",
+                "enum": ["method", "result", "claim", "limitation", "comparison", "background"],
+            },
+            "relevance": {"type": "integer", "minimum": 1, "maximum": 5},
+            "specificity": {"type": "integer", "minimum": 1, "maximum": 5},
+            "self_contained": {"type": "integer", "minimum": 1, "maximum": 5},
+            "thesis_relevance": {"type": "integer", "minimum": 1, "maximum": 5},
+        },
+        "required": ["question", "answer", "type", "relevance", "specificity",
+                      "self_contained", "thesis_relevance"],
+    },
+}
+
+SELF_SCORE_ADDENDUM = """
+
+SELF-ASSESSMENT: For each nugget, also rate these dimensions (1=poor, 5=excellent):
+- relevance: Is this about substantive research content? (1 = trivial metadata/boilerplate)
+- specificity: Does the answer have specific numbers, method names, datasets? (1 = vague)
+- self_contained: Can a reader understand this without the source paper? (1 = relies on "the proposed method" or "Table 3")
+- thesis_relevance: How relevant to RGB-Event fusion, SNNs, event cameras, object detection? (5 = core, 3 = related, 1 = unrelated)
+
+Be honest and calibrated. Skip nuggets you would rate 1 on relevance or specificity — do not extract them."""
+
+
 def repair_json(text):
-    """Attempt to extract valid JSON from potentially malformed LLM output."""
+    """Attempt to extract valid JSON from potentially malformed LLM output.
+
+    Handles truncated responses by recovering complete nugget objects
+    from partially-returned JSON arrays.
+    """
     text = text.strip()
     # Strip markdown code fences
     text = re.sub(r"^```(?:json)?\s*", "", text)
@@ -97,43 +153,108 @@ def repair_json(text):
         return json.loads(text)
     except json.JSONDecodeError:
         pass
-    # Try to find array in text
+    # Try to find complete array in text
     m = re.search(r"\[.*\]", text, re.DOTALL)
     if m:
         try:
             return json.loads(m.group())
         except json.JSONDecodeError:
             pass
+    # Truncated array: find the start and recover complete objects
+    arr_start = text.find("[")
+    if arr_start >= 0:
+        partial = text[arr_start:]
+        # Find the last complete object by looking for the last "},"  or "}" before truncation
+        # Try progressively closing the array
+        last_brace = partial.rfind("}")
+        while last_brace > 0:
+            candidate = partial[: last_brace + 1] + "]"
+            try:
+                result = json.loads(candidate)
+                if isinstance(result, list) and result:
+                    log.info(
+                        "Recovered %d nuggets from truncated JSON response",
+                        len(result),
+                    )
+                    return result
+            except json.JSONDecodeError:
+                pass
+            last_brace = partial.rfind("}", 0, last_brace)
     return None
 
 
-def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_tokens=3000, extra_body=None, prior_questions=None, max_model_len=8192):
-    """Send a chunk to the LLM and parse nuggets."""
+def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_tokens=3000, extra_body=None, prior_questions=None, max_model_len=8192, paper_meta=None, self_score=False):
+    """Send a chunk to the LLM and parse nuggets.
+
+    Args:
+        paper_meta: Optional dict with paper metadata (title, authors, year, venue)
+            to inject into the prompt for better self-contained nuggets.
+        self_score: If True, ask the LLM to self-assess quality scores per nugget.
+            Produces nuggets with inlined quality scores, skipping separate quality stage.
+    """
     try:
-        user_content = "Extract the key knowledge nuggets from this academic text:\n\n" + chunk_text
+        user_content = ""
+        if paper_meta:
+            meta_parts = []
+            if paper_meta.get("title"):
+                meta_parts.append(f"Title: {paper_meta['title']}")
+            if paper_meta.get("authors"):
+                authors = paper_meta["authors"]
+                if isinstance(authors, list):
+                    authors = ", ".join(a.get("name", a) if isinstance(a, dict) else str(a) for a in authors[:5])
+                    if len(paper_meta["authors"]) > 5:
+                        authors += " et al."
+                meta_parts.append(f"Authors: {authors}")
+            if paper_meta.get("year"):
+                meta_parts.append(f"Year: {paper_meta['year']}")
+            if paper_meta.get("venue"):
+                meta_parts.append(f"Venue: {paper_meta['venue']}")
+            if meta_parts:
+                user_content += "Paper context:\n" + "\n".join(meta_parts) + "\n\n"
+        user_content += "Extract the key knowledge nuggets from this academic text:\n\n" + chunk_text
         if prior_questions:
             truncated = prior_questions[-20:]  # last 20 to stay in context
             if len(prior_questions) > 20:
                 import logging
-                logging.getLogger("nuggets.extract").warning(
-                    "Prior questions truncated from %d to 20 — dedup context lost", len(prior_questions))
+                logging.getLogger("nuggets.extract").debug(
+                    "Prior questions truncated from %d to 20", len(prior_questions))
             already = "\n".join(f"- {q}" for q in truncated)
             user_content += f"\n\nNuggets ALREADY EXTRACTED from earlier chunks of this paper (do NOT repeat these):\n{already}"
+        # Select prompt and schema based on self_score mode
+        sys_prompt = SYSTEM_PROMPT + SELF_SCORE_ADDENDUM if self_score else SYSTEM_PROMPT
+        schema = EXTRACTION_SCORED_SCHEMA if self_score else EXTRACTION_SCHEMA
+
         # Cap max_tokens to fit within context window
-        input_estimate = (len(SYSTEM_PROMPT) + len(user_content)) // 3
+        input_estimate = (len(sys_prompt) + len(user_content)) // 3
         effective_max_tokens = max_tokens
-        if input_estimate + max_tokens > max_model_len:
+        if self_score:
+            # Self-scoring output is ~40% larger per nugget
+            effective_max_tokens = int(max_tokens * 1.4)
+        if input_estimate + effective_max_tokens > max_model_len:
             effective_max_tokens = max(256, max_model_len - input_estimate)
+
+        # Use structured output on vLLM backends (extra_body signals vLLM)
+        is_vllm = extra_body is not None
         kwargs = dict(
             model=model,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": sys_prompt},
                 {"role": "user", "content": user_content},
             ],
             temperature=temperature,
             max_tokens=effective_max_tokens,
         )
-        if extra_body:
+        if is_vllm:
+            kwargs["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "nugget_extraction_scored" if self_score else "nugget_extraction",
+                    "schema": schema,
+                    "strict": False,
+                },
+            }
+            kwargs["extra_body"] = extra_body
+        elif extra_body:
             kwargs["extra_body"] = extra_body
         resp = client.chat.completions.create(**kwargs)
         raw = resp.choices[0].message.content
@@ -150,12 +271,36 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
                 a = str(n["answer"]).strip()
                 if len(q) < 10 or len(a) < 10:
                     continue  # skip empty/trivial nuggets
-                valid.append({
+                entry = {
                     "question": q,
                     "answer": a,
                     "type": str(n.get("type", "background")),
-                })
-        return valid, raw
+                }
+                if self_score:
+                    # Inline quality scores from self-assessment
+                    def _clamp(v, lo=1, hi=5):
+                        try:
+                            return max(lo, min(hi, int(v)))
+                        except (ValueError, TypeError):
+                            return 3
+                    rel = _clamp(n.get("relevance", 3))
+                    spec = _clamp(n.get("specificity", 3))
+                    sc = _clamp(n.get("self_contained", 3))
+                    tr = _clamp(n.get("thesis_relevance", 3))
+                    overall = min(rel, spec, sc)  # match quality.py: overall = min of dims 1-5
+                    entry["quality"] = {
+                        "relevance": rel,
+                        "specificity": spec,
+                        "self_contained": sc,
+                        "type_accuracy": 3,  # not self-assessed, default neutral
+                        "coherence": 3,      # not self-assessed, default neutral
+                        "thesis_relevance": tr,
+                        "overall": overall,
+                        "flags": [],
+                    }
+                valid.append(entry)
+        # None signals "valid response, no error" (even if 0 nuggets)
+        return valid, None
     except Exception as e:
         return [], str(e)
 
@@ -163,7 +308,44 @@ def extract_nuggets_from_chunk(client, chunk_text, model, temperature=0.1, max_t
 _SKIP_SECTIONS = {"references", "acknowledgments", "acknowledgements",
                    "bibliography", "appendix", "appendices"}
 
-def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay, paper_id, extra_body=None, prior_questions=None, max_model_len=8192):
+# Patterns that appear densely in reference lists but rarely in body text
+_REF_PATTERNS = re.compile(
+    r'(?:'
+    r'doi[:.]10\.\d{3,}'               # doi:10.1234 or doi.10.1234
+    r'|pp\.\s*\d+'                       # pp. 123
+    r'|vol\.\s*\d+'                      # vol. 12
+    r'|PubMed\s+PMID'                    # PubMed PMID
+    r'|PMCID:'                           # PubMed Central ID
+    r'|arXiv[:.]\d{4}\.\d+'             # arXiv:2401.12345
+    r'|ISBN\s+\d'                        # ISBN
+    r'|\bet\s+al\.[,;.\s]+(?:19|20)\d{2}'  # et al. 2024 or et al., 2024
+    r'|\b(?:19|20)\d{2}\s*[;.]\s*\d+\s*\(' # 2024;114(28) - journal ref format
+    r'|\b(?:Proc\.|Proceedings\s+of)\b'  # Proc. or Proceedings of
+    r')',
+    re.IGNORECASE,
+)
+
+_NUMBERED_REFS = re.compile(
+    # "52. Thota AK," — numbered entry followed by surname + initials
+    r'^\s*\d{1,3}[.)]\s*\n?\s*[A-Z][a-z]+\s+[A-Z]{1,2}[,\s]',
+    re.MULTILINE,
+)
+
+
+def _looks_like_references(text):
+    """Detect reference-list chunks via citation-pattern density."""
+    words = len(text.split())
+    if words < 20:
+        return False
+    # Check citation pattern density
+    matches = len(_REF_PATTERNS.findall(text))
+    if matches / words > 1 / 50:
+        return True
+    # Check for dense numbered reference entries (3+ in a chunk)
+    numbered = len(_NUMBERED_REFS.findall(text))
+    return numbered >= 3
+
+def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay, paper_id, extra_body=None, prior_questions=None, max_model_len=8192, paper_meta=None, self_score=False):
     """Process a single chunk — designed for use in a thread pool."""
     text = chunk["text"]
     if len(text.strip()) < 50:
@@ -172,31 +354,54 @@ def _process_chunk(client, chunk, model, temp, max_tok, max_retries, retry_delay
     section = chunk.get("section", "").lower().strip()
     if section in _SKIP_SECTIONS:
         return []
+    # Skip reference-heavy chunks regardless of section label
+    # (section detection often mislabels bibliography as method/conclusion)
+    if _looks_like_references(text):
+        return []
 
     # Build model list: primary + fallbacks (if configured on client)
     models_to_try = [model] + getattr(client, "_fallback_models", [])
 
+    def _is_rate_limit(raw_str):
+        return "429" in raw_str or "rate limit" in raw_str or "rate_limit" in raw_str or "too many" in raw_str
+
+    def _is_context_too_long(raw_str):
+        return any(k in raw_str for k in (
+            "too long", "maximum context", "max_model_len",
+            "prompt is too long", "context_length_exceeded",
+        ))
+
     cur_prior = prior_questions
     nuggets = []
-    for cur_model in models_to_try:
+    for mi, cur_model in enumerate(models_to_try):
         for attempt in range(max_retries):
-            nuggets, raw = extract_nuggets_from_chunk(client, text, cur_model, temp, max_tok, extra_body=extra_body, prior_questions=cur_prior, max_model_len=max_model_len)
-            if nuggets:
+            nuggets, raw = extract_nuggets_from_chunk(client, text, cur_model, temp, max_tok, extra_body=extra_body, prior_questions=cur_prior, max_model_len=max_model_len, paper_meta=paper_meta, self_score=self_score)
+            if nuggets or raw is None:
+                # raw is None = valid response (even if 0 nuggets, e.g. references chunk)
                 break
             raw_str = str(raw).lower()
-            if "rate" in raw_str:
-                time.sleep(retry_delay * (2 ** attempt))
-            elif "too long" in raw_str or "maximum context" in raw_str or "400" in raw_str or "max_model_len" in raw_str or "prompt is too long" in raw_str:
+            if _is_rate_limit(raw_str):
+                print(f"    Rate-limited on {cur_model}, trying next model")
+                break
+            elif _is_context_too_long(raw_str):
                 if cur_prior and len(cur_prior) > 10:
                     cur_prior = cur_prior[-10:]
                 elif cur_prior:
-                    cur_prior = []  # drop all prior context but keep as list (not None)
+                    cur_prior = []
                 else:
+                    print(f"    Context too long on {cur_model}, trying next model")
                     break
             else:
+                print(f"    Error on {cur_model}: {raw_str[:150]}")
                 break
-        if nuggets:
+        if nuggets or raw is None:
             break
+        if mi == len(models_to_try) - 1:
+            log.warning(
+                "All %d models failed for chunk %s, sleeping %.1fs",
+                len(models_to_try), chunk.get("chunk_id", "?"), retry_delay,
+            )
+            time.sleep(retry_delay)
 
     for n in nuggets:
         n["paper_id"] = paper_id
@@ -246,20 +451,13 @@ def run_extraction(config_path="config.yaml"):
     def _nugget_done(paper_id):
         """Check if a paper has already been successfully extracted.
 
-        Checks both nugget_dir (raw) and unified_dir to avoid
-        re-extracting papers that already went through the unified pipeline.
+        Checks both nugget_dir (raw) and unified_dir for .jsonl output.
+        Any existing file (even empty) means the paper was processed.
         """
         for d in (nugget_dir, unified_dir):
-            path = os.path.join(d, f"{paper_id}.json")
-            if not os.path.exists(path):
-                continue
-            try:
-                with open(path) as f:
-                    data = json.load(f)
-                if data.get("num_nuggets", 0) > 0:
-                    return True
-            except (json.JSONDecodeError, OSError):
-                continue
+            path = os.path.join(d, f"{paper_id}.jsonl")
+            if os.path.exists(path):
+                return True
         return False
 
     chunk_files = sorted(f for f in os.listdir(chunk_dir) if f.endswith(".json"))
@@ -286,6 +484,22 @@ def run_extraction(config_path="config.yaml"):
     total_nuggets = 0
     success, failed = 0, 0
 
+    # Load manifest for paper metadata
+    corpus_dir = cfg["paths"].get("corpus_dir", "corpus")
+    manifest_path = os.path.join(corpus_dir, "manifest.json")
+    manifest_by_id = {}
+    if os.path.exists(manifest_path):
+        manifest = load_json(manifest_path)
+        for entry in manifest:
+            pid = entry.get("paper_id", "")
+            if pid:
+                manifest_by_id[pid] = {
+                    "title": entry.get("title", ""),
+                    "authors": entry.get("authors", []),
+                    "year": entry.get("year"),
+                    "venue": entry.get("venue", ""),
+                }
+
     # Load all paper chunks up front (cheap — just JSON metadata)
     paper_chunks = {}
     for fname in to_process:
@@ -296,9 +510,8 @@ def run_extraction(config_path="config.yaml"):
             if chunks:
                 paper_chunks[paper_id] = chunks
             else:
-                # No valid chunks — write empty result
-                save_json({"paper_id": paper_id, "num_nuggets": 0, "nuggets": []},
-                          os.path.join(nugget_dir, f"{paper_id}.json"))
+                # No valid chunks — write empty file as done marker
+                save_jsonl([], os.path.join(nugget_dir, f"{paper_id}.jsonl"))
                 success += 1
         except Exception as e:
             print(f"  ERROR loading chunks for {paper_id}: {e}")
@@ -334,42 +547,40 @@ def run_extraction(config_path="config.yaml"):
         """Process all chunks of a paper sequentially, passing prior nuggets as context."""
         nonlocal total_nuggets, success, papers_done, chunks_done
         all_nuggets = []
-        prior_questions = []
         warnings = []
         n_chunks = len(chunks)
         short_id = paper_id[:25]
+        meta = manifest_by_id.get(paper_id)
 
-        for ci, c in enumerate(chunks):
+        # Extract all chunks in parallel (no sequential prior_questions dependency)
+        from concurrent.futures import ThreadPoolExecutor as _ChunkPool
+
+        def _extract_one_chunk(ci_c):
+            ci, c = ci_c
             with print_lock:
                 worker_status[worker_id] = f"{short_id} {ci+1}/{n_chunks}"
                 _print_status()
             try:
-                nuggets = _process_chunk(
+                result = _process_chunk(
                     client, c, model, temp, max_tok,
                     max_retries, retry_delay, paper_id, extra_body,
-                    prior_questions=prior_questions if prior_questions else None)
+                    prior_questions=None,
+                    paper_meta=meta)
             except Exception as e:
-                nuggets = []
+                result = []
                 warnings.append(f"  WARN chunk {c.get('chunk_id', '?')} of {paper_id}: {e}")
-            all_nuggets.extend(nuggets)
-            prior_questions.extend(n["question"] for n in nuggets)
             with print_lock:
                 chunks_done += 1
-                total_nuggets += len(nuggets)
-                _print_status(f"    {short_id} chunk {ci+1}/{n_chunks} -> {len(nuggets)} nuggets ({len(all_nuggets)} total)")
+                total_nuggets += len(result)
+                _print_status(f"    {short_id} chunk {ci+1}/{n_chunks} -> {len(result)} nuggets")
+            return result
+
+        with _ChunkPool(max_workers=min(n_chunks, 8)) as chunk_pool:
+            for chunk_nuggets in chunk_pool.map(_extract_one_chunk, enumerate(chunks)):
+                all_nuggets.extend(chunk_nuggets)
 
         deduped = _deduplicate_nuggets(all_nuggets, paper_id)
-        output = {
-            "paper_id": paper_id,
-            "num_nuggets": len(deduped),
-            "num_removed": 0,
-            "num_improved": 0,
-            "num_gap_filled": 0,
-            "quality_summary": {},
-            "nuggets": deduped,
-            "removed": [],
-        }
-        save_json(output, os.path.join(nugget_dir, f"{paper_id}.json"))
+        save_jsonl(deduped, os.path.join(nugget_dir, f"{paper_id}.jsonl"))
 
         with print_lock:
             # total_nuggets already incremented per-chunk; adjust for dedup
