@@ -243,36 +243,73 @@ def build_sqlite(nuggets, manifest, kb_dir, db_name="nuggets.db", cfg=None):
 
 
 def _get_existing_paper_nugget_counts(db_path):
-    """Get {paper_id: nugget_count} from existing SQLite DB."""
+    """Get {paper_id: nugget_count} and {paper_id: content_hash} from existing SQLite DB."""
+    import hashlib
+    from collections import defaultdict
+
     if not os.path.exists(db_path):
-        return {}
+        return {}, {}
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
         rows = conn.execute(
             "SELECT paper_id, COUNT(*) as cnt FROM nuggets GROUP BY paper_id"
         ).fetchall()
-        return {r["paper_id"]: r["cnt"] for r in rows}
+        counts = {r["paper_id"]: r["cnt"] for r in rows}
+
+        # Build per-paper content fingerprints
+        fingerprints = defaultdict(list)
+        for row in conn.execute("SELECT paper_id, nugget_id, question, answer FROM nuggets"):
+            fingerprints[row["paper_id"]].append(
+                f"{row['nugget_id']}:{row['question']}:{row['answer']}"
+            )
+        hashes = {}
+        for pid, parts in fingerprints.items():
+            hashes[pid] = hashlib.md5("||".join(sorted(parts)).encode()).hexdigest()
+
+        return counts, hashes
     except sqlite3.OperationalError:
-        return {}  # table doesn't exist
+        return {}, {}  # table doesn't exist
     finally:
         conn.close()
 
 
-def _detect_changed_papers(new_nuggets, existing_counts):
+def _detect_changed_papers(new_nuggets, existing_counts, existing_fingerprints=None):
     """Determine which papers need updating.
 
     Returns (changed_paper_ids, unchanged_paper_ids).
-    A paper is changed if it's new or its nugget count differs.
+    A paper is changed if it's new, its nugget count differs, or its content changed.
     """
-    from collections import Counter
+    import hashlib
+    from collections import Counter, defaultdict
+
+    if existing_fingerprints is None:
+        existing_fingerprints = {}
+
     new_counts = Counter(n.get("paper_id", "") for n in new_nuggets)
     all_papers = set(new_counts.keys()) | set(existing_counts.keys())
+
+    # Build per-paper content fingerprint from new nuggets
+    new_fingerprints = defaultdict(list)
+    for n in new_nuggets:
+        pid = n.get("paper_id", "")
+        nid = n.get("nugget_id", "")
+        q = n.get("question", "")
+        a = n.get("answer", "")
+        new_fingerprints[pid].append(f"{nid}:{q}:{a}")
+
     changed = set()
     unchanged = set()
     for pid in all_papers:
         if new_counts.get(pid, 0) != existing_counts.get(pid, 0):
             changed.add(pid)
+        elif pid in existing_fingerprints and pid in new_fingerprints:
+            # Same count — check content hash
+            new_hash = hashlib.md5("||".join(sorted(new_fingerprints[pid])).encode()).hexdigest()
+            if new_hash != existing_fingerprints.get(pid, ""):
+                changed.add(pid)
+            else:
+                unchanged.add(pid)
         else:
             unchanged.add(pid)
     return changed, unchanged
@@ -369,6 +406,12 @@ def update_sqlite(nuggets, manifest, kb_dir, changed_papers, db_name="nuggets.db
                 (row["rowid"], row["nugget_id"], row["question"], row["answer"]),
             )
         c.execute("DELETE FROM nuggets WHERE paper_id = ?", (pid,))
+
+    # Remove papers that have no nuggets left (deleted entirely)
+    manifest_pids = {p.get("paper_id", "") for p in manifest}
+    for pid in changed_papers:
+        if pid not in manifest_pids:
+            c.execute("DELETE FROM papers WHERE paper_id = ?", (pid,))
 
     # Upsert papers from manifest
     for paper in manifest:
@@ -480,12 +523,12 @@ def run_build(config_path="config.yaml", incremental=False):
 
     if incremental:
         db_path = os.path.join(kb_dir, db_name)
-        existing_counts = _get_existing_paper_nugget_counts(db_path)
+        existing_counts, existing_fingerprints = _get_existing_paper_nugget_counts(db_path)
         if not existing_counts:
             print("[store] No existing DB found, falling back to full build")
             incremental = False
         else:
-            changed, unchanged = _detect_changed_papers(nuggets, existing_counts)
+            changed, unchanged = _detect_changed_papers(nuggets, existing_counts, existing_fingerprints)
             print(f"[store] Incremental: {len(changed)} papers changed, {len(unchanged)} unchanged")
             if not changed:
                 print("[store] Nothing to update.")

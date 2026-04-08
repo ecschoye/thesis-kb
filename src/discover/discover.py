@@ -9,11 +9,19 @@ from src.discover.sources import search_all_sources
 from src.discover.dedup import deduplicate
 from src.discover.scorer import score_candidates, compute_anchor_embeddings
 from src.discover.report import generate_report, format_terminal_summary
+from src.utils import load_config
 
-LEDGER_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "corpus", "discovery_ledger.json",
-)
+
+def _get_corpus_dir(config_path):
+    """Get corpus dir from config, falling back to repo-relative default."""
+    try:
+        cfg = load_config(config_path)
+        return cfg["paths"]["corpus_dir"]
+    except Exception:
+        return os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "corpus",
+        )
 
 
 def run_discovery(
@@ -33,9 +41,10 @@ def run_discovery(
 
     Returns the report dict.
     """
+    corpus_dir = _get_corpus_dir(config_path)
+    ledger_path = os.path.join(corpus_dir, "discovery_ledger.json")
     if output_dir is None:
-        base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        output_dir = os.path.join(base, "corpus", "discovery_reports")
+        output_dir = os.path.join(corpus_dir, "discovery_reports")
 
     # Default: look back 6 months
     if date_from is None:
@@ -95,8 +104,8 @@ def run_discovery(
     top = scored[:max_results]
 
     # 5. Save ALL scored candidates to persistent ledger
-    new_in_ledger = _update_ledger(scored)
-    print(f"  Ledger: {new_in_ledger} new entries added ({LEDGER_PATH})")
+    new_in_ledger = _update_ledger(scored, ledger_path)
+    print(f"  Ledger: {new_in_ledger} new entries added ({ledger_path})")
 
     # 6. Generate report (top N only)
     report, report_path = generate_report(
@@ -112,21 +121,21 @@ def run_discovery(
     return report
 
 
-def _load_ledger():
+def _load_ledger(ledger_path):
     """Load the persistent candidate ledger."""
-    if os.path.exists(LEDGER_PATH):
-        with open(LEDGER_PATH) as f:
+    if os.path.exists(ledger_path):
+        with open(ledger_path) as f:
             return json.load(f)
     return {"entries": {}, "stats": {"total_runs": 0, "first_run": None, "last_run": None}}
 
 
-def _save_ledger(ledger):
+def _save_ledger(ledger, ledger_path):
     """Save the ledger atomically."""
-    os.makedirs(os.path.dirname(LEDGER_PATH), exist_ok=True)
-    tmp = LEDGER_PATH + ".tmp"
+    os.makedirs(os.path.dirname(ledger_path), exist_ok=True)
+    tmp = ledger_path + ".tmp"
     with open(tmp, "w") as f:
         json.dump(ledger, f, indent=2, ensure_ascii=False)
-    os.replace(tmp, LEDGER_PATH)
+    os.replace(tmp, ledger_path)
 
 
 def _candidate_key(paper):
@@ -143,9 +152,9 @@ def _candidate_key(paper):
     return f"title:{t}"
 
 
-def _update_ledger(scored_candidates):
+def _update_ledger(scored_candidates, ledger_path):
     """Add all scored candidates to the persistent ledger. Returns count of new entries."""
-    ledger = _load_ledger()
+    ledger = _load_ledger(ledger_path)
     now = datetime.now().isoformat()
 
     ledger["stats"]["total_runs"] = ledger["stats"].get("total_runs", 0) + 1
@@ -188,7 +197,7 @@ def _update_ledger(scored_candidates):
             }
             new_count += 1
 
-    _save_ledger(ledger)
+    _save_ledger(ledger, ledger_path)
     return new_count
 
 

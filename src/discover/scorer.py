@@ -17,8 +17,8 @@ def _keyword_score(title, abstract, keyword_terms):
             matched += 2  # title matches count double
         elif term in text_lower:
             matched += 1
-    # Normalize: max possible = 3 * len(keyword_terms)
-    return min(matched / (len(keyword_terms) * 0.5), 1.0)
+    # Normalize: max possible per term = 2 (title match), so max total = 2 * len
+    return min(matched / (2 * len(keyword_terms)), 1.0)
 
 
 def _authority_score(citation_count, year, publication_types=None):

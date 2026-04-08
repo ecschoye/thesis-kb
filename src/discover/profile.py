@@ -229,10 +229,8 @@ def build_profile(config_path="config.yaml", bib_path=None, recent_days=30,
     kb_dir = cfg["paths"]["kb_dir"]
     sqlite_cfg = cfg.get("store", {}).get("sqlite", {})
     db_path = os.path.join(kb_dir, sqlite_cfg.get("db_name", "nuggets.db"))
-    manifest_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-        "corpus", "manifest.json",
-    )
+    corpus_dir = cfg["paths"].get("corpus_dir", "corpus")
+    manifest_path = os.path.join(corpus_dir, "manifest.json")
 
     if bib_path is None:
         bib_path = os.path.expanduser(

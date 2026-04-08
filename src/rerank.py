@@ -85,7 +85,11 @@ def rerank_nuggets(
 
         with ThreadPoolExecutor(max_workers=1) as pool:
             future = pool.submit(_score)
-            scores = future.result(timeout=timeout)
+            try:
+                scores = future.result(timeout=timeout)
+            except FuturesTimeoutError:
+                future.cancel()
+                raise
     except (FuturesTimeoutError, Exception) as e:
         elapsed = time.time() - t0
         log.warning("Reranking failed after %.0fms, falling back to RRF-only: %s",

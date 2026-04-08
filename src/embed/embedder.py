@@ -273,23 +273,29 @@ def run_embedding(config_path="config.yaml", incremental=False):
     if incremental:
         existing_nuggets, existing_embeddings = _load_existing_kb(kb_dir)
         if existing_nuggets is not None:
-            # Build map from nugget_id -> embedding row for existing nuggets
+            # Build map from nugget_id -> (embedding row, content key) for existing nuggets
             existing_emb_map = {}
             for n in existing_nuggets:
                 idx = n.get("embedding_idx")
                 if idx is None or idx >= existing_embeddings.shape[0]:
                     continue
-                existing_emb_map[n["nugget_id"]] = existing_embeddings[idx]
+                content_key = f"{n.get('question', '')}:{n.get('answer', '')}"
+                existing_emb_map[n["nugget_id"]] = (existing_embeddings[idx], content_key)
 
-            # Split into already-embedded and new
+            # Split into already-embedded (with same content) and new/changed
             reused_nuggets = []
             reused_embeddings = []
             new_nuggets = []
             for n in nuggets:
                 nid = n.get("nugget_id", "")
                 if nid in existing_emb_map:
-                    reused_nuggets.append(n)
-                    reused_embeddings.append(existing_emb_map[nid])
+                    emb, old_content = existing_emb_map[nid]
+                    new_content = f"{n.get('question', '')}:{n.get('answer', '')}"
+                    if new_content == old_content:
+                        reused_nuggets.append(n)
+                        reused_embeddings.append(emb)
+                    else:
+                        new_nuggets.append(n)  # content changed, re-embed
                 else:
                     new_nuggets.append(n)
 

@@ -11,7 +11,7 @@ paths:
 # Pipeline Rules
 
 - Extract, Chunk, Nuggets stages are **incremental** — they skip papers that already have output files. Always preserve this behavior.
-- Embed and Store are **full rebuilds** — they reload all nuggets and recreate the KB each time.
+- Embed and Store default to **full rebuilds** but support `--incremental` mode for delta updates (new/changed papers only).
 - All paths (pdf_dir, corpus dirs, kb dir) come from config.yaml — never hardcode paths.
 - Use `logging.getLogger(__name__)` for all logging — the project uses `src/log.py` with rotating file handlers.
 - Paper IDs use underscores (`2401_17151`); arXiv IDs use dots (`2401.17151`). Convert correctly.

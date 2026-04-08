@@ -34,7 +34,7 @@ def save_jsonl(items, path, removed=None):
     """Write items as JSONL (one JSON object per line), atomically."""
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     tmp = path + ".tmp"
-    with open(tmp, "w") as f:
+    with open(tmp, "w", encoding="utf-8") as f:
         for item in items:
             f.write(json.dumps(item, ensure_ascii=False) + "\n")
         if removed:
@@ -47,7 +47,7 @@ def save_jsonl(items, path, removed=None):
 def load_jsonl(path):
     """Read a JSONL file, returning a list of parsed objects. Skips blank lines."""
     items = []
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:
@@ -58,7 +58,7 @@ def load_jsonl(path):
 def count_jsonl(path):
     """Count non-empty lines in a JSONL file without parsing."""
     count = 0
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 count += 1
