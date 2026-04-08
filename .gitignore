@@ -8,3 +8,4 @@ logs/
 .env
 .mcp.json
 .mcp.json
+thesis_kb.egg-info/
