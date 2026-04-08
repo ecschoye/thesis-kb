@@ -178,10 +178,39 @@ def resolve_cite_keys_to_paper_ids(cite_keys, kb):
     return resolved
 
 
-def run_thesis_eval(claims, kb, embed_client, embed_model, instruction, k=20,
-                    verbose=False, progress_interval=20):
-    """Run retrieval for each claim and check if cited papers appear."""
-    from src.embed.embedder import embed_batch
+def _retrieve_via_api(query, mode, api_url, model=None):
+    """Run a query through the full API pipeline (expansion + HyDE + RRF + reranking)."""
+    import urllib.request
+
+    body = {"query": query, "mode": mode}
+    if model:
+        body["model"] = model
+    payload = json.dumps(body).encode()
+    req = urllib.request.Request(
+        f"{api_url}/retrieve",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+    )
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        data = json.loads(resp.read().decode())
+    paper_ids = set()
+    for r in data.get("results", []):
+        pid = r.get("paper_id", "")
+        if pid:
+            paper_ids.add(pid)
+    return paper_ids
+
+
+def run_thesis_eval(claims, kb=None, embed_client=None, embed_model=None,
+                    instruction=None, k=20, verbose=False, progress_interval=20,
+                    api_url=None, mode="draft", api_model=None):
+    """Run retrieval for each claim and check if cited papers appear.
+
+    When api_url is set, routes through the full API pipeline (expansion + HyDE +
+    RRF + reranking). Otherwise uses direct vector search (offline mode).
+    """
+    if not api_url:
+        from src.embed.embedder import embed_batch
 
     results = []
     t0 = time.time()
@@ -201,15 +230,22 @@ def run_thesis_eval(claims, kb, embed_client, embed_model, instruction, k=20,
             })
             continue
 
-        # Embed and query
-        query_text = f"Instruct: {instruction}\nQuery: {query}" if instruction else query
         try:
-            emb = embed_batch(embed_client, [query_text], embed_model)
-            search_results = kb.collection.query(
-                query_embeddings=emb,
-                n_results=k,
-                include=["metadatas"],
-            )
+            if api_url:
+                retrieved_pids = _retrieve_via_api(query, mode, api_url, model=api_model)
+            else:
+                query_text = f"Instruct: {instruction}\nQuery: {query}" if instruction else query
+                emb = embed_batch(embed_client, [query_text], embed_model)
+                search_results = kb.collection.query(
+                    query_embeddings=emb,
+                    n_results=k,
+                    include=["metadatas"],
+                )
+                retrieved_pids = set()
+                for meta in search_results["metadatas"][0]:
+                    pid = meta.get("paper_id", "")
+                    if pid:
+                        retrieved_pids.add(pid)
         except Exception as e:
             results.append({
                 "query": query[:100],
@@ -220,13 +256,6 @@ def run_thesis_eval(claims, kb, embed_client, embed_model, instruction, k=20,
                 "error": str(e),
             })
             continue
-
-        # Extract retrieved paper_ids
-        retrieved_pids = set()
-        for meta in search_results["metadatas"][0]:
-            pid = meta.get("paper_id", "")
-            if pid:
-                retrieved_pids.add(pid)
 
         found = expected_pids & retrieved_pids
         recall = len(found) / len(expected_pids) if expected_pids else 0.0
@@ -264,6 +293,12 @@ def main():
                     help="Chapter numbers or names (default: 4,5,6,7,8)")
     ap.add_argument("--k", type=int, default=20, help="Top-k to check")
     ap.add_argument("--config", "-c", default=None, help="Config file")
+    ap.add_argument("--api", default=None,
+                    help="API URL (e.g. http://localhost:8001) — use full pipeline instead of offline vector search")
+    ap.add_argument("--mode", default="draft",
+                    help="Retrieval mode for API queries (default: draft)")
+    ap.add_argument("--model", default=None,
+                    help="LLM model for API query expansion/HyDE (e.g. qwen/qwen3.6-plus)")
     ap.add_argument("--verbose", action="store_true", help="Show per-claim results")
     ap.add_argument("--output", "-o", default=None, help="Save results as JSON")
     ap.add_argument("--list-keys", action="store_true", help="List cite keys and exit")
@@ -345,14 +380,21 @@ def main():
         sys.exit(1)
 
     # Run evaluation
-    from src.embed.embedder import make_embed_client
-    embed_client, embed_model = make_embed_client(cfg)
-    instruction = cfg.get("embed", {}).get("embedding", {}).get("query_instruction", "")
+    if args.api:
+        print(f"\nRunning full-pipeline eval via API at {args.api} (mode={args.mode})...")
+        embed_client = embed_model = instruction = None
+    else:
+        from src.embed.embedder import make_embed_client
+        embed_client, embed_model = make_embed_client(cfg)
+        instruction = cfg.get("embed", {}).get("embedding", {}).get("query_instruction", "")
+        print(f"\nRunning offline vector-only eval (k={args.k})...")
 
-    print(f"\nRunning retrieval eval (k={args.k})...")
     t0 = time.time()
-    results = run_thesis_eval(testable, kb, embed_client, embed_model, instruction,
-                              k=args.k, verbose=args.verbose)
+    results = run_thesis_eval(
+        testable, kb=kb, embed_client=embed_client, embed_model=embed_model,
+        instruction=instruction, k=args.k, verbose=args.verbose,
+        api_url=args.api, mode=args.mode, api_model=args.model,
+    )
     elapsed = time.time() - t0
 
     # Compute metrics
@@ -379,8 +421,10 @@ def main():
             chapter_metrics[ch]["zero"] += 1
 
     # Display
+    pipeline_label = f"full-pipeline via API, mode={args.mode}" if args.api else "offline vector-only"
     print(f"\n{'=' * 60}")
-    print(f"Thesis-Grounded Eval (n={len(tested)}, k={args.k}, {elapsed:.1f}s)")
+    print(f"Thesis-Grounded Eval ({pipeline_label})")
+    print(f"  n={len(tested)}, k={args.k}, {elapsed:.1f}s")
     print(f"{'=' * 60}")
     print(f"  Mean paper recall:      {avg_recall:.4f}")
     print(f"  Perfect recall (100%):  {perfect_recall:.4f} ({sum(1 for r in tested if r['recall']==1.0)}/{len(tested)})")
