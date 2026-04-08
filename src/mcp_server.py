@@ -412,14 +412,16 @@ def bm25_search(
 
 @mcp.tool()
 def find_papers(
+    query: str | None = None,
     author: str | None = None,
     title: str | None = None,
     year: int | None = None,
     limit: int = 10,
 ) -> list[dict]:
-    """Search for papers by author name, title substring, or year.
+    """Search for papers by free-text query, author name, title substring, or year.
 
     Args:
+        query: Free-text search across title, authors, and paper_id (case-insensitive). Use this for general lookups.
         author: Author name substring (case-insensitive).
         title: Title substring (case-insensitive).
         year: Exact publication year.
@@ -428,6 +430,10 @@ def find_papers(
     db = _get_db()
     conditions = []
     params: list = []
+    if query:
+        conditions.append("(title LIKE ? OR authors LIKE ? OR paper_id LIKE ?)")
+        q = f"%{query}%"
+        params.extend([q, q, q])
     if author:
         conditions.append("authors LIKE ?")
         params.append(f"%{author}%")

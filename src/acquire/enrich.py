@@ -141,17 +141,12 @@ def batch_enrich(papers, delay=1.0):
     """Enrich papers missing metadata via S2."""
     enriched = 0
     skipped = 0
-    authority_enriched = 0
     for i, paper in enumerate(papers):
         has_year = paper.get("year") is not None
-        authors = paper.get("authors") or []
-        has_authors = bool(authors) and not (
-            len(authors) == 1 and " " not in authors[0]
-        )
+        has_authors = bool(paper.get("authors"))
         has_abstract = bool(paper.get("abstract"))
-        has_authority = "citation_count" in paper
 
-        if has_year and has_authors and has_abstract and has_authority:
+        if has_year and has_authors and has_abstract:
             skipped += 1
             continue
 
@@ -180,12 +175,9 @@ def batch_enrich(papers, delay=1.0):
             paper["citation_count"] = result.get("citation_count", 0)
             paper["influential_citation_count"] = result.get("influential_citation_count", 0)
             paper["publication_types"] = result.get("publication_types", [])
-            if has_year and has_authors and has_abstract:
-                authority_enriched += 1
-            else:
-                enriched += 1
+            enriched += 1
         if (i + 1) % 10 == 0:
-            print(f"  Enriched {i+1}/{len(papers)} ({enriched} new, {authority_enriched} authority-only, {skipped} already complete)...")
+            print(f"  Enriched {i+1}/{len(papers)} ({enriched} new, {skipped} already complete)...")
         time.sleep(delay)
-    print(f"  Enriched {enriched}/{len(papers)} papers via S2 ({authority_enriched} authority-only, {skipped} already complete)")
+    print(f"  Enriched {enriched}/{len(papers)} papers via S2 ({skipped} already complete)")
     return papers

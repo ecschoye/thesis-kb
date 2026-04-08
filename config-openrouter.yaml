@@ -1,6 +1,6 @@
 paths:
     corpus_dir: corpus
-    pdf_dir: /cluster/work/ecschoye/thesis-papers
+    pdf_dir: ~/Documents/thesis-papers
     bib_file: ~/TDT4900-master-thesis/bibtex/bibliography.bib
     fetch_dir: corpus/fetched
     text_dir: corpus/texts
